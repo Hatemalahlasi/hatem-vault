@@ -26,6 +26,8 @@
             --danger: #dc2626;
             --danger-bg: #fee2e2;
             --success: #059669;
+            --warning-bg: #fef3c7;
+            --warning: #d97706;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -114,6 +116,9 @@
 
         .btn-outline { background: var(--light-blue); color: var(--primary-blue); border: 1px solid var(--border-color); }
         .btn-outline:hover { background: #bae6fd; }
+
+        .btn-warning { background: var(--warning-bg); color: var(--warning); }
+        .btn-warning:hover { background: var(--warning); color: #ffffff; }
 
         .btn-danger { background: var(--danger-bg); color: var(--danger); }
         .btn-danger:hover { background: var(--danger); color: #ffffff; }
@@ -269,7 +274,6 @@
                     <button class="btn btn-outline btn-sm" onclick="refreshUserDataManual()">
                         <i class="fa-solid fa-rotate"></i> تحديث صامت
                     </button>
-                    <!-- زر تغيير كلمة مرور الحساب الخاص بك -->
                     <button class="btn btn-outline btn-sm" onclick="changeMyPassword()">
                         <i class="fa-solid fa-key"></i> تغيير كلمة المرور
                     </button>
@@ -378,7 +382,6 @@
         let currentMemberDocId = null;
         let autoSyncInterval = null;
 
-        // تعيين تاريخ اليوم كقيمة افتراضية في خانة التاريخ
         document.getElementById('appDate').valueAsDate = new Date();
 
         function toggleView(viewId) {
@@ -455,7 +458,6 @@
             }
         }
 
-        // تحديث وتغيير كلمة المرور الخاصة بحساب المستخدم وسحابياً بشكل صحيح
         async function changeMyPassword() {
             const currentPass = prompt('أدخل كلمة المرور الحالية لحسابك:');
             if (currentPass === null) return;
@@ -472,7 +474,6 @@
             const newPass = prompt('أدخل كلمة المرور الجديدة:');
             if (!newPass || !newPass.trim()) return;
 
-            // تحديث كلمة المرور في قاعدة البيانات السحابية (Firestore)
             await memberRef.update({ password: newPass.trim() });
             alert('تم تغيير كلمة المرور وحفظها في السحابة بنجاح!');
         }
@@ -495,7 +496,7 @@
         async function addUserEntry() {
             const app = document.getElementById('appName').value.trim();
             const pass = document.getElementById('appPass').value.trim();
-            const date = document.getElementById('appDate').value; // التاريخ المباشر المختار من قبل المستخدم
+            const date = document.getElementById('appDate').value;
 
             if (!app || !pass || !date) {
                 alert('يرجى تعبئة الحقول وتحديد التاريخ');
@@ -533,11 +534,42 @@
                         </td>
                         <td>${item.date}</td>
                         <td>
-                            <button class="btn btn-danger btn-sm" onclick="deleteUserEntry(${index})"><i class="fa-solid fa-trash"></i></button>
+                            <div style="display: flex; gap: 6px;">
+                                <!-- زر تعديل كلمة السر والتاريخ مباشرة -->
+                                <button class="btn btn-warning btn-sm" onclick="editUserEntry(${index})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteUserEntry(${index})" title="حذف"><i class="fa-solid fa-trash"></i></button>
+                            </div>
                         </td>
                     </tr>
                 `;
             });
+        }
+
+        // دالة تعديل الحساب (كلمة السر والتاريخ) ضمن قسم الإجراءات
+        async function editUserEntry(index) {
+            const memberRef = db.collection('members').doc(currentMemberDocId);
+            const doc = await memberRef.get();
+            let entries = doc.data().entries || [];
+            const item = entries[index];
+
+            const newPass = prompt(`تعديل كلمة السر لـ (${item.app}):`, item.pass);
+            if (newPass === null) return;
+
+            const newDate = prompt(`تعديل تاريخ التغيير (YYYY-MM-DD):`, item.date);
+            if (newDate === null) return;
+
+            if (!newPass.trim() || !newDate.trim()) {
+                alert('لا يمكن ترك الحقول فارغة!');
+                return;
+            }
+
+            // تحديث القيم داخل المصفوفة
+            entries[index].pass = newPass.trim();
+            entries[index].date = newDate.trim();
+
+            // حفظ التعديل في السحابة
+            await memberRef.update({ entries });
+            renderUserEntries(entries);
         }
 
         async function deleteUserEntry(index) {
@@ -601,7 +633,7 @@
                         <div class="member-header">
                             <div>
                                 <strong style="color: var(--primary-blue); font-size: 15px;">${member.username}</strong>
-                                <span style="font-size: 13px; color: var(--text-muted); margin-right: 10px;">الباسورد: <span class="pass-badge">${member.password}</span></span>
+                                <span style="font-size: 13.5px; color: var(--text-muted); margin-right: 10px;">الباسورد: <span class="pass-badge">${member.password}</span></span>
                             </div>
                             <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${mId}')">حذف الفرد</button>
                         </div>
