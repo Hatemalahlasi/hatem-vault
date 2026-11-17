@@ -16,16 +16,13 @@
     <style>
         :root {
             --bg-page: #0f172a;
-            --bg-shell: #1e293b;
             --bg-card: #ffffff;
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
             --accent-glow: rgba(37, 99, 235, 0.15);
             --border-color: #cbd5e1;
-            --border-dark: #334155;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --text-light: #f8fafc;
             --danger: #ef4444;
             --danger-bg: #fee2e2;
             --warning: #f59e0b;
@@ -61,7 +58,7 @@
             .container { padding: 36px; }
         }
 
-        /* شاشة تسجيل الدخول بتصميم احترافي */
+        /* شاشة تسجيل الدخول */
         .login-box {
             max-width: 400px;
             margin: 0 auto;
@@ -121,26 +118,27 @@
         }
 
         .btn {
-            width: 100%;
-            padding: 13px 20px;
-            border-radius: 12px;
+            padding: 11px 16px;
+            border-radius: 10px;
             border: none;
             font-family: 'Cairo', sans-serif;
             font-weight: 700;
-            font-size: 14.5px;
+            font-size: 13.5px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
+            white-space: nowrap;
         }
 
+        .btn-full { width: 100%; padding: 13px 20px; font-size: 14.5px; }
         .btn-primary { background: var(--primary); color: #ffffff; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
 
-        .btn-outline { background: #f1f5f9; color: var(--primary); border: 1.5px solid var(--border-color); }
-        .btn-outline:hover { background: #e2e8f0; }
+        .btn-outline { background: #f8fafc; color: var(--primary); border: 1.5px solid var(--border-color); }
+        .btn-outline:hover { background: #f1f5f9; border-color: var(--primary); }
 
         .btn-warning { background: var(--warning-bg); color: #b45309; }
         .btn-warning:hover { background: var(--warning); color: #ffffff; }
@@ -148,39 +146,44 @@
         .btn-danger { background: var(--danger-bg); color: var(--danger); }
         .btn-danger:hover { background: var(--danger); color: #ffffff; }
 
-        .btn-sm { padding: 7px 12px; font-size: 12.5px; width: auto; border-radius: 8px; }
+        .btn-sm { padding: 7px 12px; font-size: 12px; border-radius: 8px; }
 
-        /* شريط العنوان العلوي للوحة النظام */
+        /* شريط علوي مرتب ونظيف للأزرار */
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 14px;
+            gap: 16px;
             border-bottom: 2px solid #f1f5f9;
             padding-bottom: 18px;
             margin-bottom: 24px;
         }
 
-        .top-bar-actions {
+        /* شريط الأزرار الموحد والمصمم باحترافية */
+        .toolbar-group {
             display: flex;
+            align-items: center;
             gap: 8px;
+            background: #f8fafc;
+            padding: 6px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
             flex-wrap: wrap;
         }
 
         .status-badge {
             background: var(--success-bg);
             color: var(--success);
-            padding: 5px 14px;
+            padding: 5px 12px;
             border-radius: 50px;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
             display: inline-flex;
             align-items: center;
             gap: 6px;
         }
 
-        /* كارد الإضافة السحابي */
         .panel-card {
             background: #f8fafc;
             border: 1.5px solid var(--border-color);
@@ -205,7 +208,7 @@
             .grid-2 { grid-template-columns: 1fr 1fr; }
         }
 
-        /* جدول بيانات النظام الاحترافي */
+        /* الجدول */
         .table-wrapper {
             overflow-x: auto;
             border-radius: 14px;
@@ -267,7 +270,6 @@
         }
         .btn-copy-pass:active { transform: scale(0.9); }
 
-        /* حاويات الآدمن والأكورديون */
         .member-block {
             background: #ffffff;
             border: 1.5px solid var(--border-color);
@@ -336,26 +338,28 @@
                 <input type="password" id="loginPassword" placeholder="••••••••">
             </div>
             
-            <button class="btn btn-primary" onclick="login()" style="margin-top: 10px;">
+            <button class="btn btn-primary btn-full" onclick="login()" style="margin-top: 10px;">
                 <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول للنظام
             </button>
         </div>
 
-        <!-- لوحة المستخدم الرسمية والأنيقة -->
+        <!-- لوحة المستخدم (بالأزرار المرتبة في شريط موحد) -->
         <div id="userDashboard" class="hidden">
             <div class="top-bar">
                 <div>
-                    <span class="status-badge"><i class="fa-solid fa-circle-check"></i> متصل بالسحابة بنجاح</span>
-                    <h3 style="margin-top: 8px; font-size: 20px; font-weight: 800;" id="welcomeUserTitle">أهلاً بك</h3>
+                    <span class="status-badge"><i class="fa-solid fa-circle-check"></i> متصل بالسحابة</span>
+                    <h3 style="margin-top: 6px; font-size: 19px; font-weight: 800;" id="welcomeUserTitle">أهلاً بك</h3>
                 </div>
-                <div class="top-bar-actions">
-                    <button class="btn btn-outline btn-sm" onclick="refreshUserDataManual()">
+                
+                <!-- شريط أزرار التحكم العلوي (مرتب ومنظم تماماً) -->
+                <div class="toolbar-group">
+                    <button class="btn btn-outline" onclick="refreshUserDataManual()">
                         <i class="fa-solid fa-rotate"></i> تحديث
                     </button>
-                    <button class="btn btn-outline btn-sm" onclick="changeMyPassword()">
-                        <i class="fa-solid fa-key"></i> كلمة المرور
+                    <button class="btn btn-outline" onclick="changeMyPassword()">
+                        <i class="fa-solid fa-key"></i> الباسورد
                     </button>
-                    <button class="btn btn-danger btn-sm" onclick="logout()">
+                    <button class="btn btn-danger" onclick="logout()">
                         <i class="fa-solid fa-right-from-bracket"></i> خروج
                     </button>
                 </div>
@@ -373,7 +377,7 @@
                         <input type="text" id="appPass" placeholder="كلمة السر الخاصة به">
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="addUserEntry()" style="margin-top: 16px;">
+                <button class="btn btn-primary btn-full" onclick="addUserEntry()" style="margin-top: 16px;">
                     <i class="fa-solid fa-cloud-arrow-up"></i> حفظ سحابي فوري
                 </button>
             </div>
@@ -402,16 +406,16 @@
             <div class="top-bar">
                 <div>
                     <span class="status-badge" style="background: #e0f2fe; color: #0369a1;"><i class="fa-solid fa-crown"></i> المشرف العام (الآدمن)</span>
-                    <h3 style="margin-top: 8px; font-size: 20px; font-weight: 800;">إدارة النظام والأعضاء</h3>
+                    <h3 style="margin-top: 6px; font-size: 19px; font-weight: 800;">إدارة النظام والأعضاء</h3>
                 </div>
-                <div class="top-bar-actions">
-                    <button class="btn btn-outline btn-sm" onclick="renderAdminView()">
+                <div class="toolbar-group">
+                    <button class="btn btn-outline" onclick="renderAdminView()">
                         <i class="fa-solid fa-rotate"></i> تحديث
                     </button>
-                    <button class="btn btn-outline btn-sm" onclick="changeAdminPassword()">
-                        <i class="fa-solid fa-key"></i> كلمة المرور
+                    <button class="btn btn-outline" onclick="changeAdminPassword()">
+                        <i class="fa-solid fa-key"></i> الباسورد
                     </button>
-                    <button class="btn btn-danger btn-sm" onclick="logout()">
+                    <button class="btn btn-danger" onclick="logout()">
                         <i class="fa-solid fa-power-off"></i> خروج
                     </button>
                 </div>
@@ -429,7 +433,7 @@
                         <input type="text" id="newMemberPass" placeholder="مثال: 2026">
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="adminCreateMember()" style="margin-top: 16px;">
+                <button class="btn btn-primary btn-full" onclick="adminCreateMember()" style="margin-top: 16px;">
                     <i class="fa-solid fa-check"></i> حفظ المستخدم سحابياً
                 </button>
             </div>
@@ -787,6 +791,10 @@
             });
 
             renderAdminView();
+        }
+
+        async function adminDeleteMessage(mId) {
+            // function stub
         }
 
         async function adminDeleteMember(mId) {
