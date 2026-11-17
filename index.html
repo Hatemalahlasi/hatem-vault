@@ -242,7 +242,7 @@
         <div id="loginSection" class="login-box">
             <div class="system-icon"><i class="fa-solid fa-cloud-lock"></i></div>
             <h2>خزنة العائلة السحابية</h2>
-            <p class="subtitle">مزامنة فورية لجميع أجهزة العائلة</p>
+            <p class="subtitle">مزامنة فورية وتلقائية لأجهزة العائلة</p>
             
             <div class="form-group">
                 <label>اسم المستخدم</label>
@@ -266,9 +266,13 @@
                     <h3 style="margin-top: 6px; font-size: 20px;" id="welcomeUserTitle">أهلاً بك</h3>
                 </div>
                 <div class="top-bar-actions">
-                    <!-- زر التحديث للمستخدم -->
-                    <button class="btn btn-outline btn-sm" onclick="refreshUserData()">
-                        <i class="fa-solid fa-rotate"></i> تحديث
+                    <!-- زر التحديث الصامت (يعمل تلقائياً كل 5 ثوانٍ أو بالضغط يدوياً بدون إزعاج) -->
+                    <button class="btn btn-outline btn-sm" onclick="refreshUserDataManual()">
+                        <i class="fa-solid fa-rotate"></i> تحديث صامت
+                    </button>
+                    <!-- زر تغيير كلمة مرور المستخدم -->
+                    <button class="btn btn-outline btn-sm" onclick="changeMyPassword()">
+                        <i class="fa-solid fa-key"></i> تغيير كلمة المرور
                     </button>
                     <button class="btn btn-danger btn-sm" onclick="logout()">
                         <i class="fa-solid fa-right-from-bracket"></i> خروج
@@ -321,9 +325,8 @@
                     <h3 style="margin-top: 6px; font-size: 20px;">إدارة العائلة</h3>
                 </div>
                 <div class="top-bar-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <!-- زر التحديث للمشرف -->
                     <button class="btn btn-outline btn-sm" onclick="renderAdminView()">
-                        <i class="fa-solid fa-rotate"></i> تحديث
+                        <i class="fa-solid fa-rotate"></i> تحديث صامت
                     </button>
                     <button class="btn btn-outline btn-sm" onclick="changeAdminPassword()">
                         <i class="fa-solid fa-key"></i> تغيير الباسورد
@@ -375,6 +378,7 @@
         const ADMIN_USER = "hatem";
         let currentUser = null;
         let currentMemberDocId = null;
+        let autoSyncInterval = null; // مؤقت التحديث التلقائي
 
         document.getElementById('appDate').valueAsDate = new Date();
 
@@ -410,6 +414,7 @@
                 document.getElementById('loginPassword').value = '';
                 renderAdminView();
                 toggleView('adminDashboard');
+                startAutoSync('admin');
                 return;
             }
 
@@ -423,19 +428,55 @@
                 document.getElementById('welcomeUserTitle').innerText = `أهلاً بك، ${u}`;
                 renderUserEntries(doc.data().entries || []);
                 toggleView('userDashboard');
+                startAutoSync('user');
             } else {
                 alert('خطأ في اسم المستخدم أو كلمة المرور!');
             }
         }
 
-        // دالة زر التحديث الخاصة بالمستخدم لجلب أحدث البيانات من السحابة فوراً
-        async function refreshUserData() {
+        // تفعيل التحديث التلقائي في الكواليس (بدون إشعارات) كل 5 ثوانٍ
+        function startAutoSync(role) {
+            if (autoSyncInterval) clearInterval(autoSyncInterval);
+            autoSyncInterval = setInterval(async () => {
+                if (role === 'user' && currentMemberDocId) {
+                    const doc = await db.collection('members').doc(currentMemberDocId).get();
+                    if (doc.exists) {
+                        renderUserEntries(doc.data().entries || []);
+                    }
+                } else if (role === 'admin') {
+                    renderAdminView();
+                }
+            }, 5000); // كل 5 ثوانٍ يتم سحب البيانات وتحديثها بصمت تام
+        }
+
+        // التحديث اليدوي الصامت (بدون رسائل مزعجة)
+        async function refreshUserDataManual() {
             if (!currentMemberDocId) return;
             const doc = await db.collection('members').doc(currentMemberDocId).get();
             if (doc.exists) {
                 renderUserEntries(doc.data().entries || []);
-                alert('تم تحديث البيانات بنجاح!');
             }
+        }
+
+        // ميزة تغيير كلمة المرور الخاصة بالمستخدم العادي
+        async function changeMyPassword() {
+            const currentPass = prompt('أدخل كلمة المرور الحالية لحسابك:');
+            if (currentPass === null) return;
+            
+            const memberRef = db.collection('members').doc(currentMemberDocId);
+            const doc = await memberRef.get();
+            if (!doc.exists) return;
+
+            if (doc.data().password !== currentPass) {
+                alert('كلمة المرور الحالية غير صحيحة!');
+                return;
+            }
+
+            const newPass = prompt('أدخل كلمة المرور الجديدة:');
+            if (!newPass || !newPass.trim()) return;
+
+            await memberRef.update({ password: newPass.trim() });
+            alert('تم تغيير كلمة المرور بنجاح!');
         }
 
         async function changeAdminPassword() {
@@ -472,7 +513,6 @@
             document.getElementById('appName').value = '';
             document.getElementById('appPass').value = '';
             renderUserEntries(entries);
-            alert('تم الحفظ والتحديث في السحابة بنجاح!');
         }
 
         function renderUserEntries(entries) {
@@ -529,7 +569,6 @@
             document.getElementById('newMemberUser').value = '';
             document.getElementById('newMemberPass').value = '';
             renderAdminView();
-            alert('تم إضافة الفرد سحابياً بنجاح!');
         }
 
         async function renderAdminView() {
@@ -585,6 +624,7 @@
         }
 
         function logout() {
+            if (autoSyncInterval) clearInterval(autoSyncInterval); // إيقاف المزامنة عند الخروج
             currentUser = null;
             currentMemberDocId = null;
             toggleView('loginSection');
