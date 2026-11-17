@@ -350,14 +350,15 @@
     </div>
 
     <script>
-        // ضع إعدادات Firebase الخاصة بك هنا بعد إنشائها في موقعهم
+        // إعدادات Firebase التي نسختها للتو
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyD3dZmGf-HiIleBURpFj-kpssabUuOpRD4",
+            authDomain: "familyvault-8246c.firebaseapp.com",
+            projectId: "familyvault-8246c",
+            storageBucket: "familyvault-8246c.firebasestorage.app",
+            messagingSenderId: "175087357500",
+            appId: "1:175087357500:web:05c7cbc434c86b2c04fd39",
+            measurementId: "G-XN5SPDD0SX"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -378,7 +379,13 @@
 
         async function getAdminPass() {
             const doc = await db.collection('settings').doc('admin').get();
-            return doc.exists ? doc.data().password : "12345";
+            if (doc.exists) {
+                return doc.data().password;
+            } else {
+                // كلمة المرور الافتراضية لأول دخول
+                await db.collection('settings').doc('admin').set({ password: "12345" });
+                return "12345";
+            }
         }
 
         async function login() {
@@ -504,6 +511,11 @@
             document.getElementById('newMemberUser').value = '';
             document.getElementById('newMemberPass').value = '';
             renderAdminView();
+            alert('تم إضافة الفرد سحابياً بنجاح!');
+        }
+
+        async function adminRenderView() {
+            await renderAdminView();
         }
 
         async function renderAdminView() {
