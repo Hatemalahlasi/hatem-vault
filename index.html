@@ -9,26 +9,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- استدعاء مكتبات Firebase السحابية -->
+    <!-- مكتبات Firebase السحابية -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <style>
         :root {
-            --bg-page: #f1f5f9;
+            --bg-page: #0f172a;
+            --bg-shell: #1e293b;
             --bg-card: #ffffff;
-            --primary-blue: #0f172a;
-            --accent-blue: #0284c7;
-            --accent-hover: #0369a1;
-            --light-blue: #f0f9ff;
-            --border-color: #e2e8f0;
-            --text-dark: #0f172a;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --accent-glow: rgba(37, 99, 235, 0.15);
+            --border-color: #cbd5e1;
+            --border-dark: #334155;
+            --text-main: #0f172a;
             --text-muted: #64748b;
-            --danger: #dc2626;
+            --text-light: #f8fafc;
+            --danger: #ef4444;
             --danger-bg: #fee2e2;
+            --warning: #f59e0b;
             --warning-bg: #fef3c7;
-            --warning: #d97706;
-            --success: #16a34a;
+            --success: #22c55e;
+            --success-bg: #dcfce7;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,97 +39,95 @@
         body {
             font-family: 'Cairo', sans-serif;
             background-color: var(--bg-page);
-            color: var(--text-dark);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 10px;
+            padding: 12px;
         }
 
         .container {
             width: 100%;
-            max-width: 850px;
+            max-width: 900px;
             background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 16px;
-            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         @media (min-width: 768px) {
-            .container {
-                padding: 32px;
-            }
+            .container { padding: 36px; }
         }
 
-        /* شاشة تسجيل الدخول الرسمية */
+        /* شاشة تسجيل الدخول بتصميم احترافي */
         .login-box {
-            max-width: 380px;
+            max-width: 400px;
             margin: 0 auto;
             width: 100%;
             padding: 20px 10px;
         }
 
         .system-icon {
-            width: 70px;
-            height: 70px;
-            background: var(--light-blue);
-            color: var(--accent-blue);
+            width: 76px;
+            height: 76px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 18px;
-            font-size: 28px;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.12);
+            margin: 0 auto 20px;
+            font-size: 32px;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
         }
 
         .login-box h2 {
             text-align: center;
-            font-size: 21px;
+            font-size: 22px;
             font-weight: 800;
-            color: var(--text-dark);
+            color: var(--text-main);
             margin-bottom: 6px;
         }
 
         .login-box .subtitle {
             text-align: center;
             color: var(--text-muted);
-            font-size: 13px;
-            margin-bottom: 24px;
+            font-size: 13.5px;
+            margin-bottom: 28px;
         }
 
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-size: 12.5px; margin-bottom: 6px; font-weight: 700; color: var(--text-dark); }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; margin-bottom: 6px; font-weight: 700; color: var(--text-main); }
 
         .form-group input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 13px 16px;
             background: #f8fafc;
             border: 1.5px solid var(--border-color);
             border-radius: 12px;
-            color: var(--text-dark);
+            color: var(--text-main);
             font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            transition: all 0.2s ease;
+            font-size: 14.5px;
+            transition: all 0.25s ease;
         }
 
         .form-group input:focus {
-            border-color: var(--accent-blue);
+            border-color: var(--primary);
             background: #ffffff;
             outline: none;
-            box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.1);
+            box-shadow: 0 0 0 4px var(--accent-glow);
         }
 
         .btn {
             width: 100%;
-            padding: 12px 18px;
+            padding: 13px 20px;
             border-radius: 12px;
             border: none;
             font-family: 'Cairo', sans-serif;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 14.5px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: inline-flex;
@@ -135,104 +136,104 @@
             gap: 8px;
         }
 
-        .btn-primary { background: var(--accent-blue); color: #ffffff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2); }
-        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+        .btn-primary { background: var(--primary); color: #ffffff; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
 
-        .btn-outline { background: var(--light-blue); color: var(--accent-blue); border: 1px solid var(--border-color); }
-        .btn-outline:hover { background: #e0f2fe; }
+        .btn-outline { background: #f1f5f9; color: var(--primary); border: 1.5px solid var(--border-color); }
+        .btn-outline:hover { background: #e2e8f0; }
 
-        .btn-warning { background: var(--warning-bg); color: var(--warning); }
+        .btn-warning { background: var(--warning-bg); color: #b45309; }
         .btn-warning:hover { background: var(--warning); color: #ffffff; }
 
         .btn-danger { background: var(--danger-bg); color: var(--danger); }
         .btn-danger:hover { background: var(--danger); color: #ffffff; }
 
-        .btn-sm { padding: 7px 12px; font-size: 12px; width: auto; border-radius: 8px; }
+        .btn-sm { padding: 7px 12px; font-size: 12.5px; width: auto; border-radius: 8px; }
 
-        /* الهيدر العلوي للوحة التحكم */
+        /* شريط العنوان العلوي للوحة النظام */
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 12px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 16px;
-            margin-bottom: 20px;
+            gap: 14px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 18px;
+            margin-bottom: 24px;
         }
 
         .top-bar-actions {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .status-badge {
-            background: #dcfce7;
+            background: var(--success-bg);
             color: var(--success);
-            padding: 4px 12px;
+            padding: 5px 14px;
             border-radius: 50px;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 700;
             display: inline-flex;
             align-items: center;
             gap: 6px;
         }
 
-        /* كارد الإضافة والتفاعل */
+        /* كارد الإضافة السحابي */
         .panel-card {
             background: #f8fafc;
-            border: 1px solid var(--border-color);
+            border: 1.5px solid var(--border-color);
             border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 20px;
+            padding: 20px;
+            margin-bottom: 24px;
         }
 
         .panel-title {
-            font-size: 14.5px;
+            font-size: 15px;
             font-weight: 800;
-            color: var(--accent-blue);
-            margin-bottom: 12px;
+            color: var(--primary);
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 14px; }
 
         @media (min-width: 640px) {
             .grid-2 { grid-template-columns: 1fr 1fr; }
         }
 
-        /* الجدول وعرض البيانات */
+        /* جدول بيانات النظام الاحترافي */
         .table-wrapper {
             overflow-x: auto;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            border: 1.5px solid var(--border-color);
             -webkit-overflow-scrolling: touch;
             background: #ffffff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
         }
 
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13.5px;
+            font-size: 14px;
             background: #ffffff;
             white-space: nowrap;
         }
 
         .data-table th {
-            background: #f1f5f9;
-            color: var(--text-dark);
+            background: #f8fafc;
+            color: var(--text-main);
             font-weight: 800;
             text-align: right;
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 14px 18px;
+            border-bottom: 1.5px solid var(--border-color);
         }
 
         .data-table td {
-            padding: 12px 16px;
+            padding: 14px 18px;
             border-top: 1px solid #f1f5f9;
             vertical-align: middle;
         }
@@ -242,36 +243,36 @@
             align-items: center;
             gap: 10px;
             background: #f8fafc;
-            border: 1px solid var(--border-color);
-            padding: 6px 10px;
+            border: 1.5px solid var(--border-color);
+            padding: 6px 12px;
             border-radius: 8px;
         }
 
         .pass-badge {
             font-family: 'JetBrains Mono', monospace;
-            color: var(--accent-blue);
+            color: var(--primary);
             font-weight: 700;
             direction: ltr;
-            font-size: 13px;
+            font-size: 13.5px;
         }
 
         .btn-copy-pass {
             background: transparent;
             border: none;
-            color: var(--accent-blue);
+            color: var(--primary);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 15px;
             padding: 2px;
             transition: transform 0.1s;
         }
         .btn-copy-pass:active { transform: scale(0.9); }
 
-        /* تصميم عناصر الآدمن والتوسيع */
+        /* حاويات الآدمن والأكورديون */
         .member-block {
             background: #ffffff;
             border: 1.5px solid var(--border-color);
             border-radius: 14px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             overflow: hidden;
             transition: all 0.2s ease;
         }
@@ -282,7 +283,7 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
-            padding: 14px 18px;
+            padding: 16px 20px;
             background: #f8fafc;
             cursor: pointer;
             user-select: none;
@@ -291,23 +292,23 @@
         .member-header:hover { background: #f1f5f9; }
 
         .chevron-icon {
-            color: var(--accent-blue);
-            font-size: 13px;
+            color: var(--primary);
+            font-size: 14px;
             transition: transform 0.25s ease;
         }
 
         .chevron-icon.rotated { transform: rotate(-180deg); }
 
         .member-body {
-            padding: 16px;
-            border-top: 1px solid var(--border-color);
+            padding: 18px;
+            border-top: 1.5px solid var(--border-color);
             background: #ffffff;
         }
 
         .count-pill {
-            background: var(--light-blue);
-            color: var(--accent-blue);
-            font-size: 11.5px;
+            background: #e0f2fe;
+            color: #0369a1;
+            font-size: 12px;
             font-weight: 700;
             padding: 3px 10px;
             border-radius: 20px;
@@ -322,9 +323,9 @@
         
         <!-- شاشة تسجيل الدخول -->
         <div id="loginSection" class="login-box">
-            <div class="system-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="system-icon"><i class="fa-solid fa-vault"></i></div>
             <h2>نظام إدارة الحسابات</h2>
-            <p class="subtitle">بوابة الدخول الآمن والمزامنة السحابية الفورية</p>
+            <p class="subtitle">بوابة الدخول السحابية الآمنة والمزامنة الفورية</p>
             
             <div class="form-group">
                 <label>اسم المستخدم</label>
@@ -335,8 +336,8 @@
                 <input type="password" id="loginPassword" placeholder="••••••••">
             </div>
             
-            <button class="btn btn-primary" onclick="login()" style="margin-top: 8px;">
-                <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
+            <button class="btn btn-primary" onclick="login()" style="margin-top: 10px;">
+                <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول للنظام
             </button>
         </div>
 
@@ -344,8 +345,8 @@
         <div id="userDashboard" class="hidden">
             <div class="top-bar">
                 <div>
-                    <span class="status-badge"><i class="fa-solid fa-circle-check"></i> متصل بالسحابة</span>
-                    <h3 style="margin-top: 6px; font-size: 19px; font-weight: 800;" id="welcomeUserTitle">أهلاً بك</h3>
+                    <span class="status-badge"><i class="fa-solid fa-circle-check"></i> متصل بالسحابة بنجاح</span>
+                    <h3 style="margin-top: 8px; font-size: 20px; font-weight: 800;" id="welcomeUserTitle">أهلاً بك</h3>
                 </div>
                 <div class="top-bar-actions">
                     <button class="btn btn-outline btn-sm" onclick="refreshUserDataManual()">
@@ -361,24 +362,24 @@
             </div>
 
             <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة حساب أو تطبيق جديد</div>
+                <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة حساب أو تطبيق جديد للسحابة</div>
                 <div class="grid-2">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>اسم التطبيق أو المنصة</label>
-                        <input type="text" id="appName" placeholder="مثال: واتساب، فيسبوك...">
+                        <input type="text" id="appName" placeholder="مثال: واتساب، فيسبوك، انستقرام...">
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>كلمة السر</label>
                         <input type="text" id="appPass" placeholder="كلمة السر الخاصة به">
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="addUserEntry()" style="margin-top: 14px;">
+                <button class="btn btn-primary" onclick="addUserEntry()" style="margin-top: 16px;">
                     <i class="fa-solid fa-cloud-arrow-up"></i> حفظ سحابي فوري
                 </button>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h4 style="font-size: 14.5px; font-weight: 800; color: var(--text-dark);"><i class="fa-solid fa-vault" style="color: var(--accent-blue);"></i> خريطة حساباتك المسجلة:</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h4 style="font-size: 15px; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-list-check" style="color: var(--primary);"></i> خريطة حساباتك وتطبيقاتك المسجلة:</h4>
             </div>
             
             <div class="table-wrapper">
@@ -400,8 +401,8 @@
         <div id="adminDashboard" class="hidden">
             <div class="top-bar">
                 <div>
-                    <span class="status-badge" style="background: #e0f2fe; color: var(--accent-blue);"><i class="fa-solid fa-crown"></i> المشرف العام</span>
-                    <h3 style="margin-top: 6px; font-size: 19px; font-weight: 800;">لوحة تحكم الآدمن</h3>
+                    <span class="status-badge" style="background: #e0f2fe; color: #0369a1;"><i class="fa-solid fa-crown"></i> المشرف العام (الآدمن)</span>
+                    <h3 style="margin-top: 8px; font-size: 20px; font-weight: 800;">إدارة النظام والأعضاء</h3>
                 </div>
                 <div class="top-bar-actions">
                     <button class="btn btn-outline btn-sm" onclick="renderAdminView()">
@@ -428,12 +429,12 @@
                         <input type="text" id="newMemberPass" placeholder="مثال: 2026">
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="adminCreateMember()" style="margin-top: 14px;">
+                <button class="btn btn-primary" onclick="adminCreateMember()" style="margin-top: 16px;">
                     <i class="fa-solid fa-check"></i> حفظ المستخدم سحابياً
                 </button>
             </div>
 
-            <h4 style="font-size: 14.5px; font-weight: 800; margin-bottom: 10px;"><i class="fa-solid fa-users"></i> المستخدمون المسجلون (<span id="membersCount">0</span>):</h4>
+            <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 12px;"><i class="fa-solid fa-users"></i> المستخدمون المسجلون (<span id="membersCount">0</span>):</h4>
             <div id="adminAllDataContainer"></div>
         </div>
 
@@ -595,22 +596,22 @@
             const tbody = document.getElementById('userEntriesTable');
             tbody.innerHTML = '';
             if (entries.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding: 24px;">لا توجد حسابات محفوظة حالياً. ابدأ بإضافة تطبيقك الأول!</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding: 30px;">لا توجد حسابات محفوظة حالياً. ابدأ بإضافة تطبيقك الأول!</td></tr>';
                 return;
             }
             entries.forEach((item, index) => {
                 tbody.innerHTML += `
                     <tr>
-                        <td><strong style="color: var(--text-dark);">${item.app}</strong></td>
+                        <td><strong style="color: var(--text-main);">${item.app}</strong></td>
                         <td>
                             <div class="pass-container">
                                 <span class="pass-badge">${item.pass}</span>
                                 <button class="btn-copy-pass" onclick="copyPassword('${item.pass}')" title="نسخ كلمة السر"><i class="fa-solid fa-copy"></i></button>
                             </div>
                         </td>
-                        <td style="color: var(--text-muted); font-size: 12.5px;">${item.date}</td>
+                        <td style="color: var(--text-muted); font-size: 13px;">${item.date}</td>
                         <td style="text-align: center;">
-                            <div style="display: inline-flex; gap: 6px;">
+                            <div style="display: inline-flex; gap: 8px;">
                                 <button class="btn btn-warning btn-sm" onclick="editUserEntry(${index})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
                                 <button class="btn btn-danger btn-sm" onclick="deleteUserEntry(${index})" title="حذف"><i class="fa-solid fa-trash"></i></button>
                             </div>
@@ -707,7 +708,7 @@
                 let entriesHtml = '';
                 
                 if (appCount === 0) {
-                    entriesHtml = '<p style="font-size: 13px; color: var(--text-muted); padding: 8px 0;">لا توجد تطبيقات مضافة لهذا المستخدم.</p>';
+                    entriesHtml = '<p style="font-size: 13.5px; color: var(--text-muted); padding: 8px 0;">لا توجد تطبيقات مضافة لهذا المستخدم.</p>';
                 } else {
                     entriesHtml = `<div class="table-wrapper"><table class="data-table"><thead><tr><th>التطبيق</th><th>كلمة السر</th><th>التاريخ</th><th>إجراءات المشرف</th></tr></thead><tbody>`;
                     member.entries.forEach((ent, entIndex) => {
@@ -733,10 +734,10 @@
                 container.innerHTML += `
                     <div class="member-block">
                         <div class="member-header" onclick="toggleMemberAccordion('${mId}')">
-                            <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
                                 <i id="accordion-icon-${mId}" class="fa-solid fa-chevron-down chevron-icon ${isExpanded ? 'rotated' : ''}"></i>
-                                <strong style="color: var(--accent-blue); font-size: 15px;">${member.username}</strong>
-                                <span style="font-size: 12.5px; color: var(--text-muted);">كلمة المرور: <span class="pass-badge">${member.password}</span></span>
+                                <strong style="color: var(--primary); font-size: 15.5px;">${member.username}</strong>
+                                <span style="font-size: 13px; color: var(--text-muted);">كلمة المرور: <span class="pass-badge">${member.password}</span></span>
                                 <span class="count-pill">${appCount} تطبيق</span>
                             </div>
                             <div style="display: flex; gap: 6px;" onclick="event.stopPropagation()">
