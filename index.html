@@ -9,6 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- استدعاء ملف البيانات المركزي -->
+    <script src="data.js"></script>
+
     <style>
         :root {
             --bg-page: #f0f7ff;
@@ -22,13 +25,10 @@
             --danger: #dc2626;
             --danger-bg: #fee2e2;
             --success: #059669;
+            --success-bg: #d1fae5;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Cairo', sans-serif;
@@ -46,20 +46,15 @@
 
         .container {
             width: 100%;
-            max-width: 820px;
+            max-width: 850px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 20px;
             padding: 32px;
             box-shadow: 0 15px 35px -5px rgba(2, 132, 199, 0.1), 0 4px 12px rgba(0, 0, 0, 0.03);
-            transition: all 0.3s ease;
         }
 
-        /* شاشة الدخول تكون مدمجة وأنيقة */
-        .login-box {
-            max-width: 400px;
-            margin: 0 auto;
-        }
+        .login-box { max-width: 400px; margin: 0 auto; }
 
         .system-icon {
             width: 68px;
@@ -75,32 +70,11 @@
             box-shadow: 0 8px 16px rgba(2, 132, 199, 0.12);
         }
 
-        h2 {
-            text-align: center;
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 6px;
-        }
+        h2 { text-align: center; font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+        .subtitle { text-align: center; color: var(--text-muted); font-size: 13.5px; margin-bottom: 24px; }
 
-        .subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 13.5px;
-            margin-bottom: 24px;
-        }
-
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            color: var(--text-dark);
-            margin-bottom: 6px;
-            font-weight: 700;
-        }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 13px; margin-bottom: 6px; font-weight: 700; }
 
         .form-group input {
             width: 100%;
@@ -128,7 +102,7 @@
             border: none;
             font-family: 'Cairo', sans-serif;
             font-weight: 700;
-            font-size: 14.5px;
+            font-size: 14px;
             cursor: pointer;
             transition: 0.2s;
             display: inline-flex;
@@ -137,45 +111,20 @@
             gap: 8px;
         }
 
-        .btn-primary {
-            background: var(--primary-blue);
-            color: #ffffff;
-        }
+        .btn-primary { background: var(--primary-blue); color: #ffffff; }
+        .btn-primary:hover { background: var(--hover-blue); transform: translateY(-1px); }
 
-        .btn-primary:hover {
-            background: var(--hover-blue);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 15px rgba(2, 132, 199, 0.25);
-        }
+        .btn-success { background: var(--success); color: #ffffff; }
+        .btn-success:hover { opacity: 0.9; }
 
-        .btn-outline {
-            background: var(--light-blue);
-            color: var(--primary-blue);
-            border: 1px solid var(--border-color);
-        }
+        .btn-outline { background: var(--light-blue); color: var(--primary-blue); border: 1px solid var(--border-color); }
+        .btn-outline:hover { background: #bae6fd; }
 
-        .btn-outline:hover {
-            background: #bae6fd;
-        }
+        .btn-danger { background: var(--danger-bg); color: var(--danger); }
+        .btn-danger:hover { background: var(--danger); color: #ffffff; }
 
-        .btn-danger {
-            background: var(--danger-bg);
-            color: var(--danger);
-        }
+        .btn-sm { padding: 7px 12px; font-size: 12.5px; width: auto; border-radius: 8px; }
 
-        .btn-danger:hover {
-            background: var(--danger);
-            color: #ffffff;
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12.5px;
-            width: auto;
-            border-radius: 8px;
-        }
-
-        /* شريط العنوان العلوي للوحات التحكم */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -204,7 +153,20 @@
             border: 1px solid #e2e8f0;
             border-radius: 14px;
             padding: 18px;
-            margin-bottom: 22px;
+            margin-bottom: 20px;
+        }
+
+        .sync-box {
+            background: #ecfdf5;
+            border: 1.5px dashed #10b981;
+            border-radius: 14px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .panel-title {
@@ -217,24 +179,10 @@
             gap: 8px;
         }
 
-        .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-        }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        /* الجداول الرسمية */
-        .table-wrapper {
-            overflow-x: auto;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
+        .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid #e2e8f0; }
 
         .data-table {
             width: 100%;
@@ -255,7 +203,6 @@
         .data-table td {
             padding: 12px 14px;
             border-top: 1px solid #f1f5f9;
-            color: var(--text-dark);
         }
 
         .pass-badge {
@@ -276,7 +223,6 @@
             border-radius: 14px;
             padding: 16px;
             margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
         }
 
         .member-header {
@@ -290,40 +236,16 @@
             border-bottom: 1px solid #f1f5f9;
         }
 
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
 
-        /* التجاوب الكامل مع شاشات الجوال */
         @media (max-width: 640px) {
-            body {
-                padding: 10px;
-                align-items: flex-start;
-            }
-            .container {
-                padding: 22px 16px;
-                border-radius: 16px;
-                margin-top: 10px;
-            }
-            .grid-3, .grid-2 {
-                grid-template-columns: 1fr;
-            }
-            .top-bar {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .top-bar-actions {
-                width: 100%;
-                display: flex;
-                gap: 8px;
-            }
-            .top-bar-actions .btn {
-                flex: 1;
-            }
-            .data-table th, .data-table td {
-                padding: 10px 8px;
-                font-size: 12.5px;
-            }
+            body { padding: 10px; align-items: flex-start; }
+            .container { padding: 20px 15px; border-radius: 16px; margin-top: 8px; }
+            .grid-3, .grid-2 { grid-template-columns: 1fr; }
+            .top-bar { flex-direction: column; align-items: flex-start; }
+            .top-bar-actions { width: 100%; display: flex; gap: 8px; flex-wrap: wrap; }
+            .top-bar-actions .btn { flex: 1; }
+            .data-table th, .data-table td { padding: 10px 8px; font-size: 12.5px; }
         }
     </style>
 </head>
@@ -351,7 +273,7 @@
             </button>
         </div>
 
-        <!-- 2. لوحة تحكم فرد العائلة (المستخدم العادي) -->
+        <!-- 2. لوحة تحكم فرد العائلة -->
         <div id="userDashboard" class="hidden">
             <div class="top-bar">
                 <div>
@@ -363,6 +285,17 @@
                         <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
                     </button>
                 </div>
+            </div>
+
+            <!-- شريط نسخ التحديث للمستخدم ليرسله لك أو يضعه في الملف -->
+            <div class="sync-box">
+                <div style="font-size: 13px; color: #065f46;">
+                    <strong><i class="fa-solid fa-copy"></i> حفظ في الملف المركزي:</strong><br>
+                    بعد إضافة أو تعديل باسورداتك، انسخ الكود وأرسله للمشرف لتثبيته في <code>data.js</code>.
+                </div>
+                <button class="btn btn-success btn-sm" onclick="copyUpdatedDataFile()">
+                    <i class="fa-solid fa-clipboard-check"></i> نسخ كود الملف المحدث
+                </button>
             </div>
 
             <div class="panel-card">
@@ -386,7 +319,7 @@
                 </button>
             </div>
 
-            <h4 style="font-size: 15px; margin-bottom: 10px; color: var(--text-dark);">حساباتك المسجلة:</h4>
+            <h4 style="font-size: 15px; margin-bottom: 10px;">حساباتك المسجلة:</h4>
             <div class="table-wrapper">
                 <table class="data-table">
                     <thead>
@@ -419,6 +352,22 @@
                 </div>
             </div>
 
+            <!-- زر نسخ كود ملف data.js لتحديث الموقع للجميع -->
+            <div class="sync-box">
+                <div style="font-size: 13px; color: #065f46;">
+                    <strong><i class="fa-solid fa-file-code"></i> مزامنة ملف <code>data.js</code>:</strong><br>
+                    بعد إضافة مستخدم أو تعديل بيانات، اضغط هنا لنسخ محتوى الملف ولصقه في GitHub.
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <button class="btn btn-success btn-sm" onclick="copyUpdatedDataFile()">
+                        <i class="fa-solid fa-copy"></i> نسخ كود data.js
+                    </button>
+                    <button class="btn btn-outline btn-sm" onclick="resetToFileData()" title="مسح التعديلات المؤقتة والاعتماد على ملف data.js فقط">
+                        <i class="fa-solid fa-rotate"></i> تحديث من الملف
+                    </button>
+                </div>
+            </div>
+
             <!-- إضافة فرد جديد للعائلة -->
             <div class="panel-card">
                 <div class="panel-title"><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد للعائلة</div>
@@ -437,8 +386,7 @@
                 </button>
             </div>
 
-            <!-- عرض جميع أفراد العائلة وبياناتهم -->
-            <h4 style="font-size: 15.5px; margin-bottom: 12px; color: var(--text-dark);">
+            <h4 style="font-size: 15.5px; margin-bottom: 12px;">
                 جميع حسابات العائلة (<span id="membersCount">0</span>):
             </h4>
             <div id="adminAllDataContainer"></div>
@@ -450,12 +398,61 @@
         const ADMIN_USER = "hatem";
         let currentUser = null;
 
-        // جلب كلمة مرور المشرف المحفوظة أو الافتراضية (12345)
+        // دمج البيانات القادمة من ملف data.js مع أي تعديلات محلية في المتصفح
+        function initSystemData() {
+            const fileData = window.FAMILY_VAULT_DATA || { adminPass: "12345", members: [] };
+            
+            if (!localStorage.getItem('hatem_admin_pass')) {
+                localStorage.setItem('hatem_admin_pass', fileData.adminPass || "12345");
+            }
+
+            let localMembers = JSON.parse(localStorage.getItem('hatem_family_vault_db') || 'null');
+            if (!localMembers) {
+                localStorage.setItem('hatem_family_vault_db', JSON.stringify(fileData.members || []));
+            } else {
+                // دمج المستخدمين الجدد المضافين في ملف data.js إذا لم يكونوا موجودين محلياً
+                (fileData.members || []).forEach(fMember => {
+                    if (!localMembers.some(lm => lm.username === fMember.username)) {
+                        localMembers.push(fMember);
+                    }
+                });
+                localStorage.setItem('hatem_family_vault_db', JSON.stringify(localMembers));
+            }
+        }
+
+        initSystemData();
+
+        function resetToFileData() {
+            if (!confirm('سيتم مسح التعديلات غير المنسوخة والاعتماد على ملف data.js المرفوع حالياً. هل تريد المتابعة؟')) return;
+            const fileData = window.FAMILY_VAULT_DATA || { adminPass: "12345", members: [] };
+            localStorage.setItem('hatem_admin_pass', fileData.adminPass || "12345");
+            localStorage.setItem('hatem_family_vault_db', JSON.stringify(fileData.members || []));
+            renderAdminView();
+            alert('تمت المزامنة مع ملف data.js بنجاح!');
+        }
+
+        // توليد ونسخ الكود الكامل لملف data.js
+        function copyUpdatedDataFile() {
+            const currentAdminPass = getAdminPass();
+            const currentMembers = getDB();
+            
+            const fileContent = `// ملف قاعدة بيانات العائلة المركزي - يوضع بجانب index.html
+window.FAMILY_VAULT_DATA = {
+    adminPass: ${JSON.stringify(currentAdminPass)},
+    members: ${JSON.stringify(currentMembers, null, 4)}
+};`;
+
+            navigator.clipboard.writeText(fileContent).then(() => {
+                alert('✅ تم نسخ الكود المحدث بنجاح!\n\nالآن افتح ملف data.js في GitHub، امسح محتواه القديم والصق هذا الكود ثم اضغط Commit ليتم حفظه للجميع.');
+            }).catch(() => {
+                prompt('انسخ الكود التالي وضعه داخل ملف data.js:', fileContent);
+            });
+        }
+
         function getAdminPass() {
             return localStorage.getItem('hatem_admin_pass') || "12345";
         }
 
-        // ضبط تاريخ اليوم تلقائياً
         document.getElementById('appDate').valueAsDate = new Date();
 
         function toggleView(viewId) {
@@ -473,7 +470,6 @@
             localStorage.setItem('hatem_family_vault_db', JSON.stringify(db));
         }
 
-        // تسجيل الدخول
         function login() {
             const u = document.getElementById('loginUsername').value.trim();
             const p = document.getElementById('loginPassword').value.trim();
@@ -506,7 +502,6 @@
             }
         }
 
-        // تغيير كلمة مرور المشرف
         function changeAdminPassword() {
             const oldPass = prompt('أدخل كلمة مرور المشرف الحالية للتأكيد:');
             if (oldPass === null) return;
@@ -519,10 +514,8 @@
             if (newPass === null || !newPass.trim()) return;
 
             localStorage.setItem('hatem_admin_pass', newPass.trim());
-            alert('تم تغيير كلمة مرور المشرف بنجاح! استخدمها في المرة القادمة.');
+            alert('تم تغيير كلمة مرور المشرف بنجاح! لا تنسَ الضغط على زر "نسخ كود data.js" لتثبيتها في الملف.');
         }
-
-        // --- وظائف المستخدم العادي ---
 
         function addUserEntry() {
             const app = document.getElementById('appName').value.trim();
@@ -599,8 +592,6 @@
             saveDB(db);
             renderUserEntries();
         }
-
-        // --- وظائف المشرف ---
 
         function adminCreateMember() {
             const username = document.getElementById('newMemberUser').value.trim();
