@@ -266,11 +266,10 @@
                     <h3 style="margin-top: 6px; font-size: 20px;" id="welcomeUserTitle">أهلاً بك</h3>
                 </div>
                 <div class="top-bar-actions">
-                    <!-- زر التحديث الصامت (يعمل تلقائياً كل 5 ثوانٍ أو بالضغط يدوياً بدون إزعاج) -->
                     <button class="btn btn-outline btn-sm" onclick="refreshUserDataManual()">
                         <i class="fa-solid fa-rotate"></i> تحديث صامت
                     </button>
-                    <!-- زر تغيير كلمة مرور المستخدم -->
+                    <!-- زر تغيير كلمة مرور الحساب الخاص بك -->
                     <button class="btn btn-outline btn-sm" onclick="changeMyPassword()">
                         <i class="fa-solid fa-key"></i> تغيير كلمة المرور
                     </button>
@@ -281,18 +280,18 @@
             </div>
 
             <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة تطبيق أو حساب جديد</div>
+                <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة تطبيق أو حساب جديد (مثل: انستقرام)</div>
                 <div class="grid-3">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>اسم التطبيق / الموقع</label>
-                        <input type="text" id="appName" placeholder="مثال: واتساب">
+                        <input type="text" id="appName" placeholder="مثال: انستقرام">
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>كلمة السر</label>
-                        <input type="text" id="appPass" placeholder="كلمة السر">
+                        <input type="text" id="appPass" placeholder="كلمة السر الجديدة">
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label>تاريخ الحفظ</label>
+                        <label>تاريخ التغيير (اختيار مباشر)</label>
                         <input type="date" id="appDate">
                     </div>
                 </div>
@@ -361,7 +360,6 @@
     </div>
 
     <script>
-        // إعدادات Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyD3dZmGf-HiIleBURpFj-kpssabUuOpRD4",
             authDomain: "familyvault-8246c.firebaseapp.com",
@@ -378,8 +376,9 @@
         const ADMIN_USER = "hatem";
         let currentUser = null;
         let currentMemberDocId = null;
-        let autoSyncInterval = null; // مؤقت التحديث التلقائي
+        let autoSyncInterval = null;
 
+        // تعيين تاريخ اليوم كقيمة افتراضية في خانة التاريخ
         document.getElementById('appDate').valueAsDate = new Date();
 
         function toggleView(viewId) {
@@ -434,7 +433,6 @@
             }
         }
 
-        // تفعيل التحديث التلقائي في الكواليس (بدون إشعارات) كل 5 ثوانٍ
         function startAutoSync(role) {
             if (autoSyncInterval) clearInterval(autoSyncInterval);
             autoSyncInterval = setInterval(async () => {
@@ -446,10 +444,9 @@
                 } else if (role === 'admin') {
                     renderAdminView();
                 }
-            }, 5000); // كل 5 ثوانٍ يتم سحب البيانات وتحديثها بصمت تام
+            }, 5000);
         }
 
-        // التحديث اليدوي الصامت (بدون رسائل مزعجة)
         async function refreshUserDataManual() {
             if (!currentMemberDocId) return;
             const doc = await db.collection('members').doc(currentMemberDocId).get();
@@ -458,7 +455,7 @@
             }
         }
 
-        // ميزة تغيير كلمة المرور الخاصة بالمستخدم العادي
+        // تحديث وتغيير كلمة المرور الخاصة بحساب المستخدم وسحابياً بشكل صحيح
         async function changeMyPassword() {
             const currentPass = prompt('أدخل كلمة المرور الحالية لحسابك:');
             if (currentPass === null) return;
@@ -475,8 +472,9 @@
             const newPass = prompt('أدخل كلمة المرور الجديدة:');
             if (!newPass || !newPass.trim()) return;
 
+            // تحديث كلمة المرور في قاعدة البيانات السحابية (Firestore)
             await memberRef.update({ password: newPass.trim() });
-            alert('تم تغيير كلمة المرور بنجاح!');
+            alert('تم تغيير كلمة المرور وحفظها في السحابة بنجاح!');
         }
 
         async function changeAdminPassword() {
@@ -497,10 +495,10 @@
         async function addUserEntry() {
             const app = document.getElementById('appName').value.trim();
             const pass = document.getElementById('appPass').value.trim();
-            const date = document.getElementById('appDate').value;
+            const date = document.getElementById('appDate').value; // التاريخ المباشر المختار من قبل المستخدم
 
             if (!app || !pass || !date) {
-                alert('يرجى تعبئة الحقول');
+                alert('يرجى تعبئة الحقول وتحديد التاريخ');
                 return;
             }
 
@@ -512,6 +510,7 @@
             await memberRef.update({ entries });
             document.getElementById('appName').value = '';
             document.getElementById('appPass').value = '';
+            document.getElementById('appDate').valueAsDate = new Date();
             renderUserEntries(entries);
         }
 
@@ -624,7 +623,7 @@
         }
 
         function logout() {
-            if (autoSyncInterval) clearInterval(autoSyncInterval); // إيقاف المزامنة عند الخروج
+            if (autoSyncInterval) clearInterval(autoSyncInterval);
             currentUser = null;
             currentMemberDocId = null;
             toggleView('loginSection');
