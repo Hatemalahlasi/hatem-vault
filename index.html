@@ -25,7 +25,6 @@
             --danger: #dc2626;
             --danger-bg: #fee2e2;
             --success: #059669;
-            --success-bg: #d1fae5;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -205,16 +204,36 @@
             border-top: 1px solid #f1f5f9;
         }
 
-        .pass-badge {
-            font-family: 'JetBrains Mono', monospace;
+        .pass-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             background: #f1f5f9;
             border: 1px solid #cbd5e1;
             padding: 3px 8px;
             border-radius: 6px;
+        }
+
+        .pass-badge {
+            font-family: 'JetBrains Mono', monospace;
             color: #0369a1;
             font-weight: 700;
             direction: ltr;
-            display: inline-block;
+        }
+
+        .btn-copy-pass {
+            background: transparent;
+            border: none;
+            color: var(--primary-blue);
+            cursor: pointer;
+            font-size: 13px;
+            padding: 2px 4px;
+            transition: 0.2s;
+        }
+
+        .btn-copy-pass:hover {
+            color: var(--hover-blue);
+            transform: scale(1.1);
         }
 
         .member-block {
@@ -287,17 +306,6 @@
                 </div>
             </div>
 
-            <!-- شريط نسخ التحديث للمستخدم ليرسله لك أو يضعه في الملف -->
-            <div class="sync-box">
-                <div style="font-size: 13px; color: #065f46;">
-                    <strong><i class="fa-solid fa-copy"></i> حفظ في الملف المركزي:</strong><br>
-                    بعد إضافة أو تعديل باسورداتك، انسخ الكود وأرسله للمشرف لتثبيته في <code>data.js</code>.
-                </div>
-                <button class="btn btn-success btn-sm" onclick="copyUpdatedDataFile()">
-                    <i class="fa-solid fa-clipboard-check"></i> نسخ كود الملف المحدث
-                </button>
-            </div>
-
             <div class="panel-card">
                 <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة تطبيق أو حساب جديد</div>
                 <div class="grid-3">
@@ -335,7 +343,7 @@
             </div>
         </div>
 
-        <!-- 3. لوحة تحكم المشرف العام -->
+        <!-- 3. لوحة تحكم المشرف العام (فقط هو من يظهر له زر نسخ ملف data.js) -->
         <div id="adminDashboard" class="hidden">
             <div class="top-bar">
                 <div>
@@ -352,17 +360,17 @@
                 </div>
             </div>
 
-            <!-- زر نسخ كود ملف data.js لتحديث الموقع للجميع -->
+            <!-- مربع مزامنة ملف data.js الخاص بالمشرف حصراً -->
             <div class="sync-box">
                 <div style="font-size: 13px; color: #065f46;">
                     <strong><i class="fa-solid fa-file-code"></i> مزامنة ملف <code>data.js</code>:</strong><br>
-                    بعد إضافة مستخدم أو تعديل بيانات، اضغط هنا لنسخ محتوى الملف ولصقه في GitHub.
+                    بعد إضافة أفراد أو تعديل باسوردات، اضغط لنسخ الكود وتحديث الملف في جيت هب.
                 </div>
                 <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                     <button class="btn btn-success btn-sm" onclick="copyUpdatedDataFile()">
                         <i class="fa-solid fa-copy"></i> نسخ كود data.js
                     </button>
-                    <button class="btn btn-outline btn-sm" onclick="resetToFileData()" title="مسح التعديلات المؤقتة والاعتماد على ملف data.js فقط">
+                    <button class="btn btn-outline btn-sm" onclick="resetToFileData()">
                         <i class="fa-solid fa-rotate"></i> تحديث من الملف
                     </button>
                 </div>
@@ -398,7 +406,6 @@
         const ADMIN_USER = "hatem";
         let currentUser = null;
 
-        // دمج البيانات القادمة من ملف data.js مع أي تعديلات محلية في المتصفح
         function initSystemData() {
             const fileData = window.FAMILY_VAULT_DATA || { adminPass: "12345", members: [] };
             
@@ -410,7 +417,6 @@
             if (!localMembers) {
                 localStorage.setItem('hatem_family_vault_db', JSON.stringify(fileData.members || []));
             } else {
-                // دمج المستخدمين الجدد المضافين في ملف data.js إذا لم يكونوا موجودين محلياً
                 (fileData.members || []).forEach(fMember => {
                     if (!localMembers.some(lm => lm.username === fMember.username)) {
                         localMembers.push(fMember);
@@ -423,15 +429,14 @@
         initSystemData();
 
         function resetToFileData() {
-            if (!confirm('سيتم مسح التعديلات غير المنسوخة والاعتماد على ملف data.js المرفوع حالياً. هل تريد المتابعة؟')) return;
+            if (!confirm('سيتم استعادة البيانات الأصلية من ملف data.js. هل تريد المتابعة؟')) return;
             const fileData = window.FAMILY_VAULT_DATA || { adminPass: "12345", members: [] };
             localStorage.setItem('hatem_admin_pass', fileData.adminPass || "12345");
             localStorage.setItem('hatem_family_vault_db', JSON.stringify(fileData.members || []));
             renderAdminView();
-            alert('تمت المزامنة مع ملف data.js بنجاح!');
+            alert('تمت المزامنة بنجاح!');
         }
 
-        // توليد ونسخ الكود الكامل لملف data.js
         function copyUpdatedDataFile() {
             const currentAdminPass = getAdminPass();
             const currentMembers = getDB();
@@ -443,9 +448,22 @@ window.FAMILY_VAULT_DATA = {
 };`;
 
             navigator.clipboard.writeText(fileContent).then(() => {
-                alert('✅ تم نسخ الكود المحدث بنجاح!\n\nالآن افتح ملف data.js في GitHub، امسح محتواه القديم والصق هذا الكود ثم اضغط Commit ليتم حفظه للجميع.');
+                alert('✅ تم نسخ كود ملف data.js بنجاح!\n\nافتح ملف data.js في GitHub والصق الكود الجديد ثم احفظ التغييرات.');
             }).catch(() => {
-                prompt('انسخ الكود التالي وضعه داخل ملف data.js:', fileContent);
+                prompt('انسخ الكود التالي:', fileContent);
+            });
+        }
+
+        // دالة نسخ كلمة المرور السريعة
+        function copyPassword(text, btnElement) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHtml = btnElement.innerHTML;
+                btnElement.innerHTML = '<i class="fa-solid fa-check" style="color: #059669;"></i>';
+                setTimeout(() => {
+                    btnElement.innerHTML = originalHtml;
+                }, 1500);
+            }).catch(() => {
+                alert('كلمة المرور: ' + text);
             });
         }
 
@@ -514,7 +532,7 @@ window.FAMILY_VAULT_DATA = {
             if (newPass === null || !newPass.trim()) return;
 
             localStorage.setItem('hatem_admin_pass', newPass.trim());
-            alert('تم تغيير كلمة مرور المشرف بنجاح! لا تنسَ الضغط على زر "نسخ كود data.js" لتثبيتها في الملف.');
+            alert('تم تغيير كلمة مرور المشرف بنجاح! لا تنسَ نسخ وتحديث ملف data.js.');
         }
 
         function addUserEntry() {
@@ -523,7 +541,7 @@ window.FAMILY_VAULT_DATA = {
             const date = document.getElementById('appDate').value;
 
             if (!app || !pass || !date) {
-                alert('يرجى تعبئة جميع الحقول (التطبيق، كلمة السر، التاريخ)');
+                alert('يرجى تعبئة جميع الحقول');
                 return;
             }
 
@@ -553,10 +571,17 @@ window.FAMILY_VAULT_DATA = {
             }
 
             member.entries.forEach((item, index) => {
+                // ترميز السلسلة النصية بشكل آمن لتفادي أخطاء الاقتباس في جافاسكريبت
+                const safePass = item.pass.replace(/'/g, "\\'");
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${item.app}</strong></td>
-                        <td><span class="pass-badge">${item.pass}</span></td>
+                        <td>
+                            <div class="pass-container">
+                                <span class="pass-badge">${item.pass}</span>
+                                <button class="btn-copy-pass" onclick="copyPassword('${safePass}', this)" title="نسخ كلمة المرور"><i class="fa-solid fa-copy"></i></button>
+                            </div>
+                        </td>
                         <td style="font-size: 12.5px; color: var(--text-muted);">${item.date}</td>
                         <td style="white-space: nowrap;">
                             <button class="btn btn-outline btn-sm" onclick="editUserEntry(${index})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
@@ -585,7 +610,7 @@ window.FAMILY_VAULT_DATA = {
         }
 
         function deleteUserEntry(entryIndex) {
-            if (!confirm('هل تريد حذف هذا الحساب من خزنتك؟')) return;
+            if (!confirm('هل تريد حذف هذا الحساب؟')) return;
             const db = getDB();
             const mIdx = db.findIndex(m => m.username === currentUser);
             db[mIdx].entries.splice(entryIndex, 1);
@@ -646,10 +671,16 @@ window.FAMILY_VAULT_DATA = {
                                 <tbody>
                     `;
                     member.entries.forEach((ent, eIndex) => {
+                        const safePassAdmin = ent.pass.replace(/'/g, "\\'");
                         entriesHtml += `
                             <tr>
                                 <td><strong>${ent.app}</strong></td>
-                                <td><span class="pass-badge">${ent.pass}</span></td>
+                                <td>
+                                    <div class="pass-container">
+                                        <span class="pass-badge">${ent.pass}</span>
+                                        <button class="btn-copy-pass" onclick="copyPassword('${safePassAdmin}', this)" title="نسخ"><i class="fa-solid fa-copy"></i></button>
+                                    </div>
+                                </td>
                                 <td style="font-size: 12px; color: var(--text-muted);">${ent.date}</td>
                                 <td style="white-space: nowrap;">
                                     <button class="btn btn-outline btn-sm" onclick="adminEditEntry(${mIndex}, ${eIndex})"><i class="fa-solid fa-pen"></i></button>
@@ -666,7 +697,12 @@ window.FAMILY_VAULT_DATA = {
                         <div class="member-header">
                             <div>
                                 <strong style="color: var(--primary-blue); font-size: 16px;"><i class="fa-solid fa-user"></i> ${member.username}</strong>
-                                <span style="font-size: 12.5px; color: var(--text-muted); margin-right: 8px;">باسورد الدخول: <span class="pass-badge">${member.password}</span></span>
+                                <span style="font-size: 12.5px; color: var(--text-muted); margin-right: 8px;">باسورد الدخول: 
+                                    <span class="pass-container" style="padding:1px 6px;">
+                                        <span class="pass-badge" style="font-size:12px;">${member.password}</span>
+                                        <button class="btn-copy-pass" onclick="copyPassword('${member.password.replace(/'/g, "\\'")}', this)"><i class="fa-solid fa-copy"></i></button>
+                                    </span>
+                                </span>
                             </div>
                             <div style="display: flex; gap: 6px;">
                                 <button class="btn btn-outline btn-sm" onclick="adminEditMemberPass(${mIndex})">تعديل باسورده</button>
