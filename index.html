@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة خزنة العائلة | Family Vault System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-page: #f0f7ff;
+            --bg-card: #ffffff;
+            --primary-blue: #0284c7;
+            --light-blue: #e0f2fe;
+            --hover-blue: #0369a1;
+            --border-color: #bae6fd;
+            --text-dark: #0f172a;
+            --text-muted: #475569;
+            --danger: #dc2626;
+            --danger-bg: #fee2e2;
+            --success: #059669;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-page);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(186, 230, 253, 0.5) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(224, 242, 254, 0.6) 0px, transparent 50%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 820px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 15px 35px -5px rgba(2, 132, 199, 0.1), 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        /* شاشة الدخول تكون مدمجة وأنيقة */
+        .login-box {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .system-icon {
+            width: 68px;
+            height: 68px;
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            font-size: 28px;
+            box-shadow: 0 8px 16px rgba(2, 132, 199, 0.12);
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13.5px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            color: var(--text-dark);
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-blue);
+            background: #ffffff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: none;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 14.5px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: var(--hover-blue);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(2, 132, 199, 0.25);
+        }
+
+        .btn-outline {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            background: #bae6fd;
+        }
+
+        .btn-danger {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: #ffffff;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12.5px;
+            width: auto;
+            border-radius: 8px;
+        }
+
+        /* شريط العنوان العلوي للوحات التحكم */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 2px solid var(--light-blue);
+            padding-bottom: 16px;
+            margin-bottom: 22px;
+        }
+
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .panel-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 22px;
+        }
+
+        .panel-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* الجداول الرسمية */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            background: #ffffff;
+        }
+
+        .data-table th {
+            background: var(--light-blue);
+            color: var(--text-dark);
+            font-weight: 800;
+            text-align: right;
+            padding: 12px 14px;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 12px 14px;
+            border-top: 1px solid #f1f5f9;
+            color: var(--text-dark);
+        }
+
+        .pass-badge {
+            font-family: 'JetBrains Mono', monospace;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 3px 8px;
+            border-radius: 6px;
+            color: #0369a1;
+            font-weight: 700;
+            direction: ltr;
+            display: inline-block;
+        }
+
+        .member-block {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+
+        .member-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* التجاوب الكامل مع شاشات الجوال */
+        @media (max-width: 640px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+            }
+            .container {
+                padding: 22px 16px;
+                border-radius: 16px;
+                margin-top: 10px;
+            }
+            .grid-3, .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .top-bar-actions {
+                width: 100%;
+                display: flex;
+                gap: 8px;
+            }
+            .top-bar-actions .btn {
+                flex: 1;
+            }
+            .data-table th, .data-table td {
+                padding: 10px 8px;
+                font-size: 12.5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- 1. شاشة تسجيل الدخول -->
+        <div id="loginSection" class="login-box">
+            <div class="system-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <h2>بوابة خزنة العائلة</h2>
+            <p class="subtitle">نظام حفظ وإدارة الحسابات وكلمات المرور</p>
+            
+            <div class="form-group">
+                <label>اسم المستخدم</label>
+                <input type="text" id="loginUsername" placeholder="أدخل اسم المستخدم">
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="loginPassword" placeholder="••••••••">
+            </div>
+            
+            <button class="btn btn-primary" onclick="login()" style="margin-top: 8px;">
+                <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
+            </button>
+        </div>
+
+        <!-- 2. لوحة تحكم فرد العائلة (المستخدم العادي) -->
+        <div id="userDashboard" class="hidden">
+            <div class="top-bar">
+                <div>
+                    <span class="admin-badge"><i class="fa-solid fa-user-check"></i> حساب شخصي محمي</span>
+                    <h3 style="margin-top: 6px; font-size: 20px;" id="welcomeUserTitle">أهلاً بك</h3>
+                </div>
+                <div class="top-bar-actions">
+                    <button class="btn btn-danger btn-sm" onclick="logout()">
+                        <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة تطبيق أو حساب جديد</div>
+                <div class="grid-3">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>اسم التطبيق / الموقع</label>
+                        <input type="text" id="appName" placeholder="مثال: واتساب، جيميل">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>كلمة السر</label>
+                        <input type="text" id="appPass" placeholder="اكتب كلمة السر">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>تاريخ التغيير / الحفظ</label>
+                        <input type="date" id="appDate">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addUserEntry()" style="margin-top: 14px;">
+                    <i class="fa-solid fa-floppy-disk"></i> حفظ البيانات في خزنتي
+                </button>
+            </div>
+
+            <h4 style="font-size: 15px; margin-bottom: 10px; color: var(--text-dark);">حساباتك المسجلة:</h4>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>التطبيق</th>
+                            <th>كلمة السر</th>
+                            <th>تاريخ التغيير</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userEntriesTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 3. لوحة تحكم المشرف العام -->
+        <div id="adminDashboard" class="hidden">
+            <div class="top-bar">
+                <div>
+                    <span class="admin-badge"><i class="fa-solid fa-crown"></i> لوحة الإدارة العليا (المشرف)</span>
+                    <h3 style="margin-top: 6px; font-size: 20px;">إدارة خزنة العائلة</h3>
+                </div>
+                <div class="top-bar-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn btn-outline btn-sm" onclick="changeAdminPassword()">
+                        <i class="fa-solid fa-key"></i> تغيير باسورد المشرف
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="logout()">
+                        <i class="fa-solid fa-power-off"></i> خروج
+                    </button>
+                </div>
+            </div>
+
+            <!-- إضافة فرد جديد للعائلة -->
+            <div class="panel-card">
+                <div class="panel-title"><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد للعائلة</div>
+                <div class="grid-2">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>اسم المستخدم (للدخول)</label>
+                        <input type="text" id="newMemberUser" placeholder="مثال: أحمد">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>كلمة المرور (للدخول)</label>
+                        <input type="text" id="newMemberPass" placeholder="مثال: 2026">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="adminCreateMember()" style="margin-top: 14px;">
+                    <i class="fa-solid fa-check"></i> إنشاء الحساب وتفعيله
+                </button>
+            </div>
+
+            <!-- عرض جميع أفراد العائلة وبياناتهم -->
+            <h4 style="font-size: 15.5px; margin-bottom: 12px; color: var(--text-dark);">
+                جميع حسابات العائلة (<span id="membersCount">0</span>):
+            </h4>
+            <div id="adminAllDataContainer"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const ADMIN_USER = "hatem";
+        let currentUser = null;
+
+        // جلب كلمة مرور المشرف المحفوظة أو الافتراضية (12345)
+        function getAdminPass() {
+            return localStorage.getItem('hatem_admin_pass') || "12345";
+        }
+
+        // ضبط تاريخ اليوم تلقائياً
+        document.getElementById('appDate').valueAsDate = new Date();
+
+        function toggleView(viewId) {
+            ['loginSection', 'userDashboard', 'adminDashboard'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        function getDB() {
+            return JSON.parse(localStorage.getItem('hatem_family_vault_db') || '[]');
+        }
+
+        function saveDB(db) {
+            localStorage.setItem('hatem_family_vault_db', JSON.stringify(db));
+        }
+
+        // تسجيل الدخول
+        function login() {
+            const u = document.getElementById('loginUsername').value.trim();
+            const p = document.getElementById('loginPassword').value.trim();
+
+            if (!u || !p) {
+                alert('يرجى إدخال اسم المستخدم وكلمة المرور');
+                return;
+            }
+
+            if (u === ADMIN_USER && p === getAdminPass()) {
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+                renderAdminView();
+                toggleView('adminDashboard');
+                return;
+            }
+
+            const db = getDB();
+            const member = db.find(m => m.username === u && m.password === p);
+
+            if (member) {
+                currentUser = member.username;
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('welcomeUserTitle').innerText = `أهلاً بك، ${member.username}`;
+                renderUserEntries();
+                toggleView('userDashboard');
+            } else {
+                alert('اسم المستخدم أو كلمة المرور غير صحيحة!');
+            }
+        }
+
+        // تغيير كلمة مرور المشرف
+        function changeAdminPassword() {
+            const oldPass = prompt('أدخل كلمة مرور المشرف الحالية للتأكيد:');
+            if (oldPass === null) return;
+            if (oldPass !== getAdminPass()) {
+                alert('كلمة المرور الحالية غير صحيحة!');
+                return;
+            }
+
+            const newPass = prompt('أدخل كلمة مرور المشرف الجديدة:');
+            if (newPass === null || !newPass.trim()) return;
+
+            localStorage.setItem('hatem_admin_pass', newPass.trim());
+            alert('تم تغيير كلمة مرور المشرف بنجاح! استخدمها في المرة القادمة.');
+        }
+
+        // --- وظائف المستخدم العادي ---
+
+        function addUserEntry() {
+            const app = document.getElementById('appName').value.trim();
+            const pass = document.getElementById('appPass').value.trim();
+            const date = document.getElementById('appDate').value;
+
+            if (!app || !pass || !date) {
+                alert('يرجى تعبئة جميع الحقول (التطبيق، كلمة السر، التاريخ)');
+                return;
+            }
+
+            const db = getDB();
+            const idx = db.findIndex(m => m.username === currentUser);
+            if (idx !== -1) {
+                if (!db[idx].entries) db[idx].entries = [];
+                db[idx].entries.push({ app, pass, date });
+                saveDB(db);
+
+                document.getElementById('appName').value = '';
+                document.getElementById('appPass').value = '';
+                document.getElementById('appDate').valueAsDate = new Date();
+                renderUserEntries();
+            }
+        }
+
+        function renderUserEntries() {
+            const db = getDB();
+            const member = db.find(m => m.username === currentUser);
+            const tbody = document.getElementById('userEntriesTable');
+            tbody.innerHTML = '';
+
+            if (!member || !member.entries || member.entries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding: 20px;">لا توجد حسابات محفوظة بعد.</td></tr>';
+                return;
+            }
+
+            member.entries.forEach((item, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.app}</strong></td>
+                        <td><span class="pass-badge">${item.pass}</span></td>
+                        <td style="font-size: 12.5px; color: var(--text-muted);">${item.date}</td>
+                        <td style="white-space: nowrap;">
+                            <button class="btn btn-outline btn-sm" onclick="editUserEntry(${index})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteUserEntry(${index})" title="حذف"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function editUserEntry(entryIndex) {
+            const db = getDB();
+            const mIdx = db.findIndex(m => m.username === currentUser);
+            const entry = db[mIdx].entries[entryIndex];
+
+            const newPass = prompt(`تعديل كلمة السر لتطبيق (${entry.app}):`, entry.pass);
+            if (newPass === null) return;
+
+            const newDate = prompt(`تعديل تاريخ التغيير (YYYY-MM-DD):`, entry.date);
+            if (newDate === null) return;
+
+            db[mIdx].entries[entryIndex].pass = newPass.trim() || entry.pass;
+            db[mIdx].entries[entryIndex].date = newDate.trim() || entry.date;
+            saveDB(db);
+            renderUserEntries();
+        }
+
+        function deleteUserEntry(entryIndex) {
+            if (!confirm('هل تريد حذف هذا الحساب من خزنتك؟')) return;
+            const db = getDB();
+            const mIdx = db.findIndex(m => m.username === currentUser);
+            db[mIdx].entries.splice(entryIndex, 1);
+            saveDB(db);
+            renderUserEntries();
+        }
+
+        // --- وظائف المشرف ---
+
+        function adminCreateMember() {
+            const username = document.getElementById('newMemberUser').value.trim();
+            const password = document.getElementById('newMemberPass').value.trim();
+
+            if (!username || !password) {
+                alert('أدخل اسم المستخدم وكلمة المرور للفرد الجديد');
+                return;
+            }
+
+            const db = getDB();
+            if (username === ADMIN_USER || db.some(m => m.username === username)) {
+                alert('هذا الاسم مسجل مسبقاً!');
+                return;
+            }
+
+            db.push({ username, password, entries: [] });
+            saveDB(db);
+
+            document.getElementById('newMemberUser').value = '';
+            document.getElementById('newMemberPass').value = '';
+            renderAdminView();
+        }
+
+        function renderAdminView() {
+            const db = getDB();
+            document.getElementById('membersCount').innerText = db.length;
+            const container = document.getElementById('adminAllDataContainer');
+            container.innerHTML = '';
+
+            if (db.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:20px; background:#f8fafc; border-radius:12px;">لم تقم بإضافة أي فرد من العائلة بعد.</p>';
+                return;
+            }
+
+            db.forEach((member, mIndex) => {
+                let entriesHtml = '';
+                if (!member.entries || member.entries.length === 0) {
+                    entriesHtml = '<p style="font-size: 13px; color: var(--text-muted);">لا توجد تطبيقات مضافة لهذا الحساب حتى الآن.</p>';
+                } else {
+                    entriesHtml = `
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>التطبيق</th>
+                                        <th>كلمة السر</th>
+                                        <th>تاريخ التغيير</th>
+                                        <th>إدارة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    member.entries.forEach((ent, eIndex) => {
+                        entriesHtml += `
+                            <tr>
+                                <td><strong>${ent.app}</strong></td>
+                                <td><span class="pass-badge">${ent.pass}</span></td>
+                                <td style="font-size: 12px; color: var(--text-muted);">${ent.date}</td>
+                                <td style="white-space: nowrap;">
+                                    <button class="btn btn-outline btn-sm" onclick="adminEditEntry(${mIndex}, ${eIndex})"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="adminDeleteEntry(${mIndex}, ${eIndex})"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    entriesHtml += '</tbody></table></div>';
+                }
+
+                container.innerHTML += `
+                    <div class="member-block">
+                        <div class="member-header">
+                            <div>
+                                <strong style="color: var(--primary-blue); font-size: 16px;"><i class="fa-solid fa-user"></i> ${member.username}</strong>
+                                <span style="font-size: 12.5px; color: var(--text-muted); margin-right: 8px;">باسورد الدخول: <span class="pass-badge">${member.password}</span></span>
+                            </div>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn btn-outline btn-sm" onclick="adminEditMemberPass(${mIndex})">تعديل باسورده</button>
+                                <button class="btn btn-danger btn-sm" onclick="adminDeleteMember(${mIndex})">حذف الفرد</button>
+                            </div>
+                        </div>
+                        ${entriesHtml}
+                    </div>
+                `;
+            });
+        }
+
+        function adminEditMemberPass(mIndex) {
+            const db = getDB();
+            const newPass = prompt(`تغيير كلمة مرور الدخول لـ (${db[mIndex].username}):`, db[mIndex].password);
+            if (newPass === null || !newPass.trim()) return;
+            db[mIndex].password = newPass.trim();
+            saveDB(db);
+            renderAdminView();
+        }
+
+        function adminDeleteMember(mIndex) {
+            const db = getDB();
+            if (confirm(`هل أنت متأكد من حذف حساب (${db[mIndex].username}) وجميع بياناته نهائياً؟`)) {
+                db.splice(mIndex, 1);
+                saveDB(db);
+                renderAdminView();
+            }
+        }
+
+        function adminEditEntry(mIndex, eIndex) {
+            const db = getDB();
+            const ent = db[mIndex].entries[eIndex];
+            const newPass = prompt(`تعديل كلمة سر (${ent.app}) الخاصة بـ (${db[mIndex].username}):`, ent.pass);
+            if (newPass === null) return;
+            const newDate = prompt(`تعديل تاريخ التغيير:`, ent.date);
+            if (newDate === null) return;
+
+            db[mIndex].entries[eIndex].pass = newPass.trim() || ent.pass;
+            db[mIndex].entries[eIndex].date = newDate.trim() || ent.date;
+            saveDB(db);
+            renderAdminView();
+        }
+
+        function adminDeleteEntry(mIndex, eIndex) {
+            if (!confirm('حذف هذا السجل؟')) return;
+            const db = getDB();
+            db[mIndex].entries.splice(eIndex, 1);
+            saveDB(db);
+            renderAdminView();
+        }
+
+        function logout() {
+            currentUser = null;
+            toggleView('loginSection');
+        }
+    </script>
+</body>
+</html>
