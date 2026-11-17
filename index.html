@@ -173,11 +173,9 @@
             margin-bottom: 8px;
         }
 
-        .grid-3 { display: grid; grid-template-columns: 1fr; gap: 8px; }
         .grid-2 { display: grid; grid-template-columns: 1fr; gap: 8px; }
 
         @media (min-width: 640px) {
-            .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
             .grid-2 { grid-template-columns: 1fr 1fr; }
         }
 
@@ -297,19 +295,15 @@
             </div>
 
             <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة تطبيق أو حساب جديد</div>
-                <div class="grid-3">
+                <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة تطبيق أو حساب جديد (تاريخ رسمي تلقائي)</div>
+                <div class="grid-2">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>اسم التطبيق</label>
-                        <input type="text" id="appName" placeholder="مثال: انستقرام">
+                        <input type="text" id="appName" placeholder="مثال: الوتس">
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>كلمة السر</label>
-                        <input type="text" id="appPass" placeholder="كلمة السر الجديدة">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label>تاريخ التغيير</label>
-                        <input type="date" id="appDate">
+                        <input type="text" id="appPass" placeholder="كلمة السر">
                     </div>
                 </div>
                 <button class="btn btn-primary" onclick="addUserEntry()" style="margin-top: 10px;">
@@ -324,7 +318,7 @@
                         <tr>
                             <th>التطبيق</th>
                             <th>كلمة السر</th>
-                            <th>تاريخ التغيير</th>
+                            <th>التاريخ</th>
                             <th>إجراءات</th>
                         </tr>
                     </thead>
@@ -394,8 +388,6 @@
         let currentUser = null;
         let currentMemberDocId = null;
         let autoSyncInterval = null;
-
-        document.getElementById('appDate').valueAsDate = new Date();
 
         function toggleView(viewId) {
             ['loginSection', 'userDashboard', 'adminDashboard'].forEach(id => {
@@ -506,15 +498,19 @@
             alert('تم تغيير كلمة مرور المشرف بنجاح!');
         }
 
+        // حفظ التطبيق مع توليد التاريخ الرسمي تلقائياً (YYYY-MM-DD) دون تدخل يدوي
         async function addUserEntry() {
             const app = document.getElementById('appName').value.trim();
             const pass = document.getElementById('appPass').value.trim();
-            const date = document.getElementById('appDate').value;
 
-            if (!app || !pass || !date) {
-                alert('يرجى تعبئة الحقول وتحديد التاريخ');
+            if (!app || !pass) {
+                alert('يرجى تعبئة حقل اسم التطبيق وكلمة السر');
                 return;
             }
+
+            // توليد التاريخ الرسمي تلقائياً من نظام الجهاز
+            const now = new Date();
+            const date = now.toISOString().split('T')[0];
 
             const memberRef = db.collection('members').doc(currentMemberDocId);
             const doc = await memberRef.get();
@@ -524,7 +520,6 @@
             await memberRef.update({ entries });
             document.getElementById('appName').value = '';
             document.getElementById('appPass').value = '';
-            document.getElementById('appDate').valueAsDate = new Date();
             renderUserEntries(entries);
         }
 
@@ -566,16 +561,15 @@
             const newPass = prompt(`تعديل كلمة السر لـ (${item.app}):`, item.pass);
             if (newPass === null) return;
 
-            const newDate = prompt(`تعديل تاريخ التغيير (YYYY-MM-DD):`, item.date);
-            if (newDate === null) return;
-
-            if (!newPass.trim() || !newDate.trim()) {
-                alert('لا يمكن ترك الحقول فارغة!');
+            if (!newPass.trim()) {
+                alert('لا يمكن أن تكون كلمة السر فارغة!');
                 return;
             }
 
+            // تحديث كلمة السر وتحديث التاريخ تلقائياً ليوم التعديل
+            const now = new Date();
             entries[index].pass = newPass.trim();
-            entries[index].date = newDate.trim();
+            entries[index].date = now.toISOString().split('T')[0];
 
             await memberRef.update({ entries });
             renderUserEntries(entries);
@@ -630,9 +624,18 @@
                 if (!member.entries || member.entries.length === 0) {
                     entriesHtml = '<p style="font-size: 12.5px; color: var(--text-muted); padding: 5px 0;">لا توجد تطبيقات مضافة.</p>';
                 } else {
-                    entriesHtml = `<div class="table-wrapper" style="margin-top: 5px;"><table class="data-table"><thead><tr><th>التطبيق</th><th>كلمة السر</th><th>التاريخ</th></tr></thead><tbody>`;
-                    member.entries.forEach(ent => {
-                        entriesHtml += `<tr><td>${ent.app}</td><td><span class="pass-badge">${ent.pass}</span></td><td>${ent.date}</td></tr>`;
+                    entriesHtml = `<div class="table-wrapper" style="margin-top: 5px;"><table class="data-table"><thead><tr><th>التطبيق</th><th>كلمة السر</th><th>التاريخ</th><th>إجراءات المشرف</th></tr></thead><tbody>`;
+                    member.entries.forEach((ent, entIndex) => {
+                        entriesHtml += `
+                            <tr>
+                                <td>${ent.app}</td>
+                                <td><span class="pass-badge">${ent.pass}</span></td>
+                                <td>${ent.date}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="adminEditAppPassword('${mId}', ${entIndex}, '${ent.app}', '${ent.pass}')">تعديل الباسورد</button>
+                                </td>
+                            </tr>
+                        `;
                     });
                     entriesHtml += `</tbody></table></div>`;
                 }
@@ -642,10 +645,10 @@
                         <div class="member-header">
                             <div>
                                 <strong style="color: var(--primary-blue); font-size: 14px;">${member.username}</strong>
-                                <span style="font-size: 12px; color: var(--text-muted); margin-right: 6px;">الباسورد: <span class="pass-badge">${member.password}</span></span>
+                                <span style="font-size: 12px; color: var(--text-muted); margin-right: 6px;">الباسورد العام: <span class="pass-badge">${member.password}</span></span>
                             </div>
                             <div style="display: flex; gap: 4px;">
-                                <button class="btn btn-warning btn-sm" onclick="adminEditMemberPassword('${mId}', '${member.username}', '${member.password}')">تعديل الباسورد</button>
+                                <button class="btn btn-warning btn-sm" onclick="adminEditMemberPassword('${mId}', '${member.username}', '${member.password}')">تعديل باسورد الحساب</button>
                                 <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${mId}')">حذف</button>
                             </div>
                         </div>
@@ -655,8 +658,32 @@
             });
         }
 
+        // صلاحيات المشرف لتغيير كلمة سر أي تطبيق خاص بالأفراد
+        async function adminEditAppPassword(mId, entIndex, appName, currentPass) {
+            const newPass = prompt(`تعديل كلمة السر لتطبيق (${appName}):`, currentPass);
+            if (newPass === null) return;
+            if (!newPass.trim()) {
+                alert('كلمة السر لا يمكن أن تكون فارغة!');
+                return;
+            }
+
+            const docRef = db.collection('members').doc(mId);
+            const doc = await docRef.get();
+            if (!doc.exists) return;
+
+            let entries = doc.data().entries || [];
+            entries[entIndex].pass = newPass.trim();
+            
+            // تحديث التاريخ تلقائياً ليوم التعديل من قبل المشرف
+            const now = new Date();
+            entries[entIndex].date = now.toISOString().split('T')[0];
+
+            await docRef.update({ entries });
+            renderAdminView();
+        }
+
         async function adminEditMemberPassword(mId, username, currentPass) {
-            const newPass = prompt(`تعديل كلمة المرور الخاصة بالعضو (${username}):`, currentPass);
+            const newPass = prompt(`تعديل كلمة المرور الخاصة بالحساب (${username}):`, currentPass);
             if (newPass === null) return;
 
             if (!newPass.trim()) {
