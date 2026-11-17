@@ -41,21 +41,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 12px;
+            padding: 10px;
         }
 
         .container {
             width: 100%;
             max-width: 900px;
             background: var(--bg-card);
-            border-radius: 24px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 16px;
             box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         @media (min-width: 768px) {
-            .container { padding: 36px; }
+            .container { padding: 32px; }
         }
 
         /* شاشة تسجيل الدخول */
@@ -67,22 +67,22 @@
         }
 
         .system-icon {
-            width: 76px;
-            height: 76px;
+            width: 70px;
+            height: 70px;
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: #ffffff;
-            border-radius: 20px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 32px;
+            margin: 0 auto 18px;
+            font-size: 28px;
             box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
         }
 
         .login-box h2 {
             text-align: center;
-            font-size: 22px;
+            font-size: 21px;
             font-weight: 800;
             color: var(--text-main);
             margin-bottom: 6px;
@@ -91,23 +91,23 @@
         .login-box .subtitle {
             text-align: center;
             color: var(--text-muted);
-            font-size: 13.5px;
-            margin-bottom: 28px;
+            font-size: 13px;
+            margin-bottom: 24px;
         }
 
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; margin-bottom: 6px; font-weight: 700; color: var(--text-main); }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 12.5px; margin-bottom: 6px; font-weight: 700; color: var(--text-main); }
 
         .form-group input {
             width: 100%;
-            padding: 13px 16px;
+            padding: 12px 14px;
             background: #f8fafc;
             border: 1.5px solid var(--border-color);
             border-radius: 12px;
             color: var(--text-main);
             font-family: 'Cairo', sans-serif;
-            font-size: 14.5px;
-            transition: all 0.25s ease;
+            font-size: 14px;
+            transition: all 0.2s ease;
         }
 
         .form-group input:focus {
@@ -118,12 +118,12 @@
         }
 
         .btn {
-            padding: 11px 16px;
+            padding: 10px 14px;
             border-radius: 10px;
             border: none;
             font-family: 'Cairo', sans-serif;
             font-weight: 700;
-            font-size: 13.5px;
+            font-size: 13px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: inline-flex;
@@ -133,9 +133,9 @@
             white-space: nowrap;
         }
 
-        .btn-full { width: 100%; padding: 13px 20px; font-size: 14.5px; }
-        .btn-primary { background: var(--primary); color: #ffffff; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-full { width: 100%; padding: 12px 18px; font-size: 14px; }
+        .btn-primary { background: var(--primary); color: #ffffff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
+        .btn-primary:hover { background: var(--primary-hover); }
 
         .btn-outline { background: #f8fafc; color: var(--primary); border: 1.5px solid var(--border-color); }
         .btn-outline:hover { background: #f1f5f9; border-color: var(--primary); }
@@ -146,109 +146,128 @@
         .btn-danger { background: var(--danger-bg); color: var(--danger); }
         .btn-danger:hover { background: var(--danger); color: #ffffff; }
 
-        .btn-sm { padding: 7px 12px; font-size: 12px; border-radius: 8px; }
+        .btn-sm { padding: 6px 10px; font-size: 11.5px; border-radius: 7px; }
 
-        /* شريط علوي مرتب ونظيف للأزرار */
+        /* شريط علوي مرتب */
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 16px;
+            gap: 12px;
             border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 18px;
-            margin-bottom: 24px;
+            padding-bottom: 14px;
+            margin-bottom: 20px;
         }
 
-        /* شريط الأزرار الموحد والمصمم باحترافية */
         .toolbar-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: #f8fafc;
-            padding: 6px;
+            padding: 5px;
             border: 1.5px solid var(--border-color);
-            border-radius: 14px;
+            border-radius: 12px;
             flex-wrap: wrap;
         }
 
         .status-badge {
             background: var(--success-bg);
             color: var(--success);
-            padding: 5px 12px;
+            padding: 4px 10px;
             border-radius: 50px;
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 700;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .panel-card {
             background: #f8fafc;
             border: 1.5px solid var(--border-color);
             border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
+            padding: 16px;
+            margin-bottom: 20px;
         }
 
         .panel-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 800;
             color: var(--primary);
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 14px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 10px; }
 
         @media (min-width: 640px) {
             .grid-2 { grid-template-columns: 1fr 1fr; }
         }
 
-        /* الجدول */
-        .table-wrapper {
-            overflow-x: auto;
+        /* --- تصميم البطاقات الجديدة المتوافقة مع الهواتف (بدلاً من الجدول المزدحم) --- */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        @media (min-width: 640px) {
+            .cards-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .account-card {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
             border-radius: 14px;
-            border: 1.5px solid var(--border-color);
-            -webkit-overflow-scrolling: touch;
-            background: #ffffff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-            background: #ffffff;
-            white-space: nowrap;
-        }
-
-        .data-table th {
-            background: #f8fafc;
-            color: var(--text-main);
-            font-weight: 800;
-            text-align: right;
-            padding: 14px 18px;
-            border-bottom: 1.5px solid var(--border-color);
-        }
-
-        .data-table td {
-            padding: 14px 18px;
-            border-top: 1px solid #f1f5f9;
-            vertical-align: middle;
-        }
-
-        .pass-container {
-            display: inline-flex;
-            align-items: center;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
             gap: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+
+        .account-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+        }
+
+        .account-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 8px;
+        }
+
+        .account-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .account-date {
+            font-size: 11.5px;
+            color: var(--text-muted);
+        }
+
+        .account-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             background: #f8fafc;
-            border: 1.5px solid var(--border-color);
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
         }
 
         .pass-badge {
@@ -256,7 +275,15 @@
             color: var(--primary);
             font-weight: 700;
             direction: ltr;
-            font-size: 13.5px;
+            font-size: 13px;
+        }
+
+        .card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 8px;
         }
 
         .btn-copy-pass {
@@ -264,17 +291,16 @@
             border: none;
             color: var(--primary);
             cursor: pointer;
-            font-size: 15px;
+            font-size: 14px;
             padding: 2px;
-            transition: transform 0.1s;
         }
-        .btn-copy-pass:active { transform: scale(0.9); }
 
+        /* حاويات الآدمن والأكورديون */
         .member-block {
             background: #ffffff;
             border: 1.5px solid var(--border-color);
             border-radius: 14px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             overflow: hidden;
             transition: all 0.2s ease;
         }
@@ -285,7 +311,7 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
-            padding: 16px 20px;
+            padding: 14px 16px;
             background: #f8fafc;
             cursor: pointer;
             user-select: none;
@@ -295,14 +321,14 @@
 
         .chevron-icon {
             color: var(--primary);
-            font-size: 14px;
+            font-size: 13px;
             transition: transform 0.25s ease;
         }
 
         .chevron-icon.rotated { transform: rotate(-180deg); }
 
         .member-body {
-            padding: 18px;
+            padding: 14px;
             border-top: 1.5px solid var(--border-color);
             background: #ffffff;
         }
@@ -310,9 +336,9 @@
         .count-pill {
             background: #e0f2fe;
             color: #0369a1;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
-            padding: 3px 10px;
+            padding: 2px 8px;
             border-radius: 20px;
         }
 
@@ -338,28 +364,27 @@
                 <input type="password" id="loginPassword" placeholder="••••••••">
             </div>
             
-            <button class="btn btn-primary btn-full" onclick="login()" style="margin-top: 10px;">
+            <button class="btn btn-primary btn-full" onclick="login()" style="margin-top: 8px;">
                 <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول للنظام
             </button>
         </div>
 
-        <!-- لوحة المستخدم (بالأزرار المرتبة في شريط موحد) -->
+        <!-- لوحة المستخدم (بتصميم بطاقات مريحة للجوال) -->
         <div id="userDashboard" class="hidden">
             <div class="top-bar">
                 <div>
                     <span class="status-badge"><i class="fa-solid fa-circle-check"></i> متصل بالسحابة</span>
-                    <h3 style="margin-top: 6px; font-size: 19px; font-weight: 800;" id="welcomeUserTitle">أهلاً بك</h3>
+                    <h3 style="margin-top: 4px; font-size: 18px; font-weight: 800;" id="welcomeUserTitle">أهلاً بك</h3>
                 </div>
                 
-                <!-- شريط أزرار التحكم العلوي (مرتب ومنظم تماماً) -->
                 <div class="toolbar-group">
-                    <button class="btn btn-outline" onclick="refreshUserDataManual()">
+                    <button class="btn btn-outline btn-sm" onclick="refreshUserDataManual()">
                         <i class="fa-solid fa-rotate"></i> تحديث
                     </button>
-                    <button class="btn btn-outline" onclick="changeMyPassword()">
+                    <button class="btn btn-outline btn-sm" onclick="changeMyPassword()">
                         <i class="fa-solid fa-key"></i> الباسورد
                     </button>
-                    <button class="btn btn-danger" onclick="logout()">
+                    <button class="btn btn-danger btn-sm" onclick="logout()">
                         <i class="fa-solid fa-right-from-bracket"></i> خروج
                     </button>
                 </div>
@@ -370,52 +395,41 @@
                 <div class="grid-2">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>اسم التطبيق أو المنصة</label>
-                        <input type="text" id="appName" placeholder="مثال: واتساب، فيسبوك، انستقرام...">
+                        <input type="text" id="appName" placeholder="مثال: واتساب، فيسبوك...">
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>كلمة السر</label>
                         <input type="text" id="appPass" placeholder="كلمة السر الخاصة به">
                     </div>
                 </div>
-                <button class="btn btn-primary btn-full" onclick="addUserEntry()" style="margin-top: 16px;">
+                <button class="btn btn-primary btn-full" onclick="addUserEntry()" style="margin-top: 14px;">
                     <i class="fa-solid fa-cloud-arrow-up"></i> حفظ سحابي فوري
                 </button>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h4 style="font-size: 15px; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-list-check" style="color: var(--primary);"></i> خريطة حساباتك وتطبيقاتك المسجلة:</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="font-size: 14.5px; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-address-card" style="color: var(--primary);"></i> خريطة حساباتك المسجلة:</h4>
             </div>
             
-            <div class="table-wrapper">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>التطبيق / المنصة</th>
-                            <th>كلمة السر</th>
-                            <th>تاريخ الإضافة</th>
-                            <th style="text-align: center;">الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userEntriesTable"></tbody>
-                </table>
-            </div>
+            <!-- عرض الحسابات كبطاقات أنيقة ومنظمة -->
+            <div id="userEntriesCards" class="cards-grid"></div>
         </div>
 
         <!-- لوحة المشرف -->
         <div id="adminDashboard" class="hidden">
             <div class="top-bar">
                 <div>
-                    <span class="status-badge" style="background: #e0f2fe; color: #0369a1;"><i class="fa-solid fa-crown"></i> المشرف العام (الآدمن)</span>
-                    <h3 style="margin-top: 6px; font-size: 19px; font-weight: 800;">إدارة النظام والأعضاء</h3>
+                    <span class="status-badge" style="background: #e0f2fe; color: #0369a1;"><i class="fa-solid fa-crown"></i> المشرف العام</span>
+                    <h3 style="margin-top: 4px; font-size: 18px; font-weight: 800;">إدارة النظام والأعضاء</h3>
                 </div>
                 <div class="toolbar-group">
-                    <button class="btn btn-outline" onclick="renderAdminView()">
+                    <button class="btn btn-outline btn-sm" onclick="renderAdminView()">
                         <i class="fa-solid fa-rotate"></i> تحديث
                     </button>
-                    <button class="btn btn-outline" onclick="changeAdminPassword()">
+                    <button class="btn btn-outline btn-sm" onclick="changeAdminPassword()">
                         <i class="fa-solid fa-key"></i> الباسورد
                     </button>
-                    <button class="btn btn-danger" onclick="logout()">
+                    <button class="btn btn-danger btn-sm" onclick="logout()">
                         <i class="fa-solid fa-power-off"></i> خروج
                     </button>
                 </div>
@@ -433,12 +447,12 @@
                         <input type="text" id="newMemberPass" placeholder="مثال: 2026">
                     </div>
                 </div>
-                <button class="btn btn-primary btn-full" onclick="adminCreateMember()" style="margin-top: 16px;">
+                <button class="btn btn-primary btn-full" onclick="adminCreateMember()" style="margin-top: 14px;">
                     <i class="fa-solid fa-check"></i> حفظ المستخدم سحابياً
                 </button>
             </div>
 
-            <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 12px;"><i class="fa-solid fa-users"></i> المستخدمون المسجلون (<span id="membersCount">0</span>):</h4>
+            <h4 style="font-size: 14.5px; font-weight: 800; margin-bottom: 10px;"><i class="fa-solid fa-users"></i> المستخدمون المسجلون (<span id="membersCount">0</span>):</h4>
             <div id="adminAllDataContainer"></div>
         </div>
 
@@ -596,31 +610,33 @@
             renderUserEntries(entries);
         }
 
+        // عرض الحسابات بشكل بطاقات مريحة ومرتبة على الهاتف
         function renderUserEntries(entries) {
-            const tbody = document.getElementById('userEntriesTable');
-            tbody.innerHTML = '';
+            const container = document.getElementById('userEntriesCards');
+            container.innerHTML = '';
             if (entries.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding: 30px;">لا توجد حسابات محفوظة حالياً. ابدأ بإضافة تطبيقك الأول!</td></tr>';
+                container.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); padding: 30px; background:#fff; border-radius:14px; border:1.5px solid var(--border-color);">لا توجد حسابات محفوظة حالياً. ابدأ بإضافة تطبيقك الأول!</div>';
                 return;
             }
             entries.forEach((item, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong style="color: var(--text-main);">${item.app}</strong></td>
-                        <td>
-                            <div class="pass-container">
+                container.innerHTML += `
+                    <div class="account-card">
+                        <div class="account-card-header">
+                            <div class="account-title"><i class="fa-solid fa-bookmark" style="color:var(--primary); font-size:13px;"></i> ${item.app}</div>
+                            <div class="account-date"><i class="fa-regular fa-calendar-days"></i> ${item.date}</div>
+                        </div>
+                        <div class="account-body">
+                            <span style="font-size: 12px; color: var(--text-muted); font-weight:700;">كلمة السر:</span>
+                            <div style="display:flex; align-items:center; gap:8px;">
                                 <span class="pass-badge">${item.pass}</span>
-                                <button class="btn-copy-pass" onclick="copyPassword('${item.pass}')" title="نسخ كلمة السر"><i class="fa-solid fa-copy"></i></button>
+                                <button class="btn-copy-pass" onclick="copyPassword('${item.pass}')" title="نسخ"><i class="fa-solid fa-copy"></i></button>
                             </div>
-                        </td>
-                        <td style="color: var(--text-muted); font-size: 13px;">${item.date}</td>
-                        <td style="text-align: center;">
-                            <div style="display: inline-flex; gap: 8px;">
-                                <button class="btn btn-warning btn-sm" onclick="editUserEntry(${index})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteUserEntry(${index})" title="حذف"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-warning btn-sm" onclick="editUserEntry(${index})"><i class="fa-solid fa-pen"></i> تعديل</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteUserEntry(${index})"><i class="fa-solid fa-trash"></i> حذف</button>
+                        </div>
+                    </div>
                 `;
             });
         }
@@ -712,40 +728,38 @@
                 let entriesHtml = '';
                 
                 if (appCount === 0) {
-                    entriesHtml = '<p style="font-size: 13.5px; color: var(--text-muted); padding: 8px 0;">لا توجد تطبيقات مضافة لهذا المستخدم.</p>';
+                    entriesHtml = '<p style="font-size: 13px; color: var(--text-muted); padding: 8px 0;">لا توجد تطبيقات مضافة لهذا المستخدم.</p>';
                 } else {
-                    entriesHtml = `<div class="table-wrapper"><table class="data-table"><thead><tr><th>التطبيق</th><th>كلمة السر</th><th>التاريخ</th><th>إجراءات المشرف</th></tr></thead><tbody>`;
+                    entriesHtml = `<div style="display:grid; grid-template-columns: 1fr; gap:10px;">`;
                     member.entries.forEach((ent, entIndex) => {
                         entriesHtml += `
-                            <tr>
-                                <td><strong>${ent.app}</strong></td>
-                                <td>
-                                    <div class="pass-container">
-                                        <span class="pass-badge">${ent.pass}</span>
-                                        <button class="btn-copy-pass" onclick="copyPassword('${ent.pass}')"><i class="fa-solid fa-copy"></i></button>
-                                    </div>
-                                </td>
-                                <td>${ent.date}</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm" onclick="adminEditAppPassword('${mId}', ${entIndex}, '${ent.app}', '${ent.pass}')">تعديل الباسورد</button>
-                                </td>
-                            </tr>
+                            <div style="background:#f8fafc; border:1px solid var(--border-color); border-radius:10px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <div>
+                                    <strong style="color:var(--text-main); font-size:14px;">${ent.app}</strong>
+                                    <div style="font-size:11.5px; color:var(--text-muted);">${ent.date}</div>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span class="pass-badge">${ent.pass}</span>
+                                    <button class="btn-copy-pass" onclick="copyPassword('${ent.pass}')"><i class="fa-solid fa-copy"></i></button>
+                                    <button class="btn btn-warning btn-sm" onclick="adminEditAppPassword('${mId}', ${entIndex}, '${ent.app}', '${ent.pass}')">تعديل</button>
+                                </div>
+                            </div>
                         `;
                     });
-                    entriesHtml += `</tbody></table></div>`;
+                    entriesHtml += `</div>`;
                 }
 
                 container.innerHTML += `
                     <div class="member-block">
                         <div class="member-header" onclick="toggleMemberAccordion('${mId}')">
-                            <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
                                 <i id="accordion-icon-${mId}" class="fa-solid fa-chevron-down chevron-icon ${isExpanded ? 'rotated' : ''}"></i>
-                                <strong style="color: var(--primary); font-size: 15.5px;">${member.username}</strong>
-                                <span style="font-size: 13px; color: var(--text-muted);">كلمة المرور: <span class="pass-badge">${member.password}</span></span>
+                                <strong style="color: var(--primary); font-size: 15px;">${member.username}</strong>
+                                <span style="font-size: 12px; color: var(--text-muted);">كلمة المرور: <span class="pass-badge">${member.password}</span></span>
                                 <span class="count-pill">${appCount} تطبيق</span>
                             </div>
                             <div style="display: flex; gap: 6px;" onclick="event.stopPropagation()">
-                                <button class="btn btn-warning btn-sm" onclick="adminEditMemberPassword('${mId}', '${member.username}', '${member.password}')">تعديل كلمة الحساب</button>
+                                <button class="btn btn-warning btn-sm" onclick="adminEditMemberPassword('${mId}', '${member.username}', '${member.password}')">تعديل الباسورد</button>
                                 <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${mId}')">حذف</button>
                             </div>
                         </div>
@@ -791,10 +805,6 @@
             });
 
             renderAdminView();
-        }
-
-        async function adminDeleteMessage(mId) {
-            // function stub
         }
 
         async function adminDeleteMember(mId) {
