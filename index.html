@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>خزنة العائلة السحابية | Family Vault</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,7 +43,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 16px;
+            padding: 12px; /* تقليص الحشو الخارجي ليلائم الهواتف الضيقة */
         }
 
         .container {
@@ -51,35 +51,42 @@
             max-width: 850px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 32px;
-            box-shadow: 0 15px 35px -5px rgba(2, 132, 199, 0.1);
+            border-radius: 16px;
+            padding: 16px; /* تقليص الحشو الداخلي ليناسب الهواتف بدقة */
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.1);
         }
 
-        .login-box { max-width: 400px; margin: 0 auto; }
+        @media (min-width: 768px) {
+            .container {
+                padding: 32px; /* إرجاع الحشو الواسع للشاشات الكبيرة واللابتوب */
+                border-radius: 20px;
+            }
+        }
+
+        .login-box { max-width: 400px; margin: 0 auto; width: 100%; }
 
         .system-icon {
-            width: 68px;
-            height: 68px;
+            width: 60px;
+            height: 60px;
             background: var(--light-blue);
             color: var(--primary-blue);
-            border-radius: 18px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 18px;
-            font-size: 28px;
+            margin: 0 auto 16px;
+            font-size: 24px;
         }
 
-        h2 { text-align: center; font-size: 22px; font-weight: 800; margin-bottom: 6px; }
-        .subtitle { text-align: center; color: var(--text-muted); font-size: 13.5px; margin-bottom: 24px; }
+        h2 { text-align: center; font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+        .subtitle { text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
 
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-size: 13px; margin-bottom: 6px; font-weight: 700; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12.5px; margin-bottom: 5px; font-weight: 700; }
 
         .form-group input {
             width: 100%;
-            padding: 12px 14px;
+            padding: 10px 12px;
             background: #f8fafc;
             border: 1.5px solid #cbd5e1;
             border-radius: 10px;
@@ -97,18 +104,18 @@
 
         .btn {
             width: 100%;
-            padding: 12px 16px;
+            padding: 11px 14px;
             border-radius: 10px;
             border: none;
             font-family: 'Cairo', sans-serif;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13.5px;
             cursor: pointer;
             transition: 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .btn-primary { background: var(--primary-blue); color: #ffffff; }
@@ -123,53 +130,65 @@
         .btn-danger { background: var(--danger-bg); color: var(--danger); }
         .btn-danger:hover { background: var(--danger); color: #ffffff; }
 
-        .btn-sm { padding: 7px 12px; font-size: 12.5px; width: auto; border-radius: 8px; }
+        .btn-sm { padding: 6px 10px; font-size: 12px; width: auto; border-radius: 8px; }
 
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
             border-bottom: 2px solid var(--light-blue);
-            padding-bottom: 16px;
-            margin-bottom: 22px;
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
         }
 
         .admin-badge {
             background: var(--light-blue);
             color: var(--primary-blue);
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 50px;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
         }
 
         .panel-card {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 18px;
-            margin-bottom: 20px;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
         }
 
         .panel-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 800;
             color: var(--primary-blue);
-            margin-bottom: 14px;
+            margin-bottom: 10px;
         }
 
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 10px; }
 
-        .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid #e2e8f0; }
+        @media (min-width: 640px) {
+            .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+            .grid-2 { grid-template-columns: 1fr 1fr; }
+        }
+
+        .table-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid #e2e8f0; -webkit-overflow-scrolling: touch; }
 
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13.5px;
+            font-size: 13px;
             background: #ffffff;
+            white-space: nowrap; /* يمنع تداخل النصوص على الشاشات الضيقة ويسمح بالسحب الأفقي بسلاسة */
         }
 
         .data-table th {
@@ -177,21 +196,21 @@
             color: var(--text-dark);
             font-weight: 800;
             text-align: right;
-            padding: 12px 14px;
+            padding: 10px 12px;
         }
 
         .data-table td {
-            padding: 12px 14px;
+            padding: 10px 12px;
             border-top: 1px solid #f1f5f9;
         }
 
         .pass-container {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: #f1f5f9;
             border: 1px solid #cbd5e1;
-            padding: 3px 8px;
+            padding: 2px 6px;
             border-radius: 6px;
         }
 
@@ -200,6 +219,7 @@
             color: #0369a1;
             font-weight: 700;
             direction: ltr;
+            font-size: 12.5px;
         }
 
         .btn-copy-pass {
@@ -207,15 +227,15 @@
             border: none;
             color: var(--primary-blue);
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .member-block {
             background: #ffffff;
             border: 1.5px solid var(--border-color);
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 16px;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
         }
 
         .member-header {
@@ -223,20 +243,13 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
             border-bottom: 1px solid #f1f5f9;
         }
 
         .hidden { display: none !important; }
-
-        @media (max-width: 640px) {
-            .grid-3, .grid-2 { grid-template-columns: 1fr; }
-            .top-bar { flex-direction: column; align-items: flex-start; }
-            .top-bar-actions { width: 100%; display: flex; gap: 8px; flex-wrap: wrap; }
-            .top-bar-actions .btn { flex: 1; }
-        }
     </style>
 </head>
 <body>
@@ -258,7 +271,7 @@
                 <input type="password" id="loginPassword" placeholder="••••••••">
             </div>
             
-            <button class="btn btn-primary" onclick="login()" style="margin-top: 8px;">
+            <button class="btn btn-primary" onclick="login()" style="margin-top: 6px;">
                 <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
             </button>
         </div>
@@ -268,14 +281,14 @@
             <div class="top-bar">
                 <div>
                     <span class="admin-badge"><i class="fa-solid fa-user-check"></i> حساب شخصي سحابي</span>
-                    <h3 style="margin-top: 6px; font-size: 20px;" id="welcomeUserTitle">أهلاً بك</h3>
+                    <h3 style="margin-top: 4px; font-size: 18px;" id="welcomeUserTitle">أهلاً بك</h3>
                 </div>
                 <div class="top-bar-actions">
                     <button class="btn btn-outline btn-sm" onclick="refreshUserDataManual()">
-                        <i class="fa-solid fa-rotate"></i> تحديث صامت
+                        <i class="fa-solid fa-rotate"></i> تحديث
                     </button>
                     <button class="btn btn-outline btn-sm" onclick="changeMyPassword()">
-                        <i class="fa-solid fa-key"></i> تغيير كلمة المرور
+                        <i class="fa-solid fa-key"></i> الباسورد
                     </button>
                     <button class="btn btn-danger btn-sm" onclick="logout()">
                         <i class="fa-solid fa-right-from-bracket"></i> خروج
@@ -284,10 +297,10 @@
             </div>
 
             <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة تطبيق أو حساب جديد (مثل: انستقرام)</div>
+                <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة تطبيق أو حساب جديد</div>
                 <div class="grid-3">
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label>اسم التطبيق / الموقع</label>
+                        <label>اسم التطبيق</label>
                         <input type="text" id="appName" placeholder="مثال: انستقرام">
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
@@ -295,16 +308,16 @@
                         <input type="text" id="appPass" placeholder="كلمة السر الجديدة">
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label>تاريخ التغيير (اختيار مباشر)</label>
+                        <label>تاريخ التغيير</label>
                         <input type="date" id="appDate">
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="addUserEntry()" style="margin-top: 14px;">
+                <button class="btn btn-primary" onclick="addUserEntry()" style="margin-top: 12px;">
                     <i class="fa-solid fa-floppy-disk"></i> حفظ في السحابة
                 </button>
             </div>
 
-            <h4 style="font-size: 15px; margin-bottom: 10px;">حساباتك المسجلة:</h4>
+            <h4 style="font-size: 14px; margin-bottom: 8px;">حساباتك المسجلة:</h4>
             <div class="table-wrapper">
                 <table class="data-table">
                     <thead>
@@ -324,15 +337,15 @@
         <div id="adminDashboard" class="hidden">
             <div class="top-bar">
                 <div>
-                    <span class="admin-badge"><i class="fa-solid fa-crown"></i> المشرف العام (مزامنة سحابية)</span>
-                    <h3 style="margin-top: 6px; font-size: 20px;">إدارة العائلة</h3>
+                    <span class="admin-badge"><i class="fa-solid fa-crown"></i> المشرف العام</span>
+                    <h3 style="margin-top: 4px; font-size: 18px;">إدارة العائلة</h3>
                 </div>
-                <div class="top-bar-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <div class="top-bar-actions">
                     <button class="btn btn-outline btn-sm" onclick="renderAdminView()">
-                        <i class="fa-solid fa-rotate"></i> تحديث صامت
+                        <i class="fa-solid fa-rotate"></i> تحديث
                     </button>
                     <button class="btn btn-outline btn-sm" onclick="changeAdminPassword()">
-                        <i class="fa-solid fa-key"></i> تغيير الباسورد العام
+                        <i class="fa-solid fa-key"></i> الباسورد
                     </button>
                     <button class="btn btn-danger btn-sm" onclick="logout()">
                         <i class="fa-solid fa-power-off"></i> خروج
@@ -352,12 +365,12 @@
                         <input type="text" id="newMemberPass" placeholder="مثال: 2026">
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="adminCreateMember()" style="margin-top: 14px;">
+                <button class="btn btn-primary" onclick="adminCreateMember()" style="margin-top: 12px;">
                     <i class="fa-solid fa-check"></i> إضافة الفرد سحابياً
                 </button>
             </div>
 
-            <h4 style="font-size: 15.5px; margin-bottom: 12px;">أفراد العائلة المسجلون (<span id="membersCount">0</span>):</h4>
+            <h4 style="font-size: 14.5px; margin-bottom: 10px;">أفراد العائلة المسجلون (<span id="membersCount">0</span>):</h4>
             <div id="adminAllDataContainer"></div>
         </div>
 
@@ -534,7 +547,7 @@
                         </td>
                         <td>${item.date}</td>
                         <td>
-                            <div style="display: flex; gap: 6px;">
+                            <div style="display: flex; gap: 4px;">
                                 <button class="btn btn-warning btn-sm" onclick="editUserEntry(${index})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
                                 <button class="btn btn-danger btn-sm" onclick="deleteUserEntry(${index})" title="حذف"><i class="fa-solid fa-trash"></i></button>
                             </div>
@@ -605,7 +618,7 @@
             container.innerHTML = '';
 
             if (snapshot.empty) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:20px;">لا يوجد أفراد مسجلون.</p>';
+                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:15px;">لا يوجد أفراد مسجلون.</p>';
                 return;
             }
 
@@ -615,9 +628,9 @@
                 let entriesHtml = '';
                 
                 if (!member.entries || member.entries.length === 0) {
-                    entriesHtml = '<p style="font-size: 13.5px; color: var(--text-muted); padding: 8px 0;">لا توجد تطبيقات مضافة.</p>';
+                    entriesHtml = '<p style="font-size: 13px; color: var(--text-muted); padding: 6px 0;">لا توجد تطبيقات مضافة.</p>';
                 } else {
-                    entriesHtml = `<div class="table-wrapper" style="margin-top: 8px;"><table class="data-table"><thead><tr><th>التطبيق</th><th>كلمة السر</th><th>التاريخ</th></tr></thead><tbody>`;
+                    entriesHtml = `<div class="table-wrapper" style="margin-top: 6px;"><table class="data-table"><thead><tr><th>التطبيق</th><th>كلمة السر</th><th>التاريخ</th></tr></thead><tbody>`;
                     member.entries.forEach(ent => {
                         entriesHtml += `<tr><td>${ent.app}</td><td><span class="pass-badge">${ent.pass}</span></td><td>${ent.date}</td></tr>`;
                     });
@@ -628,13 +641,12 @@
                     <div class="member-block">
                         <div class="member-header">
                             <div>
-                                <strong style="color: var(--primary-blue); font-size: 15px;">${member.username}</strong>
-                                <span style="font-size: 13px; color: var(--text-muted); margin-right: 10px;">الباسورد: <span class="pass-badge">${member.password}</span></span>
+                                <strong style="color: var(--primary-blue); font-size: 14.5px;">${member.username}</strong>
+                                <span style="font-size: 12.5px; color: var(--text-muted); margin-right: 8px;">الباسورد: <span class="pass-badge">${member.password}</span></span>
                             </div>
-                            <div style="display: flex; gap: 6px;">
-                                <!-- زر خاص للمشرف لتعديل كلمة المرور الخاصة بأي فرد من العائلة -->
+                            <div style="display: flex; gap: 4px;">
                                 <button class="btn btn-warning btn-sm" onclick="adminEditMemberPassword('${mId}', '${member.username}', '${member.password}')">تعديل الباسورد</button>
-                                <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${mId}')">حذف الفرد</button>
+                                <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${mId}')">حذف</button>
                             </div>
                         </div>
                         ${entriesHtml}
@@ -643,7 +655,6 @@
             });
         }
 
-        // دالة تمكن المشرف من تعديل كلمة مرور العضو المحدد
         async function adminEditMemberPassword(mId, username, currentPass) {
             const newPass = prompt(`تعديل كلمة المرور الخاصة بالعضو (${username}):`, currentPass);
             if (newPass === null) return;
