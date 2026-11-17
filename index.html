@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>خزنة العائلة - FamilyVault</title>
-  <!-- استيراد خط تجوال لتصميم عصري ومريح -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * {
@@ -37,12 +36,12 @@
     }
     h1 {
       color: #4f46e5;
-      font-size: 24px;
+      font-size: 22px;
     }
     .btn-refresh {
       background: #4f46e5;
       color: white;
-      padding: 8px 16px;
+      padding: 6px 14px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
@@ -50,6 +49,7 @@
       align-items: center;
       gap: 6px;
       font-weight: 600;
+      font-size: 14px;
       transition: background 0.2s;
     }
     .btn-refresh:hover {
@@ -64,7 +64,7 @@
       font-weight: 600;
       font-size: 14px;
     }
-    input, textarea {
+    input {
       width: 100%;
       padding: 10px;
       border: 1px solid #d1d5db;
@@ -80,6 +80,7 @@
       cursor: pointer;
       font-weight: 600;
       width: 100%;
+      font-size: 15px;
     }
     .btn-submit:hover {
       background: #059669;
@@ -93,60 +94,74 @@
       padding: 15px;
       border-radius: 8px;
       margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
-    .vault-info h3 {
+    .vault-card h3 {
       font-size: 16px;
       color: #111827;
       margin-bottom: 4px;
     }
-    .vault-info p {
+    .vault-card p {
       font-size: 14px;
       color: #6b7280;
+    }
+    .hidden {
+      display: none !important;
     }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <header>
-      <h1>🔐 خزنة العائلة (FamilyVault)</h1>
-      <!-- زر التحديث الفوري المضاف حديثاً -->
-      <button id="refreshBtn" class="btn-refresh" onclick="loadVaultData()">
-        🔄 تحديث البيانات
-      </button>
-    </header>
-
-    <!-- نموذج إضافة كلمة مرور أو ملاحظة جديدة -->
-    <div class="form-group">
-      <label for="itemTitle">عنوان الحساب / الخدمة:</label>
-      <input type="text" id="itemTitle" placeholder="مثال: راوتر البيت، حساب Netflix...">
+    
+    <!-- 1. شاشة تسجيل الدخول الأصلية -->
+    <div id="loginSection">
+      <header>
+        <h1>🔐 تسجيل الدخول - خزنة العائلة</h1>
+      </header>
+      <div class="form-group">
+        <label for="passCode">أدخل كلمة المرور للدخول:</label>
+        <input type="password" id="passCode" placeholder="كلمة المرور...">
+      </div>
+      <button class="btn-submit" onclick="checkLogin()">دخول للخزنة</button>
     </div>
-    <div class="form-group">
-      <label for="itemData">كلمة المرور أو التفاصيل:</label>
-      <input type="text" id="itemData" placeholder="اكتب كلمة المرور هنا...">
-    </div>
-    <button class="btn-submit" onclick="saveVaultItem()">حفظ في السحابة ☁️</button>
 
-    <!-- قائمة عرض البيانات المخزنة -->
-    <div class="vault-list">
-      <h3 style="margin-bottom: 15px; font-size: 18px;">البيانات المحفوظة سحابياً:</h3>
-      <div id="itemsContainer">
-        <p style="color: #6b7280; text-align: center;">جاري تحميل البيانات...</p>
+    <!-- 2. لوحة التحكم الداخلية (تظهر بعد تسجيل الدخول وتحتوي على زر التحديث) -->
+    <div id="dashboardSection" class="hidden">
+      <header>
+        <h1>🔐 خزنة العائلة (FamilyVault)</h1>
+        <!-- زر التحديث داخل الصفحة بعد الدخول -->
+        <button id="refreshBtn" class="btn-refresh" onclick="loadVaultData()">
+          🔄 تحديث البيانات
+        </button>
+      </header>
+
+      <div class="form-group">
+        <label for="itemTitle">عنوان الحساب / الخدمة:</label>
+        <input type="text" id="itemTitle" placeholder="مثال: راوتر البيت، حساب Netflix...">
+      </div>
+      <div class="form-group">
+        <label for="itemData">كلمة المرور أو التفاصيل:</label>
+        <input type="text" id="itemData" placeholder="اكتب كلمة المرور هنا...">
+      </div>
+      <button class="btn-submit" onclick="saveVaultItem()">حفظ في السحابة ☁️</button>
+
+      <div class="vault-list">
+        <h3 style="margin-bottom: 15px; font-size: 18px;">البيانات المحفوظة سحابياً:</h3>
+        <div id="itemsContainer">
+          <p style="color: #6b7280; text-align: center;">جاري تحميل البيانات...</p>
+        </div>
       </div>
     </div>
+
   </div>
 
-  <!-- ربط مكتبات Firebase (SDK v10) -->
+  <!-- ربط مكتبات Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // إعدادات مشروعك في Firebase (FamilyVault)
     const firebaseConfig = {
-      apiKey: "AIzaSy... (أدخل مفتاحك هنا إن لم يكن مضافاً)",
+      apiKey: "AIzaSy... (أدخل مفتاحك هنا)",
       authDomain: "familyvault-8246c.firebaseapp.com",
       projectId: "familyvault-8246c",
       storageBucket: "familyvault-8246c.appspot.com",
@@ -154,11 +169,22 @@
       appId: "YOUR_APP_ID"
     };
 
-    // تهيئة Firebase و Firestore
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // جعل الدوال متاحة على مستوى النطاق العام (Global) لتعمل مع الأزرار
+    // دالة فحص كلمة المرور لتسجيل الدخول
+    window.checkLogin = function() {
+      const code = document.getElementById('passCode').value;
+      // استبدل "1234" بكلمة المرور السرية الخاصة بعائلتك
+      if (code === "1234") {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('dashboardSection').classList.remove('hidden');
+        loadVaultData(); // جلب البيانات أول ما يفتح لوحة التحكم
+      } else {
+        alert("كلمة المرور غير صحيحة!");
+      }
+    };
+
     window.saveVaultItem = async function() {
       const title = document.getElementById('itemTitle').value.trim();
       const data = document.getElementById('itemData').value.trim();
@@ -177,11 +203,11 @@
         
         document.getElementById('itemTitle').value = '';
         document.getElementById('itemData').value = '';
-        alert("تم الحفظ بنجاح وسزامن مع باقي أجهزة العائلة!");
-        loadVaultData(); // تحديث القائمة فوراً بعد الحفظ
+        alert("تم الحفظ بنجاح!");
+        loadVaultData();
       } catch (e) {
         console.error("خطأ أثناء الحفظ: ", e);
-        alert("حدث خطأ أثناء الحفظ، تأكد من الاتصال.");
+        alert("حدث خطأ أثناء الحفظ.");
       }
     };
 
@@ -202,10 +228,8 @@
           const item = doc.data();
           container.innerHTML += `
             <div class="vault-card">
-              <div class="vault-info">
-                <h3>${item.title}</h3>
-                <p>كلمة المرور: <strong>${item.data}</strong></p>
-              </div>
+              <h3>${item.title}</h3>
+              <p>كلمة المرور: <strong>${item.data}</strong></p>
             </div>
           `;
         });
@@ -214,9 +238,6 @@
         container.innerHTML = '<p style="color: #ef4444; text-align: center;">فشل تحميل البيانات، اضغط زر التحديث لإعادة المحاولة.</p>';
       }
     };
-
-    // جلب البيانات تلقائياً أول ما يفتح المستخدم الصفحة
-    loadVaultData();
   </script>
 
 </body>
