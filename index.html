@@ -332,7 +332,7 @@
                         <i class="fa-solid fa-rotate"></i> تحديث صامت
                     </button>
                     <button class="btn btn-outline btn-sm" onclick="changeAdminPassword()">
-                        <i class="fa-solid fa-key"></i> تغيير الباسورد
+                        <i class="fa-solid fa-key"></i> تغيير الباسورد العام
                     </button>
                     <button class="btn btn-danger btn-sm" onclick="logout()">
                         <i class="fa-solid fa-power-off"></i> خروج
@@ -535,7 +535,6 @@
                         <td>${item.date}</td>
                         <td>
                             <div style="display: flex; gap: 6px;">
-                                <!-- زر تعديل كلمة السر والتاريخ مباشرة -->
                                 <button class="btn btn-warning btn-sm" onclick="editUserEntry(${index})" title="تعديل"><i class="fa-solid fa-pen"></i></button>
                                 <button class="btn btn-danger btn-sm" onclick="deleteUserEntry(${index})" title="حذف"><i class="fa-solid fa-trash"></i></button>
                             </div>
@@ -545,7 +544,6 @@
             });
         }
 
-        // دالة تعديل الحساب (كلمة السر والتاريخ) ضمن قسم الإجراءات
         async function editUserEntry(index) {
             const memberRef = db.collection('members').doc(currentMemberDocId);
             const doc = await memberRef.get();
@@ -563,11 +561,9 @@
                 return;
             }
 
-            // تحديث القيم داخل المصفوفة
             entries[index].pass = newPass.trim();
             entries[index].date = newDate.trim();
 
-            // حفظ التعديل في السحابة
             await memberRef.update({ entries });
             renderUserEntries(entries);
         }
@@ -633,14 +629,35 @@
                         <div class="member-header">
                             <div>
                                 <strong style="color: var(--primary-blue); font-size: 15px;">${member.username}</strong>
-                                <span style="font-size: 13.5px; color: var(--text-muted); margin-right: 10px;">الباسورد: <span class="pass-badge">${member.password}</span></span>
+                                <span style="font-size: 13px; color: var(--text-muted); margin-right: 10px;">الباسورد: <span class="pass-badge">${member.password}</span></span>
                             </div>
-                            <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${mId}')">حذف الفرد</button>
+                            <div style="display: flex; gap: 6px;">
+                                <!-- زر خاص للمشرف لتعديل كلمة المرور الخاصة بأي فرد من العائلة -->
+                                <button class="btn btn-warning btn-sm" onclick="adminEditMemberPassword('${mId}', '${member.username}', '${member.password}')">تعديل الباسورد</button>
+                                <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${mId}')">حذف الفرد</button>
+                            </div>
                         </div>
                         ${entriesHtml}
                     </div>
                 `;
             });
+        }
+
+        // دالة تمكن المشرف من تعديل كلمة مرور العضو المحدد
+        async function adminEditMemberPassword(mId, username, currentPass) {
+            const newPass = prompt(`تعديل كلمة المرور الخاصة بالعضو (${username}):`, currentPass);
+            if (newPass === null) return;
+
+            if (!newPass.trim()) {
+                alert('كلمة المرور لا يمكن أن تكون فارغة!');
+                return;
+            }
+
+            await db.collection('members').doc(mId).update({
+                password: newPass.trim()
+            });
+
+            renderAdminView();
         }
 
         async function adminDeleteMember(mId) {
