@@ -206,6 +206,10 @@
             .grid-2 { grid-template-columns: 1fr 1fr; }
         }
 
+        .vault-section {
+            margin-top: 8px;
+        }
+
         .search-box-container {
             margin-bottom: 16px;
         }
@@ -496,8 +500,8 @@
                     <button class="btn btn-outline btn-sm" onclick="refreshUserDataManual()">
                         <i class="fa-solid fa-rotate"></i> تحديث
                     </button>
-                    <button id="toggleAllUserPassBtn" class="btn btn-outline btn-sm" onclick="toggleAllUserPasswords()">
-                        <i class="fa-solid fa-eye"></i> إظهار الكل
+                    <button id="toggleVaultBtn" class="btn btn-outline btn-sm" onclick="toggleAccountsVault()">
+                        <i class="fa-solid fa-eye"></i> إظهار الحسابات
                     </button>
                     <button class="btn btn-outline btn-sm" onclick="changeMyPassword()">
                         <i class="fa-solid fa-key"></i> الباسورد
@@ -525,18 +529,21 @@
                 </button>
             </div>
 
-            <div class="search-box-container">
-                <div class="search-wrapper">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="searchAppInput" placeholder="ابحث عن أي تطبيق أو منصة مسجلة..." oninput="filterUserCards()">
+            <!-- خريطة الحسابات: مخفية افتراضياً وتظهر/تختفي بزر إظهار الحسابات -->
+            <div id="accountsVaultSection" class="vault-section hidden">
+                <div class="search-box-container">
+                    <div class="search-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="searchAppInput" placeholder="ابحث عن أي تطبيق أو منصة مسجلة..." oninput="filterUserCards()">
+                    </div>
                 </div>
-            </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h4 style="font-size: 15px; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-address-card" style="color: var(--primary);"></i> خريطة حساباتك المسجلة:</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h4 style="font-size: 15px; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-address-card" style="color: var(--primary);"></i> خريطة حساباتك المسجلة:</h4>
+                </div>
+                
+                <div id="userEntriesCards" class="cards-grid"></div>
             </div>
-            
-            <div id="userEntriesCards" class="cards-grid"></div>
         </div>
 
         <!-- لوحة المشرف -->
@@ -549,9 +556,6 @@
                 <div class="toolbar-group">
                     <button class="btn btn-outline btn-sm" onclick="renderAdminView()">
                         <i class="fa-solid fa-rotate"></i> تحديث
-                    </button>
-                    <button id="toggleAllAdminPassBtn" class="btn btn-outline btn-sm" onclick="toggleAllAdminPasswords()">
-                        <i class="fa-solid fa-eye"></i> إظهار الكل
                     </button>
                     <button class="btn btn-outline btn-sm" onclick="changeAdminPassword()">
                         <i class="fa-solid fa-key"></i> الباسورد
@@ -618,8 +622,7 @@
         let cachedEntries = [];
         let revealedUserCards = new Set();
         let revealedAdminItems = new Set();
-        let allUserPasswordsVisible = false;
-        let allAdminPasswordsVisible = false;
+        let accountsVaultVisible = false;
 
         function showToast(message) {
             const toast = document.getElementById('toastNotification');
@@ -689,45 +692,28 @@
             return '•'.repeat(len);
         }
 
-        function updateToggleAllButtons() {
-            const userBtn = document.getElementById('toggleAllUserPassBtn');
-            if (userBtn) {
-                userBtn.innerHTML = allUserPasswordsVisible
-                    ? '<i class="fa-solid fa-eye-slash"></i> إخفاء الكل'
-                    : '<i class="fa-solid fa-eye"></i> إظهار الكل';
-            }
+        function syncAccountsVaultVisibility() {
+            const vaultEl = document.getElementById('accountsVaultSection');
+            const btnEl = document.getElementById('toggleVaultBtn');
+            if (!vaultEl || !btnEl) return;
 
-            const adminBtn = document.getElementById('toggleAllAdminPassBtn');
-            if (adminBtn) {
-                adminBtn.innerHTML = allAdminPasswordsVisible
-                    ? '<i class="fa-solid fa-eye-slash"></i> إخفاء الكل'
-                    : '<i class="fa-solid fa-eye"></i> إظهار الكل';
+            if (accountsVaultVisible) {
+                vaultEl.classList.remove('hidden');
+                btnEl.innerHTML = '<i class="fa-solid fa-eye-slash"></i> إخفاء الحسابات';
+            } else {
+                vaultEl.classList.add('hidden');
+                revealedUserCards.clear();
+                btnEl.innerHTML = '<i class="fa-solid fa-eye"></i> إظهار الحسابات';
             }
         }
 
-        function toggleAllUserPasswords() {
+        function toggleAccountsVault() {
             resetIdleTimer();
-            allUserPasswordsVisible = !allUserPasswordsVisible;
-            revealedUserCards.clear();
-            if (allUserPasswordsVisible) {
-                cachedEntries.forEach((item, idx) => {
-                    revealedUserCards.add(`${idx}_${item.app}_${item.date}`);
-                });
+            accountsVaultVisible = !accountsVaultVisible;
+            syncAccountsVaultVisibility();
+            if (accountsVaultVisible) {
+                filterUserCards();
             }
-            updateToggleAllButtons();
-            filterUserCards();
-            showToast(allUserPasswordsVisible ? 'تم إظهار جميع كلمات السر' : 'تم إخفاء جميع كلمات السر');
-        }
-
-        function toggleAllAdminPasswords() {
-            resetIdleTimer();
-            allAdminPasswordsVisible = !allAdminPasswordsVisible;
-            if (!allAdminPasswordsVisible) {
-                revealedAdminItems.clear();
-            }
-            updateToggleAllButtons();
-            renderAdminView();
-            showToast(allAdminPasswordsVisible ? 'تم إظهار جميع كلمات السر' : 'تم إخفاء جميع كلمات السر');
         }
 
         function toggleView(viewId) {
@@ -765,9 +751,7 @@
             if (u === ADMIN_USER && p === adminPass) {
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
-                allAdminPasswordsVisible = false;
                 revealedAdminItems.clear();
-                updateToggleAllButtons();
                 renderAdminView();
                 toggleView('adminDashboard');
                 startAutoSync('admin');
@@ -782,10 +766,11 @@
                 currentMemberDocId = doc.id;
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
+                document.getElementById('searchAppInput').value = '';
                 document.getElementById('welcomeUserTitle').innerText = `أهلاً بك، ${u}`;
-                allUserPasswordsVisible = false;
+                accountsVaultVisible = false;
                 revealedUserCards.clear();
-                updateToggleAllButtons();
+                syncAccountsVaultVisibility();
                 cachedEntries = doc.data().entries || [];
                 renderUserEntries(cachedEntries);
                 toggleView('userDashboard');
@@ -803,7 +788,9 @@
                     const doc = await db.collection('members').doc(currentMemberDocId).get();
                     if (doc.exists) {
                         cachedEntries = doc.data().entries || [];
-                        filterUserCards();
+                        if (accountsVaultVisible) {
+                            filterUserCards();
+                        }
                     }
                 } else if (role === 'admin') {
                     renderAdminView();
@@ -817,7 +804,9 @@
             const doc = await db.collection('members').doc(currentMemberDocId).get();
             if (doc.exists) {
                 cachedEntries = doc.data().entries || [];
-                filterUserCards();
+                if (accountsVaultVisible) {
+                    filterUserCards();
+                }
                 showToast('تم تحديث البيانات من السحابة');
             }
         }
@@ -886,7 +875,9 @@
             document.getElementById('appName').value = '';
             document.getElementById('appPass').value = '';
             cachedEntries = entries;
-            filterUserCards();
+            if (accountsVaultVisible) {
+                filterUserCards();
+            }
             showToast('تم حفظ الحساب بنجاح');
         }
 
@@ -903,8 +894,6 @@
             } else {
                 revealedUserCards.add(key);
             }
-            allUserPasswordsVisible = cachedEntries.length > 0 && revealedUserCards.size >= cachedEntries.length;
-            updateToggleAllButtons();
             filterUserCards();
         }
 
@@ -918,7 +907,7 @@
             entries.forEach((item) => {
                 const realIndex = cachedEntries.findIndex(e => e.app === item.app && e.pass === item.pass && e.date === item.date);
                 const cardKey = `${realIndex}_${item.app}_${item.date}`;
-                const isRevealed = allUserPasswordsVisible || revealedUserCards.has(cardKey);
+                const isRevealed = revealedUserCards.has(cardKey);
                 const ageInfo = getPasswordAgeInfo(item.date);
                 const displayedPass = isRevealed ? item.pass : maskPassword(item.pass);
 
@@ -1059,7 +1048,7 @@
                 const isExpanded = expandedMembers.has(mId);
                 const appCount = member.entries ? member.entries.length : 0;
                 const memberPassKey = `member_${mId}`;
-                const isMemberPassRevealed = allAdminPasswordsVisible || revealedAdminItems.has(memberPassKey);
+                const isMemberPassRevealed = revealedAdminItems.has(memberPassKey);
                 const displayedMemberPass = isMemberPassRevealed ? member.password : maskPassword(member.password);
 
                 let entriesHtml = '';
@@ -1071,7 +1060,7 @@
                     member.entries.forEach((ent, entIndex) => {
                         const ageInfo = getPasswordAgeInfo(ent.date);
                         const entKey = `entry_${mId}_${entIndex}`;
-                        const isEntRevealed = allAdminPasswordsVisible || revealedAdminItems.has(entKey);
+                        const isEntRevealed = revealedAdminItems.has(entKey);
                         const displayedEntPass = isEntRevealed ? ent.pass : maskPassword(ent.pass);
 
                         entriesHtml += `
@@ -1192,9 +1181,8 @@
             expandedMembers.clear();
             revealedUserCards.clear();
             revealedAdminItems.clear();
-            allUserPasswordsVisible = false;
-            allAdminPasswordsVisible = false;
-            updateToggleAllButtons();
+            accountsVaultVisible = false;
+            syncAccountsVaultVisibility();
             currentUser = null;
             currentMemberDocId = null;
             cachedEntries = [];
