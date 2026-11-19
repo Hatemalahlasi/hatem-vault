@@ -98,7 +98,8 @@
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; margin-bottom: 6px; font-weight: 700; color: var(--text-main); }
 
-        .form-group input {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 13px 16px;
             background: #f8fafc;
@@ -110,7 +111,8 @@
             transition: all 0.25s ease;
         }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group select:focus {
             border-color: var(--primary);
             background: #ffffff;
             outline: none;
@@ -185,6 +187,30 @@
             gap: 6px;
         }
 
+        .role-pill {
+            background: #ede9fe;
+            color: #6d28d9;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .owner-pill {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         .suspended-badge {
             background: var(--danger-bg);
             color: #b91c1c;
@@ -228,9 +254,11 @@
         }
 
         .grid-2 { display: grid; grid-template-columns: 1fr; gap: 14px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr; gap: 14px; }
 
         @media (min-width: 640px) {
             .grid-2 { grid-template-columns: 1fr 1fr; }
+            .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
         }
 
         .vault-section {
@@ -434,7 +462,6 @@
             transform: scale(0.92);
         }
 
-        /* سلة المهملات */
         .trash-section {
             margin-top: 22px;
             padding: 18px;
@@ -648,18 +675,18 @@
             </div>
         </div>
 
-        <!-- لوحة المشرف -->
+        <!-- لوحة المشرف العام ومدير العائلة -->
         <div id="adminDashboard" class="hidden">
             <div class="top-bar">
                 <div>
-                    <span class="status-badge" style="background: #e0f2fe; color: #0369a1;"><i class="fa-solid fa-crown"></i> المشرف العام</span>
-                    <h3 style="margin-top: 6px; font-size: 20px; font-weight: 800;">إدارة النظام والأعضاء</h3>
+                    <span id="adminBadgeText" class="status-badge" style="background: #e0f2fe; color: #0369a1;"><i class="fa-solid fa-crown"></i> المشرف العام</span>
+                    <h3 id="adminDashboardTitle" style="margin-top: 6px; font-size: 20px; font-weight: 800;">إدارة النظام والأعضاء</h3>
                 </div>
                 <div class="toolbar-group">
                     <button class="btn btn-outline btn-sm" onclick="renderAdminView()">
                         <i class="fa-solid fa-rotate"></i> تحديث
                     </button>
-                    <button class="btn btn-outline btn-sm" onclick="changeAdminPassword()">
+                    <button class="btn btn-outline btn-sm" onclick="changeAdminOrSubAdminPassword()">
                         <i class="fa-solid fa-key"></i> الباسورد
                     </button>
                     <button class="btn btn-danger btn-sm" onclick="logout()">
@@ -669,8 +696,8 @@
             </div>
 
             <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد للنظام</div>
-                <div class="grid-2">
+                <div class="panel-title" id="createMemberPanelTitle"><i class="fa-solid fa-user-plus"></i> إضافة حساب جديد</div>
+                <div id="adminCreateGrid" class="grid-3">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>اسم المستخدم</label>
                         <input type="text" id="newMemberUser" placeholder="مثال: يوسف">
@@ -679,13 +706,20 @@
                         <label>كلمة المرور</label>
                         <input type="text" id="newMemberPass" placeholder="مثال: 2026">
                     </div>
+                    <div id="roleSelectWrapper" class="form-group" style="margin-bottom: 0;">
+                        <label>نوع الحساب</label>
+                        <select id="newMemberRole">
+                            <option value="user">مستخدم عادي</option>
+                            <option value="subadmin">مدير عائلة (مشرف فرعي)</option>
+                        </select>
+                    </div>
                 </div>
                 <button class="btn btn-primary btn-full" onclick="adminCreateMember()" style="margin-top: 16px;">
-                    <i class="fa-solid fa-check"></i> حفظ المستخدم سحابياً
+                    <i class="fa-solid fa-check"></i> حفظ الحساب سحابياً
                 </button>
             </div>
 
-            <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 12px;"><i class="fa-solid fa-users"></i> المستخدمون المسجلون (<span id="membersCount">0</span>):</h4>
+            <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 12px;"><i class="fa-solid fa-users"></i> <span id="managedListHeading">الحسابات المسجلة</span> (<span id="membersCount">0</span>):</h4>
             <div id="adminAllDataContainer"></div>
         </div>
 
@@ -716,6 +750,7 @@
         const STALE_DAYS_THRESHOLD = 90;
 
         let currentUser = null;
+        let currentRole = null; // 'superadmin' | 'subadmin' | 'user'
         let currentMemberDocId = null;
         let autoSyncInterval = null;
         let idleTimer = null;
@@ -899,6 +934,36 @@
             }
         }
 
+        function configureAdminHeaderUI(role, username) {
+            const badgeEl = document.getElementById('adminBadgeText');
+            const titleEl = document.getElementById('adminDashboardTitle');
+            const createTitleEl = document.getElementById('createMemberPanelTitle');
+            const roleWrapperEl = document.getElementById('roleSelectWrapper');
+            const createGridEl = document.getElementById('adminCreateGrid');
+            const headingEl = document.getElementById('managedListHeading');
+
+            if (role === 'superadmin') {
+                badgeEl.innerHTML = '<i class="fa-solid fa-crown"></i> المشرف العام';
+                badgeEl.style.background = '#e0f2fe';
+                badgeEl.style.color = '#0369a1';
+                titleEl.textContent = 'إدارة النظام والأعضاء والعائلات';
+                createTitleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> إضافة مستخدم أو مدير عائلة جديد';
+                roleWrapperEl.classList.remove('hidden');
+                createGridEl.className = 'grid-3';
+                headingEl.textContent = 'الحسابات المسجلة في النظام';
+            } else {
+                badgeEl.innerHTML = '<i class="fa-solid fa-people-roof"></i> مدير عائلة';
+                badgeEl.style.background = '#ede9fe';
+                badgeEl.style.color = '#6d28d9';
+                titleEl.textContent = `إدارة عائلة (${username})`;
+                createTitleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> إضافة فرد جديد لعائلتك';
+                document.getElementById('newMemberRole').value = 'user';
+                roleWrapperEl.classList.add('hidden');
+                createGridEl.className = 'grid-2';
+                headingEl.textContent = 'أفراد عائلتك المسجلون';
+            }
+        }
+
         async function login() {
             const u = document.getElementById('loginUsername').value.trim();
             const p = document.getElementById('loginPassword').value.trim();
@@ -910,12 +975,16 @@
 
             const adminPass = await getAdminPass();
             if (u === ADMIN_USER && p === adminPass) {
+                currentUser = u;
+                currentRole = 'superadmin';
+                currentMemberDocId = null;
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
                 revealedAdminItems.clear();
+                configureAdminHeaderUI('superadmin', u);
                 renderAdminView();
                 toggleView('adminDashboard');
-                startAutoSync('admin');
+                startAutoSync('superadmin');
                 showToast('تم تسجيل الدخول كمشرف عام');
                 return;
             }
@@ -926,7 +995,7 @@
                 const memberData = doc.data();
 
                 if (memberData.isSuspended === true) {
-                    showToast('هذا الحساب موقوف مؤقتاً من قبل المشرف');
+                    showToast('هذا الحساب موقوف مؤقتاً من قبل الإدارة');
                     return;
                 }
 
@@ -934,6 +1003,19 @@
                 currentMemberDocId = doc.id;
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
+
+                if (memberData.role === 'subadmin') {
+                    currentRole = 'subadmin';
+                    revealedAdminItems.clear();
+                    configureAdminHeaderUI('subadmin', u);
+                    renderAdminView();
+                    toggleView('adminDashboard');
+                    startAutoSync('subadmin');
+                    showToast(`مرحباً بك، مدير العائلة ${u}`);
+                    return;
+                }
+
+                currentRole = 'user';
                 document.getElementById('searchAppInput').value = '';
                 const clearBtn = document.getElementById('clearSearchBtn');
                 if (clearBtn) clearBtn.classList.add('hidden');
@@ -982,7 +1064,15 @@
                             renderTrashEntries();
                         }
                     }
-                } else if (role === 'admin') {
+                } else if (role === 'subadmin' && currentMemberDocId) {
+                    const doc = await db.collection('members').doc(currentMemberDocId).get();
+                    if (doc.exists && doc.data().isSuspended === true) {
+                        logout(false);
+                        showToast('تم إيقاف حسابك مؤقتاً');
+                        return;
+                    }
+                    renderAdminView();
+                } else if (role === 'superadmin') {
                     renderAdminView();
                 }
             }, 5000);
@@ -1030,23 +1120,42 @@
             showToast('تم تغيير كلمة المرور وحفظها بنجاح');
         }
 
-        async function changeAdminPassword() {
+        async function changeAdminOrSubAdminPassword() {
             resetIdleTimer();
-            const oldPass = prompt('أدخل كلمة مرور المشرف الحالية:');
-            if (oldPass === null) return;
-            resetIdleTimer();
+            if (currentRole === 'superadmin') {
+                const oldPass = prompt('أدخل كلمة مرور المشرف العام الحالية:');
+                if (oldPass === null) return;
+                resetIdleTimer();
 
-            const adminPass = await getAdminPass();
-            if (oldPass !== adminPass) {
-                showToast('كلمة المرور الحالية غير صحيحة');
-                return;
+                const adminPass = await getAdminPass();
+                if (oldPass !== adminPass) {
+                    showToast('كلمة المرور الحالية غير صحيحة');
+                    return;
+                }
+                const newPass = prompt('أدخل كلمة مرور المشرف العام الجديدة:');
+                if (!newPass || !newPass.trim()) return;
+                resetIdleTimer();
+
+                await db.collection('settings').doc('admin').set({ password: newPass.trim() });
+                showToast('تم تغيير كلمة مرور المشرف العام بنجاح');
+            } else if (currentRole === 'subadmin' && currentMemberDocId) {
+                const oldPass = prompt('أدخل كلمة المرور الحالية لحسابك:');
+                if (oldPass === null) return;
+                resetIdleTimer();
+
+                const docRef = db.collection('members').doc(currentMemberDocId);
+                const doc = await docRef.get();
+                if (!doc.exists || doc.data().password !== oldPass) {
+                    showToast('كلمة المرور الحالية غير صحيحة');
+                    return;
+                }
+                const newPass = prompt('أدخل كلمة المرور الجديدة:');
+                if (!newPass || !newPass.trim()) return;
+                resetIdleTimer();
+
+                await docRef.update({ password: newPass.trim() });
+                showToast('تم تغيير كلمة المرور بنجاح');
             }
-            const newPass = prompt('أدخل كلمة مرور المشرف الجديدة:');
-            if (!newPass || !newPass.trim()) return;
-            resetIdleTimer();
-
-            await db.collection('settings').doc('admin').set({ password: newPass.trim() });
-            showToast('تم تغيير كلمة مرور المشرف بنجاح');
         }
 
         function buildAccountCardHtml(item, cardKey, realIndex, mode = 'map') {
@@ -1368,15 +1477,33 @@
             resetIdleTimer();
             const username = document.getElementById('newMemberUser').value.trim();
             const password = document.getElementById('newMemberPass').value.trim();
+            const selectedRole = currentRole === 'superadmin'
+                ? document.getElementById('newMemberRole').value
+                : 'user';
 
             if (!username || !password) {
                 showToast('أدخل اسم المستخدم وكلمة المرور');
                 return;
             }
 
+            if (username === ADMIN_USER) {
+                showToast('هذا الاسم محجوز للمشرف العام');
+                return;
+            }
+
+            const existing = await db.collection('members').where('username', '==', username).get();
+            if (!existing.empty) {
+                showToast('اسم المستخدم مسجل مسبقاً');
+                return;
+            }
+
+            const ownerTag = currentRole === 'superadmin' ? ADMIN_USER : currentUser;
+
             await db.collection('members').add({
                 username,
                 password,
+                role: selectedRole,
+                managedBy: ownerTag,
                 isSuspended: false,
                 entries: [],
                 trash: []
@@ -1385,7 +1512,11 @@
             document.getElementById('newMemberUser').value = '';
             document.getElementById('newMemberPass').value = '';
             renderAdminView();
-            showToast(`تمت إضافة المستخدم ${username}`);
+            showToast(
+                selectedRole === 'subadmin'
+                    ? `تمت إضافة مدير العائلة (${username}) تحت مسؤوليتك`
+                    : `تمت إضافة المستخدم (${username}) بنجاح`
+            );
         }
 
         async function toggleSuspendMember(mId, username, currentSuspended) {
@@ -1427,18 +1558,31 @@
 
         async function renderAdminView() {
             const snapshot = await db.collection('members').get();
-            document.getElementById('membersCount').innerText = snapshot.size;
+            let docsToRender = [];
+
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                if (currentRole === 'superadmin') {
+                    docsToRender.push({ id: docSnap.id, data });
+                } else if (currentRole === 'subadmin' && data.managedBy === currentUser) {
+                    docsToRender.push({ id: docSnap.id, data });
+                }
+            });
+
+            document.getElementById('membersCount').innerText = docsToRender.length;
             const container = document.getElementById('adminAllDataContainer');
             container.innerHTML = '';
 
-            if (snapshot.empty) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:16px;">لا يوجد مستخدمون مسجلون.</p>';
+            if (docsToRender.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:16px;">لا يوجد أعضاء مسجلون حالياً.</p>';
                 return;
             }
 
-            snapshot.forEach(docSnap => {
-                const member = docSnap.data();
-                const mId = docSnap.id;
+            docsToRender.forEach(itemObj => {
+                const member = itemObj.data;
+                const mId = itemObj.id;
+                const isSubAdmin = member.role === 'subadmin';
+                const ownerName = member.managedBy || ADMIN_USER;
                 const isSuspended = member.isSuspended === true;
                 const isExpanded = expandedMembers.has(mId);
                 const appCount = member.entries ? member.entries.length : 0;
@@ -1449,7 +1593,7 @@
                 let entriesHtml = '';
                 
                 if (appCount === 0) {
-                    entriesHtml = '<p style="font-size: 13px; color: var(--text-muted); padding: 8px 0;">لا توجد تطبيقات مضافة لهذا المستخدم.</p>';
+                    entriesHtml = '<p style="font-size: 13px; color: var(--text-muted); padding: 8px 0;">لا توجد تطبيقات مضافة لهذا الحساب.</p>';
                 } else {
                     entriesHtml = `<div style="display:grid; grid-template-columns: 1fr; gap:10px;">`;
                     member.entries.forEach((ent, entIndex) => {
@@ -1483,12 +1627,22 @@
                     entriesHtml += `</div>`;
                 }
 
+                const roleBadgeHtml = isSubAdmin
+                    ? `<span class="role-pill"><i class="fa-solid fa-people-roof"></i> مدير عائلة</span>`
+                    : '';
+
+                const ownerBadgeHtml = currentRole === 'superadmin'
+                    ? `<span class="owner-pill"><i class="fa-solid fa-user-shield"></i> المسؤول: ${ownerName}</span>`
+                    : '';
+
                 container.innerHTML += `
                     <div class="member-block ${isSuspended ? 'suspended-member' : ''}">
                         <div class="member-header" onclick="toggleMemberAccordion('${mId}')">
                             <div style="display: flex; align-items: center; gap: 10px; flex-wrap:wrap;">
                                 <i id="accordion-icon-${mId}" class="fa-solid fa-chevron-down chevron-icon ${isExpanded ? 'rotated' : ''}"></i>
                                 <strong style="color: var(--primary); font-size: 15px;">${member.username}</strong>
+                                ${roleBadgeHtml}
+                                ${ownerBadgeHtml}
                                 <span class="${isSuspended ? 'suspended-badge' : 'active-member-badge'}">
                                     <i class="fa-solid ${isSuspended ? 'fa-ban' : 'fa-circle-check'}"></i> ${isSuspended ? 'موقوف' : 'نشط'}
                                 </span>
@@ -1560,12 +1714,12 @@
 
         async function adminDeleteMember(mId) {
             resetIdleTimer();
-            if (!confirm('حذف هذا المستخدم نهائياً؟')) return;
+            if (!confirm('حذف هذا الحساب نهائياً؟')) return;
             resetIdleTimer();
             expandedMembers.delete(mId);
             await db.collection('members').doc(mId).delete();
             renderAdminView();
-            showToast('تم حذف المستخدم');
+            showToast('تم حذف الحساب');
         }
 
         function copyPassword(text, label = '') {
@@ -1587,6 +1741,7 @@
             syncSavedAccountsMapVisibility();
             syncTrashVisibility();
             currentUser = null;
+            currentRole = null;
             currentMemberDocId = null;
             cachedEntries = [];
             deletedEntries = [];
