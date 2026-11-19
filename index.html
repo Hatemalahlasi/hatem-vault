@@ -207,7 +207,9 @@
         }
 
         .vault-section {
-            margin-top: 8px;
+            margin-top: 12px;
+            padding-top: 16px;
+            border-top: 1.5px dashed var(--border-color);
         }
 
         .search-box-container {
@@ -500,8 +502,8 @@
                     <button class="btn btn-outline btn-sm" onclick="refreshUserDataManual()">
                         <i class="fa-solid fa-rotate"></i> تحديث
                     </button>
-                    <button id="toggleVaultBtn" class="btn btn-outline btn-sm" onclick="toggleAccountsVault()">
-                        <i class="fa-solid fa-eye"></i> إظهار الحسابات
+                    <button id="toggleVaultBtn" class="btn btn-outline btn-sm" onclick="toggleSavedAccountsMap()">
+                        <i class="fa-solid fa-layer-group"></i> عرض الحسابات المحفوظة
                     </button>
                     <button class="btn btn-outline btn-sm" onclick="changeMyPassword()">
                         <i class="fa-solid fa-key"></i> الباسورد
@@ -513,7 +515,7 @@
             </div>
 
             <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة حساب أو تطبيق جديد للسحابة</div>
+                <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة حساب أو تطبيق جديد</div>
                 <div class="grid-2">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>اسم التطبيق أو المنصة</label>
@@ -529,12 +531,20 @@
                 </button>
             </div>
 
-            <!-- خريطة الحسابات: مخفية افتراضياً وتظهر/تختفي بزر إظهار الحسابات -->
+            <!-- البيانات التي يضيفها أو يعدلها المستخدم فقط تظهر هنا مباشرة -->
+            <div id="sessionCreatedSection" class="hidden" style="margin-bottom: 20px;">
+                <h4 style="font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+                    <i class="fa-solid fa-sparkles" style="color: var(--primary);"></i> البيانات التي أضفتها أو عدلتها:
+                </h4>
+                <div id="sessionCreatedCards" class="cards-grid"></div>
+            </div>
+
+            <!-- خريطة حساباتك المسجلة: مخفية افتراضياً ولا تظهر إلا عند ضغط الزر -->
             <div id="accountsVaultSection" class="vault-section hidden">
                 <div class="search-box-container">
                     <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="searchAppInput" placeholder="ابحث عن أي تطبيق أو منصة مسجلة..." oninput="filterUserCards()">
+                        <input type="text" id="searchAppInput" placeholder="ابحث في خريطة حساباتك المسجلة..." oninput="filterUserCards()">
                     </div>
                 </div>
 
@@ -620,9 +630,10 @@
         let toastTimer = null;
         let expandedMembers = new Set();
         let cachedEntries = [];
+        let sessionEntries = []; // لتخزين البيانات التي يعملها المستخدم فقط في الجلسة
         let revealedUserCards = new Set();
         let revealedAdminItems = new Set();
-        let accountsVaultVisible = false;
+        let savedAccountsMapVisible = false;
 
         function showToast(message) {
             const toast = document.getElementById('toastNotification');
@@ -692,26 +703,25 @@
             return '•'.repeat(len);
         }
 
-        function syncAccountsVaultVisibility() {
+        function syncSavedAccountsMapVisibility() {
             const vaultEl = document.getElementById('accountsVaultSection');
             const btnEl = document.getElementById('toggleVaultBtn');
             if (!vaultEl || !btnEl) return;
 
-            if (accountsVaultVisible) {
+            if (savedAccountsMapVisible) {
                 vaultEl.classList.remove('hidden');
-                btnEl.innerHTML = '<i class="fa-solid fa-eye-slash"></i> إخفاء الحسابات';
+                btnEl.innerHTML = '<i class="fa-solid fa-eye-slash"></i> إخفاء الحسابات المحفوظة';
             } else {
                 vaultEl.classList.add('hidden');
-                revealedUserCards.clear();
-                btnEl.innerHTML = '<i class="fa-solid fa-eye"></i> إظهار الحسابات';
+                btnEl.innerHTML = '<i class="fa-solid fa-layer-group"></i> عرض الحسابات المحفوظة';
             }
         }
 
-        function toggleAccountsVault() {
+        function toggleSavedAccountsMap() {
             resetIdleTimer();
-            accountsVaultVisible = !accountsVaultVisible;
-            syncAccountsVaultVisibility();
-            if (accountsVaultVisible) {
+            savedAccountsMapVisible = !savedAccountsMapVisible;
+            syncSavedAccountsMapVisibility();
+            if (savedAccountsMapVisible) {
                 filterUserCards();
             }
         }
@@ -768,10 +778,12 @@
                 document.getElementById('loginPassword').value = '';
                 document.getElementById('searchAppInput').value = '';
                 document.getElementById('welcomeUserTitle').innerText = `أهلاً بك، ${u}`;
-                accountsVaultVisible = false;
+                savedAccountsMapVisible = false;
                 revealedUserCards.clear();
-                syncAccountsVaultVisibility();
+                sessionEntries = [];
+                syncSavedAccountsMapVisibility();
                 cachedEntries = doc.data().entries || [];
+                renderSessionEntries();
                 renderUserEntries(cachedEntries);
                 toggleView('userDashboard');
                 startAutoSync('user');
@@ -788,7 +800,7 @@
                     const doc = await db.collection('members').doc(currentMemberDocId).get();
                     if (doc.exists) {
                         cachedEntries = doc.data().entries || [];
-                        if (accountsVaultVisible) {
+                        if (savedAccountsMapVisible) {
                             filterUserCards();
                         }
                     }
@@ -804,7 +816,7 @@
             const doc = await db.collection('members').doc(currentMemberDocId).get();
             if (doc.exists) {
                 cachedEntries = doc.data().entries || [];
-                if (accountsVaultVisible) {
+                if (savedAccountsMapVisible) {
                     filterUserCards();
                 }
                 showToast('تم تحديث البيانات من السحابة');
@@ -853,6 +865,69 @@
             showToast('تم تغيير كلمة مرور المشرف بنجاح');
         }
 
+        function buildAccountCardHtml(item, cardKey, realIndex, isSessionCard = false) {
+            const isRevealed = revealedUserCards.has(cardKey);
+            const ageInfo = getPasswordAgeInfo(item.date);
+            const displayedPass = isRevealed ? item.pass : maskPassword(item.pass);
+            const deleteHandler = isSessionCard
+                ? `deleteSessionEntry(${realIndex})`
+                : `deleteUserEntry(${realIndex})`;
+
+            return `
+                <div class="account-card ${ageInfo.isStale ? 'stale-password' : ''}">
+                    <div class="account-card-header">
+                        <div class="account-title"><i class="fa-solid fa-shield-halved" style="color:var(--primary); font-size:14px;"></i> ${item.app}</div>
+                        <div class="meta-badges">
+                            <div class="account-date"><i class="fa-regular fa-calendar"></i> ${item.date}</div>
+                            <span class="age-badge ${ageInfo.isStale ? 'stale' : ''}">
+                                <i class="fa-solid ${ageInfo.isStale ? 'fa-triangle-exclamation' : 'fa-clock'}"></i> ${ageInfo.label}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="account-body">
+                        <span style="font-size: 12.5px; color: var(--text-muted); font-weight:700;">كلمة السر:</span>
+                        <div class="pass-controls">
+                            <span class="pass-badge">${displayedPass}</span>
+                            <button class="btn-icon-action" onclick="toggleRevealCardByKey('${cardKey}')" title="${isRevealed ? 'إخفاء كلمة السر' : 'إظهار كلمة السر'}">
+                                <i class="fa-solid ${isRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                            </button>
+                            <button class="btn-icon-action" onclick="copyPassword('${item.pass}', '${item.app}')" title="نسخ كلمة السر">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-warning btn-sm" onclick="editUserEntry(${realIndex})"><i class="fa-solid fa-pen"></i> تعديل</button>
+                        <button class="btn btn-danger btn-sm" onclick="${deleteHandler}"><i class="fa-solid fa-trash"></i> حذف</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSessionEntries() {
+            const section = document.getElementById('sessionCreatedSection');
+            const container = document.getElementById('sessionCreatedCards');
+            if (!section || !container) return;
+
+            if (sessionEntries.length === 0) {
+                section.classList.add('hidden');
+                container.innerHTML = '';
+                return;
+            }
+
+            section.classList.remove('hidden');
+            container.innerHTML = '';
+
+            sessionEntries.forEach((item, sIdx) => {
+                const realIndex = cachedEntries.findIndex(
+                    e => e.app === item.app && e.pass === item.pass && e.date === item.date
+                );
+                const targetIndex = realIndex >= 0 ? realIndex : sIdx;
+                const cardKey = `session_${sIdx}_${item.app}_${item.date}`;
+                container.innerHTML += buildAccountCardHtml(item, cardKey, targetIndex, true);
+            });
+        }
+
         async function addUserEntry() {
             resetIdleTimer();
             const app = document.getElementById('appName').value.trim();
@@ -865,17 +940,20 @@
 
             const now = new Date();
             const date = now.toISOString().split('T')[0];
+            const newEntry = { app, pass, date };
 
             const memberRef = db.collection('members').doc(currentMemberDocId);
             const doc = await memberRef.get();
             let entries = doc.data().entries || [];
-            entries.push({ app, pass, date });
+            entries.push(newEntry);
 
             await memberRef.update({ entries });
             document.getElementById('appName').value = '';
             document.getElementById('appPass').value = '';
             cachedEntries = entries;
-            if (accountsVaultVisible) {
+            sessionEntries.push(newEntry);
+            renderSessionEntries();
+            if (savedAccountsMapVisible) {
                 filterUserCards();
             }
             showToast('تم حفظ الحساب بنجاح');
@@ -887,14 +965,17 @@
             renderUserEntries(filtered);
         }
 
-        function toggleRevealUserCard(key) {
+        function toggleRevealCardByKey(key) {
             resetIdleTimer();
             if (revealedUserCards.has(key)) {
                 revealedUserCards.delete(key);
             } else {
                 revealedUserCards.add(key);
             }
-            filterUserCards();
+            renderSessionEntries();
+            if (savedAccountsMapVisible) {
+                filterUserCards();
+            }
         }
 
         function renderUserEntries(entries) {
@@ -906,40 +987,8 @@
             }
             entries.forEach((item) => {
                 const realIndex = cachedEntries.findIndex(e => e.app === item.app && e.pass === item.pass && e.date === item.date);
-                const cardKey = `${realIndex}_${item.app}_${item.date}`;
-                const isRevealed = revealedUserCards.has(cardKey);
-                const ageInfo = getPasswordAgeInfo(item.date);
-                const displayedPass = isRevealed ? item.pass : maskPassword(item.pass);
-
-                container.innerHTML += `
-                    <div class="account-card ${ageInfo.isStale ? 'stale-password' : ''}">
-                        <div class="account-card-header">
-                            <div class="account-title"><i class="fa-solid fa-shield-halved" style="color:var(--primary); font-size:14px;"></i> ${item.app}</div>
-                            <div class="meta-badges">
-                                <div class="account-date"><i class="fa-regular fa-calendar"></i> ${item.date}</div>
-                                <span class="age-badge ${ageInfo.isStale ? 'stale' : ''}">
-                                    <i class="fa-solid ${ageInfo.isStale ? 'fa-triangle-exclamation' : 'fa-clock'}"></i> ${ageInfo.label}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="account-body">
-                            <span style="font-size: 12.5px; color: var(--text-muted); font-weight:700;">كلمة السر:</span>
-                            <div class="pass-controls">
-                                <span class="pass-badge">${displayedPass}</span>
-                                <button class="btn-icon-action" onclick="toggleRevealUserCard('${cardKey}')" title="${isRevealed ? 'إخفاء كلمة السر' : 'إظهار كلمة السر'}">
-                                    <i class="fa-solid ${isRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
-                                </button>
-                                <button class="btn-icon-action" onclick="copyPassword('${item.pass}', '${item.app}')" title="نسخ كلمة السر">
-                                    <i class="fa-solid fa-copy"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-actions">
-                            <button class="btn btn-warning btn-sm" onclick="editUserEntry(${realIndex})"><i class="fa-solid fa-pen"></i> تعديل</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteUserEntry(${realIndex})"><i class="fa-solid fa-trash"></i> حذف</button>
-                        </div>
-                    </div>
-                `;
+                const cardKey = `map_${realIndex}_${item.app}_${item.date}`;
+                container.innerHTML += buildAccountCardHtml(item, cardKey, realIndex, false);
             });
         }
 
@@ -949,6 +998,7 @@
             const doc = await memberRef.get();
             let entries = doc.data().entries || [];
             const item = entries[index];
+            if (!item) return;
 
             const newPass = prompt(`تعديل كلمة السر لـ (${item.app}):`, item.pass);
             if (newPass === null) return;
@@ -959,13 +1009,54 @@
                 return;
             }
 
-            entries[index].pass = newPass.trim();
-            entries[index].date = new Date().toISOString().split('T')[0];
+            const oldItem = { ...entries[index] };
+            const updatedItem = {
+                ...entries[index],
+                pass: newPass.trim(),
+                date: new Date().toISOString().split('T')[0]
+            };
+            entries[index] = updatedItem;
 
             await memberRef.update({ entries });
             cachedEntries = entries;
-            filterUserCards();
+
+            const existingSessionIdx = sessionEntries.findIndex(
+                s => s.app === oldItem.app && s.pass === oldItem.pass && s.date === oldItem.date
+            );
+            if (existingSessionIdx >= 0) {
+                sessionEntries[existingSessionIdx] = updatedItem;
+            } else {
+                sessionEntries.push(updatedItem);
+            }
+
+            renderSessionEntries();
+            if (savedAccountsMapVisible) {
+                filterUserCards();
+            }
             showToast(`تم تحديث كلمة السر لـ ${item.app}`);
+        }
+
+        async function deleteSessionEntry(index) {
+            resetIdleTimer();
+            if (!confirm('هل أنت متأكد من حذف هذا الحساب؟')) return;
+            resetIdleTimer();
+            const memberRef = db.collection('members').doc(currentMemberDocId);
+            const doc = await memberRef.get();
+            let entries = doc.data().entries || [];
+            const target = entries[index];
+            if (target) {
+                sessionEntries = sessionEntries.filter(
+                    s => !(s.app === target.app && s.pass === target.pass && s.date === target.date)
+                );
+                entries.splice(index, 1);
+                await memberRef.update({ entries });
+                cachedEntries = entries;
+            }
+            renderSessionEntries();
+            if (savedAccountsMapVisible) {
+                filterUserCards();
+            }
+            showToast('تم حذف الحساب بنجاح');
         }
 
         async function deleteUserEntry(index) {
@@ -975,9 +1066,16 @@
             const memberRef = db.collection('members').doc(currentMemberDocId);
             const doc = await memberRef.get();
             let entries = doc.data().entries || [];
+            const target = entries[index];
+            if (target) {
+                sessionEntries = sessionEntries.filter(
+                    s => !(s.app === target.app && s.pass === target.pass && s.date === target.date)
+                );
+            }
             entries.splice(index, 1);
             await memberRef.update({ entries });
             cachedEntries = entries;
+            renderSessionEntries();
             filterUserCards();
             showToast('تم حذف الحساب بنجاح');
         }
@@ -1181,11 +1279,13 @@
             expandedMembers.clear();
             revealedUserCards.clear();
             revealedAdminItems.clear();
-            accountsVaultVisible = false;
-            syncAccountsVaultVisibility();
+            savedAccountsMapVisible = false;
+            syncSavedAccountsMapVisibility();
             currentUser = null;
             currentMemberDocId = null;
             cachedEntries = [];
+            sessionEntries = [];
+            renderSessionEntries();
             toggleView('loginSection');
             if (byIdle) {
                 showToast('تم قفل الجلسة تلقائياً بسبب الخمول');
