@@ -146,6 +146,9 @@
         .btn-danger { background: var(--danger-bg); color: var(--danger); }
         .btn-danger:hover { background: var(--danger); color: #ffffff; }
 
+        .btn-success { background: var(--success-bg); color: #15803d; }
+        .btn-success:hover { background: var(--success); color: #ffffff; }
+
         .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
 
         .top-bar {
@@ -172,7 +175,7 @@
 
         .status-badge {
             background: var(--success-bg);
-            color: var(--success);
+            color: #15803d;
             padding: 5px 14px;
             border-radius: 50px;
             font-size: 12px;
@@ -180,6 +183,30 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+        }
+
+        .suspended-badge {
+            background: var(--danger-bg);
+            color: #b91c1c;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .active-member-badge {
+            background: var(--success-bg);
+            color: #15803d;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .panel-card {
@@ -217,7 +244,7 @@
         }
         .search-box-container input {
             width: 100%;
-            padding: 12px 16px 12px 40px;
+            padding: 12px 40px 12px 40px;
             background: #ffffff;
             border: 1.5px solid var(--border-color);
             border-radius: 12px;
@@ -234,13 +261,36 @@
         .search-wrapper {
             position: relative;
         }
-        .search-wrapper i {
+        .search-icon-right {
             position: absolute;
-            left: 15px;
+            right: 14px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
             font-size: 15px;
+            pointer-events: none;
+        }
+        .btn-clear-search {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: none;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.15s ease;
+        }
+        .btn-clear-search:hover {
+            background: var(--danger-bg);
+            color: var(--danger);
         }
 
         .cards-grid {
@@ -384,6 +434,24 @@
             transform: scale(0.92);
         }
 
+        /* سلة المهملات */
+        .trash-section {
+            margin-top: 22px;
+            padding: 18px;
+            background: #fff8f8;
+            border: 1.5px solid #fecaca;
+            border-radius: 18px;
+        }
+
+        .trash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
         .toast-notification {
             position: fixed;
             bottom: 20px;
@@ -424,6 +492,11 @@
             margin-bottom: 14px;
             overflow: hidden;
             transition: all 0.2s ease;
+        }
+
+        .member-block.suspended-member {
+            border-color: #fca5a5;
+            background: #fffafa;
         }
 
         .member-header {
@@ -505,6 +578,9 @@
                     <button id="toggleVaultBtn" class="btn btn-outline btn-sm" onclick="toggleSavedAccountsMap()">
                         <i class="fa-solid fa-layer-group"></i> عرض الحسابات المحفوظة
                     </button>
+                    <button id="toggleTrashBtn" class="btn btn-outline btn-sm" onclick="toggleTrashSection()">
+                        <i class="fa-solid fa-trash-can"></i> سلة المهملات (<span id="trashCountBadge">0</span>)
+                    </button>
                     <button class="btn btn-outline btn-sm" onclick="changeMyPassword()">
                         <i class="fa-solid fa-key"></i> الباسورد
                     </button>
@@ -543,8 +619,11 @@
             <div id="accountsVaultSection" class="vault-section hidden">
                 <div class="search-box-container">
                     <div class="search-wrapper">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="searchAppInput" placeholder="ابحث في خريطة حساباتك المسجلة..." oninput="filterUserCards()">
+                        <i class="fa-solid fa-magnifying-glass search-icon-right"></i>
+                        <input type="text" id="searchAppInput" placeholder="ابحث في خريطة حساباتك المسجلة..." oninput="handleSearchInput()">
+                        <button id="clearSearchBtn" type="button" class="btn-clear-search hidden" onclick="clearSearchInput()" title="مسح البحث">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -553,6 +632,19 @@
                 </div>
                 
                 <div id="userEntriesCards" class="cards-grid"></div>
+            </div>
+
+            <!-- سلة المهملات -->
+            <div id="trashSection" class="trash-section hidden">
+                <div class="trash-header">
+                    <h4 style="font-size: 15px; font-weight: 800; color: #b91c1c;">
+                        <i class="fa-solid fa-trash-can-arrow-up"></i> سلة المهملات (المحذوفات مؤقتاً)
+                    </h4>
+                    <button id="emptyTrashBtn" class="btn btn-danger btn-sm" onclick="emptyTrash()">
+                        <i class="fa-solid fa-fire"></i> إفراغ السلة
+                    </button>
+                </div>
+                <div id="trashEntriesCards" class="cards-grid"></div>
             </div>
         </div>
 
@@ -619,7 +711,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        const ADMIN_USER = "hatem";
+        const ADMIN_USER = "12006";
         const IDLE_TIMEOUT_MS = 2 * 60 * 1000;
         const STALE_DAYS_THRESHOLD = 90;
 
@@ -630,10 +722,12 @@
         let toastTimer = null;
         let expandedMembers = new Set();
         let cachedEntries = [];
-        let sessionEntries = []; // لتخزين البيانات التي يعملها المستخدم فقط في الجلسة
+        let deletedEntries = [];
+        let sessionEntries = [];
         let revealedUserCards = new Set();
         let revealedAdminItems = new Set();
         let savedAccountsMapVisible = false;
+        let trashVisible = false;
 
         function showToast(message) {
             const toast = document.getElementById('toastNotification');
@@ -703,6 +797,13 @@
             return '•'.repeat(len);
         }
 
+        function updateTrashBadge() {
+            const badge = document.getElementById('trashCountBadge');
+            if (badge) {
+                badge.textContent = deletedEntries.length;
+            }
+        }
+
         function syncSavedAccountsMapVisibility() {
             const vaultEl = document.getElementById('accountsVaultSection');
             const btnEl = document.getElementById('toggleVaultBtn');
@@ -717,6 +818,20 @@
             }
         }
 
+        function syncTrashVisibility() {
+            const trashEl = document.getElementById('trashSection');
+            const btnEl = document.getElementById('toggleTrashBtn');
+            if (!trashEl || !btnEl) return;
+
+            if (trashVisible) {
+                trashEl.classList.remove('hidden');
+                btnEl.classList.add('btn-warning');
+            } else {
+                trashEl.classList.add('hidden');
+                btnEl.classList.remove('btn-warning');
+            }
+        }
+
         function toggleSavedAccountsMap() {
             resetIdleTimer();
             savedAccountsMapVisible = !savedAccountsMapVisible;
@@ -724,6 +839,42 @@
             if (savedAccountsMapVisible) {
                 filterUserCards();
             }
+        }
+
+        function toggleTrashSection() {
+            resetIdleTimer();
+            trashVisible = !trashVisible;
+            syncTrashVisibility();
+            if (trashVisible) {
+                renderTrashEntries();
+            }
+        }
+
+        function handleSearchInput() {
+            resetIdleTimer();
+            const inputEl = document.getElementById('searchAppInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (clearBtn) {
+                if (inputEl.value.trim().length > 0) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+            }
+            filterUserCards();
+        }
+
+        function clearSearchInput() {
+            resetIdleTimer();
+            const inputEl = document.getElementById('searchAppInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            inputEl.value = '';
+            if (clearBtn) {
+                clearBtn.classList.add('hidden');
+            }
+            filterUserCards();
+            inputEl.focus();
+            showToast('تم مسح البحث');
         }
 
         function toggleView(viewId) {
@@ -772,19 +923,35 @@
             const snapshot = await db.collection('members').where('username', '==', u).where('password', '==', p).get();
             if (!snapshot.empty) {
                 const doc = snapshot.docs[0];
+                const memberData = doc.data();
+
+                if (memberData.isSuspended === true) {
+                    showToast('هذا الحساب موقوف مؤقتاً من قبل المشرف');
+                    return;
+                }
+
                 currentUser = u;
                 currentMemberDocId = doc.id;
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
                 document.getElementById('searchAppInput').value = '';
+                const clearBtn = document.getElementById('clearSearchBtn');
+                if (clearBtn) clearBtn.classList.add('hidden');
                 document.getElementById('welcomeUserTitle').innerText = `أهلاً بك، ${u}`;
+
                 savedAccountsMapVisible = false;
+                trashVisible = false;
                 revealedUserCards.clear();
                 sessionEntries = [];
                 syncSavedAccountsMapVisibility();
-                cachedEntries = doc.data().entries || [];
+                syncTrashVisibility();
+
+                cachedEntries = memberData.entries || [];
+                deletedEntries = memberData.trash || [];
+                updateTrashBadge();
                 renderSessionEntries();
                 renderUserEntries(cachedEntries);
+                renderTrashEntries();
                 toggleView('userDashboard');
                 startAutoSync('user');
                 showToast(`مرحباً بك، ${u}`);
@@ -799,9 +966,20 @@
                 if (role === 'user' && currentMemberDocId) {
                     const doc = await db.collection('members').doc(currentMemberDocId).get();
                     if (doc.exists) {
-                        cachedEntries = doc.data().entries || [];
+                        const data = doc.data();
+                        if (data.isSuspended === true) {
+                            logout(false);
+                            showToast('تم إيقاف حسابك مؤقتاً');
+                            return;
+                        }
+                        cachedEntries = data.entries || [];
+                        deletedEntries = data.trash || [];
+                        updateTrashBadge();
                         if (savedAccountsMapVisible) {
                             filterUserCards();
+                        }
+                        if (trashVisible) {
+                            renderTrashEntries();
                         }
                     }
                 } else if (role === 'admin') {
@@ -815,9 +993,15 @@
             resetIdleTimer();
             const doc = await db.collection('members').doc(currentMemberDocId).get();
             if (doc.exists) {
-                cachedEntries = doc.data().entries || [];
+                const data = doc.data();
+                cachedEntries = data.entries || [];
+                deletedEntries = data.trash || [];
+                updateTrashBadge();
                 if (savedAccountsMapVisible) {
                     filterUserCards();
+                }
+                if (trashVisible) {
+                    renderTrashEntries();
                 }
                 showToast('تم تحديث البيانات من السحابة');
             }
@@ -865,13 +1049,26 @@
             showToast('تم تغيير كلمة مرور المشرف بنجاح');
         }
 
-        function buildAccountCardHtml(item, cardKey, realIndex, isSessionCard = false) {
+        function buildAccountCardHtml(item, cardKey, realIndex, mode = 'map') {
             const isRevealed = revealedUserCards.has(cardKey);
             const ageInfo = getPasswordAgeInfo(item.date);
             const displayedPass = isRevealed ? item.pass : maskPassword(item.pass);
-            const deleteHandler = isSessionCard
-                ? `deleteSessionEntry(${realIndex})`
-                : `deleteUserEntry(${realIndex})`;
+
+            let actionsHtml = '';
+            if (mode === 'trash') {
+                actionsHtml = `
+                    <button class="btn btn-success btn-sm" onclick="restoreTrashEntry(${realIndex})"><i class="fa-solid fa-rotate-left"></i> استرجاع</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteTrashEntryPermanently(${realIndex})"><i class="fa-solid fa-xmark"></i> حذف نهائي</button>
+                `;
+            } else {
+                const deleteHandler = mode === 'session'
+                    ? `deleteSessionEntry(${realIndex})`
+                    : `deleteUserEntry(${realIndex})`;
+                actionsHtml = `
+                    <button class="btn btn-warning btn-sm" onclick="editUserEntry(${realIndex})"><i class="fa-solid fa-pen"></i> تعديل</button>
+                    <button class="btn btn-danger btn-sm" onclick="${deleteHandler}"><i class="fa-solid fa-trash"></i> حذف</button>
+                `;
+            }
 
             return `
                 <div class="account-card ${ageInfo.isStale ? 'stale-password' : ''}">
@@ -897,8 +1094,7 @@
                         </div>
                     </div>
                     <div class="card-actions">
-                        <button class="btn btn-warning btn-sm" onclick="editUserEntry(${realIndex})"><i class="fa-solid fa-pen"></i> تعديل</button>
-                        <button class="btn btn-danger btn-sm" onclick="${deleteHandler}"><i class="fa-solid fa-trash"></i> حذف</button>
+                        ${actionsHtml}
                     </div>
                 </div>
             `;
@@ -924,7 +1120,7 @@
                 );
                 const targetIndex = realIndex >= 0 ? realIndex : sIdx;
                 const cardKey = `session_${sIdx}_${item.app}_${item.date}`;
-                container.innerHTML += buildAccountCardHtml(item, cardKey, targetIndex, true);
+                container.innerHTML += buildAccountCardHtml(item, cardKey, targetIndex, 'session');
             });
         }
 
@@ -976,6 +1172,9 @@
             if (savedAccountsMapVisible) {
                 filterUserCards();
             }
+            if (trashVisible) {
+                renderTrashEntries();
+            }
         }
 
         function renderUserEntries(entries) {
@@ -988,7 +1187,23 @@
             entries.forEach((item) => {
                 const realIndex = cachedEntries.findIndex(e => e.app === item.app && e.pass === item.pass && e.date === item.date);
                 const cardKey = `map_${realIndex}_${item.app}_${item.date}`;
-                container.innerHTML += buildAccountCardHtml(item, cardKey, realIndex, false);
+                container.innerHTML += buildAccountCardHtml(item, cardKey, realIndex, 'map');
+            });
+        }
+
+        function renderTrashEntries() {
+            const container = document.getElementById('trashEntriesCards');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (deletedEntries.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); padding: 26px; background:#fff; border-radius:14px; border:1.5px dashed #fecaca; font-size:13.5px;">سلة المهملات فارغة حالياً.</div>';
+                return;
+            }
+
+            deletedEntries.forEach((item, tIdx) => {
+                const cardKey = `trash_${tIdx}_${item.app}_${item.date}`;
+                container.innerHTML += buildAccountCardHtml(item, cardKey, tIdx, 'trash');
             });
         }
 
@@ -1036,48 +1251,117 @@
             showToast(`تم تحديث كلمة السر لـ ${item.app}`);
         }
 
-        async function deleteSessionEntry(index) {
-            resetIdleTimer();
-            if (!confirm('هل أنت متأكد من حذف هذا الحساب؟')) return;
-            resetIdleTimer();
+        async function moveEntryToTrashByIndex(index) {
             const memberRef = db.collection('members').doc(currentMemberDocId);
             const doc = await memberRef.get();
-            let entries = doc.data().entries || [];
+            if (!doc.exists) return;
+
+            const data = doc.data();
+            let entries = data.entries || [];
+            let trash = data.trash || [];
             const target = entries[index];
-            if (target) {
-                sessionEntries = sessionEntries.filter(
-                    s => !(s.app === target.app && s.pass === target.pass && s.date === target.date)
-                );
-                entries.splice(index, 1);
-                await memberRef.update({ entries });
-                cachedEntries = entries;
-            }
+            if (!target) return;
+
+            sessionEntries = sessionEntries.filter(
+                s => !(s.app === target.app && s.pass === target.pass && s.date === target.date)
+            );
+            entries.splice(index, 1);
+            trash.unshift({
+                ...target,
+                deletedAt: new Date().toISOString().split('T')[0]
+            });
+
+            await memberRef.update({ entries, trash });
+            cachedEntries = entries;
+            deletedEntries = trash;
+            updateTrashBadge();
             renderSessionEntries();
             if (savedAccountsMapVisible) {
                 filterUserCards();
             }
-            showToast('تم حذف الحساب بنجاح');
+            if (trashVisible) {
+                renderTrashEntries();
+            }
+            showToast(`تم نقل (${target.app}) إلى سلة المهملات`);
+        }
+
+        async function deleteSessionEntry(index) {
+            resetIdleTimer();
+            await moveEntryToTrashByIndex(index);
         }
 
         async function deleteUserEntry(index) {
             resetIdleTimer();
-            if (!confirm('هل أنت متأكد من حذف هذا الحساب؟')) return;
+            await moveEntryToTrashByIndex(index);
+        }
+
+        async function restoreTrashEntry(trashIndex) {
             resetIdleTimer();
             const memberRef = db.collection('members').doc(currentMemberDocId);
             const doc = await memberRef.get();
-            let entries = doc.data().entries || [];
-            const target = entries[index];
-            if (target) {
-                sessionEntries = sessionEntries.filter(
-                    s => !(s.app === target.app && s.pass === target.pass && s.date === target.date)
-                );
-            }
-            entries.splice(index, 1);
-            await memberRef.update({ entries });
+            if (!doc.exists) return;
+
+            const data = doc.data();
+            let entries = data.entries || [];
+            let trash = data.trash || [];
+            const item = trash[trashIndex];
+            if (!item) return;
+
+            const cleanItem = {
+                app: item.app,
+                pass: item.pass,
+                date: item.date || new Date().toISOString().split('T')[0]
+            };
+
+            trash.splice(trashIndex, 1);
+            entries.push(cleanItem);
+
+            await memberRef.update({ entries, trash });
             cachedEntries = entries;
-            renderSessionEntries();
-            filterUserCards();
-            showToast('تم حذف الحساب بنجاح');
+            deletedEntries = trash;
+            updateTrashBadge();
+            renderTrashEntries();
+            if (savedAccountsMapVisible) {
+                filterUserCards();
+            }
+            showToast(`تم استرجاع (${cleanItem.app}) بنجاح`);
+        }
+
+        async function deleteTrashEntryPermanently(trashIndex) {
+            resetIdleTimer();
+            if (!confirm('حذف هذا الحساب نهائياً من سلة المهملات؟')) return;
+            resetIdleTimer();
+
+            const memberRef = db.collection('members').doc(currentMemberDocId);
+            const doc = await memberRef.get();
+            if (!doc.exists) return;
+
+            let trash = doc.data().trash || [];
+            const removed = trash[trashIndex];
+            trash.splice(trashIndex, 1);
+
+            await memberRef.update({ trash });
+            deletedEntries = trash;
+            updateTrashBadge();
+            renderTrashEntries();
+            showToast(removed ? `تم حذف (${removed.app}) نهائياً` : 'تم الحذف نهائياً');
+        }
+
+        async function emptyTrash() {
+            resetIdleTimer();
+            if (deletedEntries.length === 0) {
+                showToast('سلة المهملات فارغة بالفعل');
+                return;
+            }
+            if (!confirm('هل تريد إفراغ سلة المهملات وحذف جميع العناصر نهائياً؟')) return;
+            resetIdleTimer();
+
+            const memberRef = db.collection('members').doc(currentMemberDocId);
+            await memberRef.update({ trash: [] });
+            deletedEntries = [];
+            updateTrashBadge();
+            renderTrashEntries();
+            showToast('تم إفراغ سلة المهملات');
         }
 
         async function adminCreateMember() {
@@ -1093,13 +1377,25 @@
             await db.collection('members').add({
                 username,
                 password,
-                entries: []
+                isSuspended: false,
+                entries: [],
+                trash: []
             });
 
             document.getElementById('newMemberUser').value = '';
             document.getElementById('newMemberPass').value = '';
             renderAdminView();
             showToast(`تمت إضافة المستخدم ${username}`);
+        }
+
+        async function toggleSuspendMember(mId, username, currentSuspended) {
+            resetIdleTimer();
+            const nextState = !currentSuspended;
+            await db.collection('members').doc(mId).update({
+                isSuspended: nextState
+            });
+            renderAdminView();
+            showToast(nextState ? `تم إيقاف حساب (${username}) مؤقتاً` : `تم إعادة تفعيل حساب (${username})`);
         }
 
         function toggleMemberAccordion(mId) {
@@ -1143,6 +1439,7 @@
             snapshot.forEach(docSnap => {
                 const member = docSnap.data();
                 const mId = docSnap.id;
+                const isSuspended = member.isSuspended === true;
                 const isExpanded = expandedMembers.has(mId);
                 const appCount = member.entries ? member.entries.length : 0;
                 const memberPassKey = `member_${mId}`;
@@ -1187,11 +1484,14 @@
                 }
 
                 container.innerHTML += `
-                    <div class="member-block">
+                    <div class="member-block ${isSuspended ? 'suspended-member' : ''}">
                         <div class="member-header" onclick="toggleMemberAccordion('${mId}')">
                             <div style="display: flex; align-items: center; gap: 10px; flex-wrap:wrap;">
                                 <i id="accordion-icon-${mId}" class="fa-solid fa-chevron-down chevron-icon ${isExpanded ? 'rotated' : ''}"></i>
                                 <strong style="color: var(--primary); font-size: 15px;">${member.username}</strong>
+                                <span class="${isSuspended ? 'suspended-badge' : 'active-member-badge'}">
+                                    <i class="fa-solid ${isSuspended ? 'fa-ban' : 'fa-circle-check'}"></i> ${isSuspended ? 'موقوف' : 'نشط'}
+                                </span>
                                 <span style="font-size: 12px; color: var(--text-muted); display:inline-flex; align-items:center; gap:6px;">
                                     كلمة المرور: <span class="pass-badge">${displayedMemberPass}</span>
                                     <button class="btn-icon-action" style="width:26px; height:26px; font-size:12px;" onclick="event.stopPropagation(); toggleRevealAdminItem('${memberPassKey}')" title="${isMemberPassRevealed ? 'إخفاء' : 'إظهار'}">
@@ -1200,7 +1500,10 @@
                                 </span>
                                 <span class="count-pill">${appCount} تطبيق</span>
                             </div>
-                            <div style="display: flex; gap: 6px;" onclick="event.stopPropagation()">
+                            <div style="display: flex; gap: 6px; flex-wrap:wrap;" onclick="event.stopPropagation()">
+                                <button class="btn ${isSuspended ? 'btn-success' : 'btn-warning'} btn-sm" onclick="toggleSuspendMember('${mId}', '${member.username}', ${isSuspended})">
+                                    <i class="fa-solid ${isSuspended ? 'fa-play' : 'fa-pause'}"></i> ${isSuspended ? 'تفعيل' : 'إيقاف'}
+                                </button>
                                 <button class="btn btn-warning btn-sm" onclick="adminEditMemberPassword('${mId}', '${member.username}', '${member.password}')">تعديل الباسورد</button>
                                 <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${mId}')">حذف</button>
                             </div>
@@ -1280,12 +1583,17 @@
             revealedUserCards.clear();
             revealedAdminItems.clear();
             savedAccountsMapVisible = false;
+            trashVisible = false;
             syncSavedAccountsMapVisibility();
+            syncTrashVisibility();
             currentUser = null;
             currentMemberDocId = null;
             cachedEntries = [];
+            deletedEntries = [];
             sessionEntries = [];
+            updateTrashBadge();
             renderSessionEntries();
+            renderTrashEntries();
             toggleView('loginSection');
             if (byIdle) {
                 showToast('تم قفل الجلسة تلقائياً بسبب الخمول');
