@@ -473,6 +473,23 @@
             margin-bottom: 24px;
         }
 
+        .branch-manager-row {
+            background: #ffffff;
+            border: 1.5px solid #ddd6fe;
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .branch-manager-row:last-child {
+            margin-bottom: 0;
+        }
+
         .branch-group-card {
             background: #f8fafc;
             border: 1.5px solid #cbd5e1;
@@ -1669,16 +1686,53 @@
             renderAdminView();
         }
 
-        function buildMemberCardHtml(itemObj, allDocs, isBranchManagerCard = false) {
+        function buildBranchManagerRowHtml(bObj, allDocs) {
+            const branch = bObj.data;
+            const bId = bObj.id;
+            const isSuspended = branch.isSuspended === true;
+            const subMembersCount = allDocs.filter(d => d.data.role !== 'subadmin' && d.data.managedBy === branch.username).length;
+            const branchPassKey = `branch_${bId}`;
+            const isRevealed = revealedAdminItems.has(branchPassKey);
+            const displayedPass = isRevealed ? branch.password : maskPassword(branch.password);
+
+            return `
+                <div class="branch-manager-row">
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <strong style="color:#5b21b6; font-size:15px;">
+                            <i class="fa-solid fa-user-tie"></i> ${branch.username}
+                        </strong>
+                        <span class="role-pill"><i class="fa-solid fa-users"></i> ${subMembersCount} عضو تابع</span>
+                        <span class="${isSuspended ? 'suspended-badge' : 'active-member-badge'}">
+                            <i class="fa-solid ${isSuspended ? 'fa-ban' : 'fa-circle-check'}"></i> ${isSuspended ? 'موقوف' : 'نشط'}
+                        </span>
+                        <span style="font-size:12px; color:var(--text-muted); display:inline-flex; align-items:center; gap:6px;">
+                            الباسورد: <span class="pass-badge">${displayedPass}</span>
+                            <button class="btn-icon-action" style="width:26px; height:26px; font-size:12px;" onclick="toggleRevealAdminItem('${branchPassKey}')" title="${isRevealed ? 'إخفاء' : 'إظهار'}">
+                                <i class="fa-solid ${isRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                            </button>
+                        </span>
+                    </div>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        <button class="btn btn-warning btn-sm" onclick="adminEditMemberPassword('${bId}', '${branch.username}', '${branch.password}')">
+                            <i class="fa-solid fa-key"></i> تعديل الباسورد
+                        </button>
+                        <button class="btn ${isSuspended ? 'btn-success' : 'btn-warning'} btn-sm" onclick="toggleSuspendMember('${bId}', '${branch.username}', ${isSuspended})">
+                            <i class="fa-solid ${isSuspended ? 'fa-play' : 'fa-pause'}"></i> ${isSuspended ? 'تفعيل' : 'إيقاف'}
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${bId}')">
+                            <i class="fa-solid fa-trash"></i> حذف
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function buildMemberCardHtml(itemObj) {
             const member = itemObj.data;
             const mId = itemObj.id;
-            const isSubAdmin = member.role === 'subadmin';
             const isSuspended = member.isSuspended === true;
             const isExpanded = expandedMembers.has(mId);
             const appCount = member.entries ? member.entries.length : 0;
-            const subMembersCount = isSubAdmin
-                ? allDocs.filter(d => d.data.role !== 'subadmin' && d.data.managedBy === member.username).length
-                : 0;
 
             const memberPassKey = `member_${mId}`;
             const isMemberPassRevealed = revealedAdminItems.has(memberPassKey);
@@ -1720,17 +1774,12 @@
                 entriesHtml += `</div>`;
             }
 
-            const branchPillHtml = isBranchManagerCard && isSubAdmin
-                ? `<span class="role-pill"><i class="fa-solid fa-people-roof"></i> ${subMembersCount} عضو تابع</span>`
-                : '';
-
             return `
                 <div class="member-block ${isSuspended ? 'suspended-member' : ''}">
                     <div class="member-header" onclick="toggleMemberAccordion('${mId}')">
                         <div style="display: flex; align-items: center; gap: 10px; flex-wrap:wrap;">
                             <i id="accordion-icon-${mId}" class="fa-solid fa-chevron-down chevron-icon ${isExpanded ? 'rotated' : ''}"></i>
                             <strong style="color: var(--primary); font-size: 15px;">${member.username}</strong>
-                            ${branchPillHtml}
                             <span class="${isSuspended ? 'suspended-badge' : 'active-member-badge'}">
                                 <i class="fa-solid ${isSuspended ? 'fa-ban' : 'fa-circle-check'}"></i> ${isSuspended ? 'موقوف' : 'نشط'}
                             </span>
@@ -1778,13 +1827,13 @@
                         branchesContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:12px; font-size:13px;">لا يوجد مديرو فروع مضافون حالياً.</p>';
                     } else {
                         branchManagers.forEach(bObj => {
-                            branchesContainer.innerHTML += buildMemberCardHtml(bObj, allDocs, true);
+                            branchesContainer.innerHTML += buildBranchManagerRowHtml(bObj, allDocs);
                         });
                     }
                 } else if (currentRole === 'subadmin' && currentMemberDocId) {
                     const selfDoc = allDocs.find(d => d.id === currentMemberDocId);
                     if (selfDoc) {
-                        branchesContainer.innerHTML += buildMemberCardHtml(selfDoc, allDocs, true);
+                        branchesContainer.innerHTML += buildBranchManagerRowHtml(selfDoc, allDocs);
                     }
                 }
             }
@@ -1805,7 +1854,6 @@
             }
 
             if (currentRole === 'superadmin') {
-                // تجميع كل عضو داخل الفرع التابع له فقط بحيث لا يجتمعون في قائمة واحدة
                 const branchOrder = [ADMIN_USER, ...branchManagers.map(b => b.data.username)];
                 regularMembers.forEach(m => {
                     const owner = m.data.managedBy || ADMIN_USER;
@@ -1827,7 +1875,7 @@
                         membersCardsHtml = '<p style="font-size: 13px; color: var(--text-muted); padding: 6px 0;">لا يوجد أعضاء مسجلون في هذا الفرع حالياً.</p>';
                     } else {
                         branchMembers.forEach(itemObj => {
-                            membersCardsHtml += buildMemberCardHtml(itemObj, allDocs, false);
+                            membersCardsHtml += buildMemberCardHtml(itemObj);
                         });
                     }
 
@@ -1846,7 +1894,7 @@
                 });
             } else {
                 regularMembers.forEach(itemObj => {
-                    container.innerHTML += buildMemberCardHtml(itemObj, allDocs, false);
+                    container.innerHTML += buildMemberCardHtml(itemObj);
                 });
             }
         }
