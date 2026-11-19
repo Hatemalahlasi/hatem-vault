@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نظام السحابي | Cloud Vault</title>
+    <title>نظام إدارة الحسابات السحابي | Cloud Vault</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -148,7 +148,6 @@
 
         .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
 
-        /* شريط علوي مرتب */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -207,7 +206,6 @@
             .grid-2 { grid-template-columns: 1fr 1fr; }
         }
 
-        /* --- شريط البحث السريع والأنيق --- */
         .search-box-container {
             margin-bottom: 16px;
         }
@@ -239,7 +237,6 @@
             font-size: 15px;
         }
 
-        /* --- تصميم البطاقات الحديثة (نظام متناسق وغير متراكم) --- */
         .cards-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -270,10 +267,16 @@
             box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
         }
 
+        .account-card.stale-password {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
         .account-card-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
+            gap: 8px;
             border-bottom: 1.5px solid #f1f5f9;
             padding-bottom: 10px;
         }
@@ -287,13 +290,34 @@
             gap: 8px;
         }
 
+        .meta-badges {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
         .account-date {
-            font-size: 12px;
+            font-size: 11.5px;
             color: var(--text-muted);
             background: #f8fafc;
-            padding: 3px 8px;
+            padding: 2px 8px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
+        }
+
+        .age-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .age-badge.stale {
+            background: var(--warning-bg);
+            color: #b45309;
         }
 
         .account-body {
@@ -301,9 +325,16 @@
             justify-content: space-between;
             align-items: center;
             background: #f8fafc;
-            padding: 10px 14px;
+            padding: 10px 12px;
             border-radius: 12px;
             border: 1.5px solid #e2e8f0;
+            gap: 8px;
+        }
+
+        .pass-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .pass-badge {
@@ -312,6 +343,7 @@
             font-weight: 700;
             direction: ltr;
             font-size: 14px;
+            letter-spacing: 0.5px;
         }
 
         .card-actions {
@@ -322,16 +354,63 @@
             padding-top: 10px;
         }
 
-        .btn-copy-pass {
-            background: transparent;
-            border: none;
+        .btn-icon-action {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
             color: var(--primary);
             cursor: pointer;
-            font-size: 16px;
-            padding: 2px;
-            transition: transform 0.1s;
+            font-size: 13.5px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
         }
-        .btn-copy-pass:active { transform: scale(0.85); }
+
+        .btn-icon-action:hover {
+            background: #eff6ff;
+            border-color: var(--primary);
+        }
+
+        .btn-icon-action:active {
+            transform: scale(0.92);
+        }
+
+        /* إشعار النسخ العائم الأنيق بدون alert */
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #0f172a;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 11px 18px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease, transform 0.22s ease;
+            z-index: 9999;
+            max-width: calc(100% - 24px);
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast-notification i {
+            color: #4ade80;
+            font-size: 15px;
+        }
 
         /* حاويات الآدمن والأكورديون */
         .member-block {
@@ -407,7 +486,7 @@
             </button>
         </div>
 
-        <!-- لوحة المستخدم (نظام بطاقات احترافي وسهل التصفح) -->
+        <!-- لوحة المستخدم -->
         <div id="userDashboard" class="hidden">
             <div class="top-bar">
                 <div>
@@ -445,7 +524,6 @@
                 </button>
             </div>
 
-            <!-- صندوق البحث السريع -->
             <div class="search-box-container">
                 <div class="search-wrapper">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -457,7 +535,6 @@
                 <h4 style="font-size: 15px; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-address-card" style="color: var(--primary);"></i> خريطة حساباتك المسجلة:</h4>
             </div>
             
-            <!-- بطاقات الحسابات المرتّبة -->
             <div id="userEntriesCards" class="cards-grid"></div>
         </div>
 
@@ -504,6 +581,12 @@
 
     </div>
 
+    <!-- إشعار عائم أنيق بدون alert -->
+    <div id="toastNotification" class="toast-notification" role="status" aria-live="polite">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toastMessage">تم النسخ</span>
+    </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyD3dZmGf-HiIleBURpFj-kpssabUuOpRD4",
@@ -519,17 +602,97 @@
         const db = firebase.firestore();
 
         const ADMIN_USER = "hatem";
+        const IDLE_TIMEOUT_MS = 2 * 60 * 1000; // قفل تلقائي بعد دقيقتين من الخمول
+        const STALE_DAYS_THRESHOLD = 90; // تنبيه بعد 90 يوماً من آخر تحديث
+
         let currentUser = null;
         let currentMemberDocId = null;
         let autoSyncInterval = null;
+        let idleTimer = null;
+        let toastTimer = null;
         let expandedMembers = new Set();
-        let cachedEntries = []; // لتخزين الحسابات بغرض البحث السريع
+        let cachedEntries = [];
+        let revealedUserCards = new Set();
+        let revealedAdminItems = new Set();
+
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            const msgEl = document.getElementById('toastMessage');
+            msgEl.textContent = message;
+            toast.classList.add('show');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2200);
+        }
+
+        function isSessionActive() {
+            return !document.getElementById('userDashboard').classList.contains('hidden') ||
+                   !document.getElementById('adminDashboard').classList.contains('hidden');
+        }
+
+        function resetIdleTimer() {
+            if (idleTimer) clearTimeout(idleTimer);
+            if (!isSessionActive()) return;
+            idleTimer = setTimeout(() => {
+                if (isSessionActive()) {
+                    logout(true);
+                }
+            }, IDLE_TIMEOUT_MS);
+        }
+
+        function bindIdleListeners() {
+            ['pointerdown', 'keydown', 'scroll', 'touchstart', 'mousemove'].forEach(evt => {
+                window.addEventListener(evt, resetIdleTimer, { passive: true });
+            });
+        }
+
+        function getPasswordAgeInfo(dateStr) {
+            if (!dateStr) {
+                return { label: 'غير محدد', isStale: false };
+            }
+            const parsed = new Date(dateStr + 'T00:00:00');
+            if (Number.isNaN(parsed.getTime())) {
+                return { label: dateStr, isStale: false };
+            }
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const entryStart = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+            const diffDays = Math.max(0, Math.floor((todayStart - entryStart) / (1000 * 60 * 60 * 24)));
+
+            let label = '';
+            if (diffDays === 0) {
+                label = 'محدث اليوم';
+            } else if (diffDays === 1) {
+                label = 'منذ يوم واحد';
+            } else if (diffDays < 30) {
+                label = `منذ ${diffDays} أيام`;
+            } else {
+                const months = Math.floor(diffDays / 30);
+                label = months === 1 ? 'منذ شهر' : `منذ ${months} أشهر`;
+            }
+
+            return {
+                label,
+                isStale: diffDays >= STALE_DAYS_THRESHOLD
+            };
+        }
+
+        function maskPassword(pass) {
+            const len = Math.min(Math.max((pass || '').length, 6), 12);
+            return '•'.repeat(len);
+        }
 
         function toggleView(viewId) {
             ['loginSection', 'userDashboard', 'adminDashboard'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
             document.getElementById(viewId).classList.remove('hidden');
+            if (viewId === 'loginSection') {
+                if (idleTimer) clearTimeout(idleTimer);
+            } else {
+                resetIdleTimer();
+            }
         }
 
         async function getAdminPass() {
@@ -547,7 +710,7 @@
             const p = document.getElementById('loginPassword').value.trim();
 
             if (!u || !p) {
-                alert('يرجى إدخال اسم المستخدم وكلمة المرور');
+                showToast('يرجى إدخال اسم المستخدم وكلمة المرور');
                 return;
             }
 
@@ -555,9 +718,11 @@
             if (u === ADMIN_USER && p === adminPass) {
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
+                revealedAdminItems.clear();
                 renderAdminView();
                 toggleView('adminDashboard');
                 startAutoSync('admin');
+                showToast('تم تسجيل الدخول كمشرف عام');
                 return;
             }
 
@@ -569,12 +734,14 @@
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
                 document.getElementById('welcomeUserTitle').innerText = `أهلاً بك، ${u}`;
+                revealedUserCards.clear();
                 cachedEntries = doc.data().entries || [];
                 renderUserEntries(cachedEntries);
                 toggleView('userDashboard');
                 startAutoSync('user');
+                showToast(`مرحباً بك، ${u}`);
             } else {
-                alert('خطأ في اسم المستخدم أو كلمة المرور!');
+                showToast('خطأ في اسم المستخدم أو كلمة المرور');
             }
         }
 
@@ -585,7 +752,7 @@
                     const doc = await db.collection('members').doc(currentMemberDocId).get();
                     if (doc.exists) {
                         cachedEntries = doc.data().entries || [];
-                        filterUserCards(); // مزامنة مع فلتر البحث إن كان مفعلاً
+                        filterUserCards();
                     }
                 } else if (role === 'admin') {
                     renderAdminView();
@@ -595,54 +762,64 @@
 
         async function refreshUserDataManual() {
             if (!currentMemberDocId) return;
+            resetIdleTimer();
             const doc = await db.collection('members').doc(currentMemberDocId).get();
             if (doc.exists) {
                 cachedEntries = doc.data().entries || [];
                 filterUserCards();
+                showToast('تم تحديث البيانات من السحابة');
             }
         }
 
         async function changeMyPassword() {
+            resetIdleTimer();
             const currentPass = prompt('أدخل كلمة المرور الحالية لحسابك:');
             if (currentPass === null) return;
+            resetIdleTimer();
             
             const memberRef = db.collection('members').doc(currentMemberDocId);
             const doc = await memberRef.get();
             if (!doc.exists) return;
 
             if (doc.data().password !== currentPass) {
-                alert('كلمة المرور الحالية غير صحيحة!');
+                showToast('كلمة المرور الحالية غير صحيحة');
                 return;
             }
 
             const newPass = prompt('أدخل كلمة المرور الجديدة:');
             if (!newPass || !newPass.trim()) return;
+            resetIdleTimer();
 
             await memberRef.update({ password: newPass.trim() });
-            alert('تم تغيير كلمة المرور وحفظها في السحابة بنجاح!');
+            showToast('تم تغيير كلمة المرور وحفظها بنجاح');
         }
 
         async function changeAdminPassword() {
+            resetIdleTimer();
             const oldPass = prompt('أدخل كلمة مرور المشرف الحالية:');
             if (oldPass === null) return;
+            resetIdleTimer();
+
             const adminPass = await getAdminPass();
             if (oldPass !== adminPass) {
-                alert('كلمة المرور الحالية غير صحيحة!');
+                showToast('كلمة المرور الحالية غير صحيحة');
                 return;
             }
             const newPass = prompt('أدخل كلمة مرور المشرف الجديدة:');
             if (!newPass || !newPass.trim()) return;
+            resetIdleTimer();
 
             await db.collection('settings').doc('admin').set({ password: newPass.trim() });
-            alert('تم تغيير كلمة مرور المشرف بنجاح!');
+            showToast('تم تغيير كلمة مرور المشرف بنجاح');
         }
 
         async function addUserEntry() {
+            resetIdleTimer();
             const app = document.getElementById('appName').value.trim();
             const pass = document.getElementById('appPass').value.trim();
 
             if (!app || !pass) {
-                alert('يرجى تعبئة حقل اسم التطبيق وكلمة السر');
+                showToast('يرجى تعبئة اسم التطبيق وكلمة السر');
                 return;
             }
 
@@ -659,13 +836,23 @@
             document.getElementById('appPass').value = '';
             cachedEntries = entries;
             filterUserCards();
+            showToast('تم حفظ الحساب في السحابة');
         }
 
-        // دالة تصفية وبحث البطاقات حسب إدخال المستخدم
         function filterUserCards() {
             const query = document.getElementById('searchAppInput').value.toLowerCase().trim();
             const filtered = cachedEntries.filter(item => item.app.toLowerCase().includes(query));
             renderUserEntries(filtered);
+        }
+
+        function toggleRevealUserCard(key) {
+            resetIdleTimer();
+            if (revealedUserCards.has(key)) {
+                revealedUserCards.delete(key);
+            } else {
+                revealedUserCards.add(key);
+            }
+            filterUserCards();
         }
 
         function renderUserEntries(entries) {
@@ -676,19 +863,33 @@
                 return;
             }
             entries.forEach((item) => {
-                // البحث عن الموقع الحقيقي للعنصر في القائمة الأساسية للتعديل أو الحذف الصحيح
                 const realIndex = cachedEntries.findIndex(e => e.app === item.app && e.pass === item.pass && e.date === item.date);
+                const cardKey = `${realIndex}_${item.app}_${item.date}`;
+                const isRevealed = revealedUserCards.has(cardKey);
+                const ageInfo = getPasswordAgeInfo(item.date);
+                const displayedPass = isRevealed ? item.pass : maskPassword(item.pass);
+
                 container.innerHTML += `
-                    <div class="account-card">
+                    <div class="account-card ${ageInfo.isStale ? 'stale-password' : ''}">
                         <div class="account-card-header">
                             <div class="account-title"><i class="fa-solid fa-shield-halved" style="color:var(--primary); font-size:14px;"></i> ${item.app}</div>
-                            <div class="account-date"><i class="fa-regular fa-calendar"></i> ${item.date}</div>
+                            <div class="meta-badges">
+                                <div class="account-date"><i class="fa-regular fa-calendar"></i> ${item.date}</div>
+                                <span class="age-badge ${ageInfo.isStale ? 'stale' : ''}">
+                                    <i class="fa-solid ${ageInfo.isStale ? 'fa-triangle-exclamation' : 'fa-clock'}"></i> ${ageInfo.label}
+                                </span>
+                            </div>
                         </div>
                         <div class="account-body">
                             <span style="font-size: 12.5px; color: var(--text-muted); font-weight:700;">كلمة السر:</span>
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span class="pass-badge">${item.pass}</span>
-                                <button class="btn-copy-pass" onclick="copyPassword('${item.pass}')" title="نسخ"><i class="fa-solid fa-copy"></i></button>
+                            <div class="pass-controls">
+                                <span class="pass-badge">${displayedPass}</span>
+                                <button class="btn-icon-action" onclick="toggleRevealUserCard('${cardKey}')" title="${isRevealed ? 'إخفاء كلمة السر' : 'إظهار كلمة السر'}">
+                                    <i class="fa-solid ${isRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                                </button>
+                                <button class="btn-icon-action" onclick="copyPassword('${item.pass}', '${item.app}')" title="نسخ كلمة السر">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="card-actions">
@@ -701,6 +902,7 @@
         }
 
         async function editUserEntry(index) {
+            resetIdleTimer();
             const memberRef = db.collection('members').doc(currentMemberDocId);
             const doc = await memberRef.get();
             let entries = doc.data().entries || [];
@@ -708,9 +910,10 @@
 
             const newPass = prompt(`تعديل كلمة السر لـ (${item.app}):`, item.pass);
             if (newPass === null) return;
+            resetIdleTimer();
 
             if (!newPass.trim()) {
-                alert('لا يمكن أن تكون كلمة السر فارغة!');
+                showToast('لا يمكن أن تكون كلمة السر فارغة');
                 return;
             }
 
@@ -720,10 +923,13 @@
             await memberRef.update({ entries });
             cachedEntries = entries;
             filterUserCards();
+            showToast(`تم تحديث كلمة السر لـ ${item.app}`);
         }
 
         async function deleteUserEntry(index) {
+            resetIdleTimer();
             if (!confirm('هل أنت متأكد من حذف هذا الحساب؟')) return;
+            resetIdleTimer();
             const memberRef = db.collection('members').doc(currentMemberDocId);
             const doc = await memberRef.get();
             let entries = doc.data().entries || [];
@@ -731,14 +937,16 @@
             await memberRef.update({ entries });
             cachedEntries = entries;
             filterUserCards();
+            showToast('تم حذف الحساب بنجاح');
         }
 
         async function adminCreateMember() {
+            resetIdleTimer();
             const username = document.getElementById('newMemberUser').value.trim();
             const password = document.getElementById('newMemberPass').value.trim();
 
             if (!username || !password) {
-                alert('أدخل اسم المستخدم وكلمة المرور');
+                showToast('أدخل اسم المستخدم وكلمة المرور');
                 return;
             }
 
@@ -751,9 +959,11 @@
             document.getElementById('newMemberUser').value = '';
             document.getElementById('newMemberPass').value = '';
             renderAdminView();
+            showToast(`تمت إضافة المستخدم ${username}`);
         }
 
         function toggleMemberAccordion(mId) {
+            resetIdleTimer();
             const body = document.getElementById(`accordion-body-${mId}`);
             const icon = document.getElementById(`accordion-icon-${mId}`);
             if (!body || !icon) return;
@@ -767,6 +977,16 @@
                 body.classList.remove('hidden');
                 icon.classList.add('rotated');
             }
+        }
+
+        function toggleRevealAdminItem(key) {
+            resetIdleTimer();
+            if (revealedAdminItems.has(key)) {
+                revealedAdminItems.delete(key);
+            } else {
+                revealedAdminItems.add(key);
+            }
+            renderAdminView();
         }
 
         async function renderAdminView() {
@@ -785,6 +1005,10 @@
                 const mId = docSnap.id;
                 const isExpanded = expandedMembers.has(mId);
                 const appCount = member.entries ? member.entries.length : 0;
+                const memberPassKey = `member_${mId}`;
+                const isMemberPassRevealed = revealedAdminItems.has(memberPassKey);
+                const displayedMemberPass = isMemberPassRevealed ? member.password : maskPassword(member.password);
+
                 let entriesHtml = '';
                 
                 if (appCount === 0) {
@@ -792,15 +1016,28 @@
                 } else {
                     entriesHtml = `<div style="display:grid; grid-template-columns: 1fr; gap:10px;">`;
                     member.entries.forEach((ent, entIndex) => {
+                        const ageInfo = getPasswordAgeInfo(ent.date);
+                        const entKey = `entry_${mId}_${entIndex}`;
+                        const isEntRevealed = revealedAdminItems.has(entKey);
+                        const displayedEntPass = isEntRevealed ? ent.pass : maskPassword(ent.pass);
+
                         entriesHtml += `
-                            <div style="background:#f8fafc; border:1px solid var(--border-color); border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <div style="background:${ageInfo.isStale ? '#fffbeb' : '#f8fafc'}; border:1px solid ${ageInfo.isStale ? '#f59e0b' : 'var(--border-color)'}; border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                                 <div>
                                     <strong style="color:var(--text-main); font-size:14px;"><i class="fa-solid fa-bookmark" style="color:var(--primary); font-size:11px;"></i> ${ent.app}</strong>
-                                    <div style="font-size:11.5px; color:var(--text-muted);">${ent.date}</div>
+                                    <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-top:3px; flex-wrap:wrap;">
+                                        <span>${ent.date}</span>
+                                        <span class="age-badge ${ageInfo.isStale ? 'stale' : ''}">${ageInfo.label}</span>
+                                    </div>
                                 </div>
-                                <div style="display:flex; align-items:center; gap:8px;">
-                                    <span class="pass-badge">${ent.pass}</span>
-                                    <button class="btn-copy-pass" onclick="copyPassword('${ent.pass}')"><i class="fa-solid fa-copy"></i></button>
+                                <div class="pass-controls">
+                                    <span class="pass-badge">${displayedEntPass}</span>
+                                    <button class="btn-icon-action" onclick="toggleRevealAdminItem('${entKey}')" title="${isEntRevealed ? 'إخفاء' : 'إظهار'}">
+                                        <i class="fa-solid ${isEntRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                                    </button>
+                                    <button class="btn-icon-action" onclick="copyPassword('${ent.pass}', '${ent.app}')" title="نسخ">
+                                        <i class="fa-solid fa-copy"></i>
+                                    </button>
                                     <button class="btn btn-warning btn-sm" onclick="adminEditAppPassword('${mId}', ${entIndex}, '${ent.app}', '${ent.pass}')">تعديل</button>
                                 </div>
                             </div>
@@ -812,10 +1049,15 @@
                 container.innerHTML += `
                     <div class="member-block">
                         <div class="member-header" onclick="toggleMemberAccordion('${mId}')">
-                            <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap:wrap;">
                                 <i id="accordion-icon-${mId}" class="fa-solid fa-chevron-down chevron-icon ${isExpanded ? 'rotated' : ''}"></i>
                                 <strong style="color: var(--primary); font-size: 15px;">${member.username}</strong>
-                                <span style="font-size: 12px; color: var(--text-muted);">كلمة المرور: <span class="pass-badge">${member.password}</span></span>
+                                <span style="font-size: 12px; color: var(--text-muted); display:inline-flex; align-items:center; gap:6px;">
+                                    كلمة المرور: <span class="pass-badge">${displayedMemberPass}</span>
+                                    <button class="btn-icon-action" style="width:26px; height:26px; font-size:12px;" onclick="event.stopPropagation(); toggleRevealAdminItem('${memberPassKey}')" title="${isMemberPassRevealed ? 'إخفاء' : 'إظهار'}">
+                                        <i class="fa-solid ${isMemberPassRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                                    </button>
+                                </span>
                                 <span class="count-pill">${appCount} تطبيق</span>
                             </div>
                             <div style="display: flex; gap: 6px;" onclick="event.stopPropagation()">
@@ -832,10 +1074,12 @@
         }
 
         async function adminEditAppPassword(mId, entIndex, appName, currentPass) {
+            resetIdleTimer();
             const newPass = prompt(`تعديل كلمة السر لتطبيق (${appName}):`, currentPass);
             if (newPass === null) return;
+            resetIdleTimer();
             if (!newPass.trim()) {
-                alert('كلمة السر لا يمكن أن تكون فارغة!');
+                showToast('كلمة السر لا يمكن أن تكون فارغة');
                 return;
             }
 
@@ -849,14 +1093,17 @@
 
             await docRef.update({ entries });
             renderAdminView();
+            showToast(`تم تحديث كلمة السر لتطبيق ${appName}`);
         }
 
         async function adminEditMemberPassword(mId, username, currentPass) {
+            resetIdleTimer();
             const newPass = prompt(`تعديل كلمة المرور الخاصة بالحساب (${username}):`, currentPass);
             if (newPass === null) return;
+            resetIdleTimer();
 
             if (!newPass.trim()) {
-                alert('كلمة المرور لا يمكن أن تكون فارغة!');
+                showToast('كلمة المرور لا يمكن أن تكون فارغة');
                 return;
             }
 
@@ -865,28 +1112,43 @@
             });
 
             renderAdminView();
+            showToast(`تم تحديث كلمة مرور ${username}`);
         }
 
         async function adminDeleteMember(mId) {
+            resetIdleTimer();
             if (!confirm('حذف هذا المستخدم نهائياً؟')) return;
+            resetIdleTimer();
             expandedMembers.delete(mId);
             await db.collection('members').doc(mId).delete();
             renderAdminView();
+            showToast('تم حذف المستخدم');
         }
 
-        function copyPassword(text) {
-            navigator.clipboard.writeText(text);
-            alert('تم نسخ كلمة المرور بنجاح!');
+        function copyPassword(text, label = '') {
+            resetIdleTimer();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).catch(() => {});
+            }
+            showToast(label ? `تم نسخ كلمة سر ${label}` : 'تم نسخ كلمة المرور');
         }
 
-        function logout() {
+        function logout(byIdle = false) {
             if (autoSyncInterval) clearInterval(autoSyncInterval);
+            if (idleTimer) clearTimeout(idleTimer);
             expandedMembers.clear();
+            revealedUserCards.clear();
+            revealedAdminItems.clear();
             currentUser = null;
             currentMemberDocId = null;
             cachedEntries = [];
             toggleView('loginSection');
+            if (byIdle) {
+                showToast('تم قفل الجلسة تلقائياً بسبب الخمول');
+            }
         }
+
+        bindIdleListeners();
     </script>
 </body>
 </html>
