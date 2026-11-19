@@ -199,18 +199,6 @@
             gap: 4px;
         }
 
-        .owner-pill {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11.5px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
         .suspended-badge {
             background: var(--danger-bg);
             color: #b91c1c;
@@ -254,11 +242,9 @@
         }
 
         .grid-2 { display: grid; grid-template-columns: 1fr; gap: 14px; }
-        .grid-3 { display: grid; grid-template-columns: 1fr; gap: 14px; }
 
         @media (min-width: 640px) {
             .grid-2 { grid-template-columns: 1fr 1fr; }
-            .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
         }
 
         .vault-section {
@@ -487,6 +473,34 @@
             margin-bottom: 24px;
         }
 
+        .branch-group-card {
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+
+        .branch-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+            border-bottom: 1.5px solid #e2e8f0;
+        }
+
+        .branch-group-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #1e293b;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .toast-notification {
             position: fixed;
             bottom: 20px;
@@ -524,9 +538,13 @@
             background: #ffffff;
             border: 1.5px solid var(--border-color);
             border-radius: 16px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             overflow: hidden;
             transition: all 0.2s ease;
+        }
+
+        .member-block:last-child {
+            margin-bottom: 0;
         }
 
         .member-block.suspended-member {
@@ -1651,11 +1669,10 @@
             renderAdminView();
         }
 
-        function buildMemberCardHtml(itemObj, allDocs, showOwnerBadge = false) {
+        function buildMemberCardHtml(itemObj, allDocs, isBranchManagerCard = false) {
             const member = itemObj.data;
             const mId = itemObj.id;
             const isSubAdmin = member.role === 'subadmin';
-            const ownerName = member.managedBy || ADMIN_USER;
             const isSuspended = member.isSuspended === true;
             const isExpanded = expandedMembers.has(mId);
             const appCount = member.entries ? member.entries.length : 0;
@@ -1703,12 +1720,8 @@
                 entriesHtml += `</div>`;
             }
 
-            const branchPillHtml = isSubAdmin
+            const branchPillHtml = isBranchManagerCard && isSubAdmin
                 ? `<span class="role-pill"><i class="fa-solid fa-people-roof"></i> ${subMembersCount} عضو تابع</span>`
-                : '';
-
-            const ownerBadgeHtml = showOwnerBadge
-                ? `<span class="owner-pill"><i class="fa-solid fa-user-shield"></i> الفرع: ${ownerName}</span>`
                 : '';
 
             return `
@@ -1718,7 +1731,6 @@
                             <i id="accordion-icon-${mId}" class="fa-solid fa-chevron-down chevron-icon ${isExpanded ? 'rotated' : ''}"></i>
                             <strong style="color: var(--primary); font-size: 15px;">${member.username}</strong>
                             ${branchPillHtml}
-                            ${ownerBadgeHtml}
                             <span class="${isSuspended ? 'suspended-badge' : 'active-member-badge'}">
                                 <i class="fa-solid ${isSuspended ? 'fa-ban' : 'fa-circle-check'}"></i> ${isSuspended ? 'موقوف' : 'نشط'}
                             </span>
@@ -1766,13 +1778,13 @@
                         branchesContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:12px; font-size:13px;">لا يوجد مديرو فروع مضافون حالياً.</p>';
                     } else {
                         branchManagers.forEach(bObj => {
-                            branchesContainer.innerHTML += buildMemberCardHtml(bObj, allDocs, false);
+                            branchesContainer.innerHTML += buildMemberCardHtml(bObj, allDocs, true);
                         });
                     }
                 } else if (currentRole === 'subadmin' && currentMemberDocId) {
                     const selfDoc = allDocs.find(d => d.id === currentMemberDocId);
                     if (selfDoc) {
-                        branchesContainer.innerHTML += buildMemberCardHtml(selfDoc, allDocs, false);
+                        branchesContainer.innerHTML += buildMemberCardHtml(selfDoc, allDocs, true);
                     }
                 }
             }
@@ -1792,9 +1804,51 @@
                 return;
             }
 
-            regularMembers.forEach(itemObj => {
-                container.innerHTML += buildMemberCardHtml(itemObj, allDocs, currentRole === 'superadmin');
-            });
+            if (currentRole === 'superadmin') {
+                // تجميع كل عضو داخل الفرع التابع له فقط بحيث لا يجتمعون في قائمة واحدة
+                const branchOrder = [ADMIN_USER, ...branchManagers.map(b => b.data.username)];
+                regularMembers.forEach(m => {
+                    const owner = m.data.managedBy || ADMIN_USER;
+                    if (!branchOrder.includes(owner)) {
+                        branchOrder.push(owner);
+                    }
+                });
+
+                branchOrder.forEach(branchOwner => {
+                    const branchMembers = regularMembers.filter(m => (m.data.managedBy || ADMIN_USER) === branchOwner);
+                    if (branchMembers.length === 0 && branchOwner !== ADMIN_USER) return;
+
+                    const groupLabel = branchOwner === ADMIN_USER
+                        ? `فرع المشرف العام (${ADMIN_USER})`
+                        : `فرع: ${branchOwner}`;
+
+                    let membersCardsHtml = '';
+                    if (branchMembers.length === 0) {
+                        membersCardsHtml = '<p style="font-size: 13px; color: var(--text-muted); padding: 6px 0;">لا يوجد أعضاء مسجلون في هذا الفرع حالياً.</p>';
+                    } else {
+                        branchMembers.forEach(itemObj => {
+                            membersCardsHtml += buildMemberCardHtml(itemObj, allDocs, false);
+                        });
+                    }
+
+                    container.innerHTML += `
+                        <div class="branch-group-card">
+                            <div class="branch-group-header">
+                                <div class="branch-group-title">
+                                    <i class="fa-solid fa-sitemap" style="color: var(--primary);"></i>
+                                    <span>${groupLabel}</span>
+                                </div>
+                                <span class="count-pill">${branchMembers.length} عضو</span>
+                            </div>
+                            ${membersCardsHtml}
+                        </div>
+                    `;
+                });
+            } else {
+                regularMembers.forEach(itemObj => {
+                    container.innerHTML += buildMemberCardHtml(itemObj, allDocs, false);
+                });
+            }
         }
 
         async function adminEditAppPassword(mId, entIndex, appName, currentPass) {
