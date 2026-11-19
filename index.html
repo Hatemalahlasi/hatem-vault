@@ -479,6 +479,14 @@
             margin-bottom: 14px;
         }
 
+        .branches-panel {
+            background: #f5f3ff;
+            border: 1.5px solid #c4b5fd;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
         .toast-notification {
             position: fixed;
             bottom: 20px;
@@ -675,7 +683,7 @@
             </div>
         </div>
 
-        <!-- لوحة المشرف العام ومدير العائلة -->
+        <!-- لوحة المشرف العام ومدير الفرع -->
         <div id="adminDashboard" class="hidden">
             <div class="top-bar">
                 <div>
@@ -686,6 +694,9 @@
                     <button class="btn btn-outline btn-sm" onclick="renderAdminView()">
                         <i class="fa-solid fa-rotate"></i> تحديث
                     </button>
+                    <button id="branchesToggleBtn" class="btn btn-outline btn-sm" onclick="toggleBranchesView()">
+                        <i class="fa-solid fa-people-roof"></i> الفروع (<span id="branchesCount">0</span>)
+                    </button>
                     <button class="btn btn-outline btn-sm" onclick="changeAdminOrSubAdminPassword()">
                         <i class="fa-solid fa-key"></i> الباسورد
                     </button>
@@ -695,9 +706,33 @@
                 </div>
             </div>
 
+            <!-- قسم الفروع المستقل (يفتح عند الضغط على زر الفروع) -->
+            <div id="branchesSection" class="branches-panel hidden">
+                <div class="panel-title" style="color: #5b21b6;">
+                    <i class="fa-solid fa-people-roof"></i> إدارة الفروع / مديري العائلات
+                </div>
+
+                <div id="createBranchForm" class="grid-2" style="margin-bottom: 14px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>اسم مدير الفرع / العائلة</label>
+                        <input type="text" id="newBranchUser" placeholder="مثال: فرع_إب أو أحمد">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>كلمة المرور</label>
+                        <input type="text" id="newBranchPass" placeholder="مثال: 2026">
+                    </div>
+                </div>
+                <button id="createBranchBtn" class="btn btn-primary btn-full" onclick="adminCreateBranchManager()" style="background: #6d28d9; margin-bottom: 18px;">
+                    <i class="fa-solid fa-user-plus"></i> إضافة مدير فرع جديد
+                </button>
+
+                <div id="branchesListContainer"></div>
+            </div>
+
+            <!-- قسم إضافة عضو جديد -->
             <div class="panel-card">
-                <div class="panel-title" id="createMemberPanelTitle"><i class="fa-solid fa-user-plus"></i> إضافة حساب جديد</div>
-                <div id="adminCreateGrid" class="grid-3">
+                <div class="panel-title" id="createMemberPanelTitle"><i class="fa-solid fa-user-plus"></i> إضافة عضو جديد</div>
+                <div class="grid-2">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>اسم المستخدم</label>
                         <input type="text" id="newMemberUser" placeholder="مثال: يوسف">
@@ -706,20 +741,13 @@
                         <label>كلمة المرور</label>
                         <input type="text" id="newMemberPass" placeholder="مثال: 2026">
                     </div>
-                    <div id="roleSelectWrapper" class="form-group" style="margin-bottom: 0;">
-                        <label>نوع الحساب</label>
-                        <select id="newMemberRole">
-                            <option value="user">مستخدم عادي</option>
-                            <option value="subadmin">مدير عائلة (مشرف فرعي)</option>
-                        </select>
-                    </div>
                 </div>
                 <button class="btn btn-primary btn-full" onclick="adminCreateMember()" style="margin-top: 16px;">
-                    <i class="fa-solid fa-check"></i> حفظ الحساب سحابياً
+                    <i class="fa-solid fa-check"></i> حفظ العضو سحابياً
                 </button>
             </div>
 
-            <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 12px;"><i class="fa-solid fa-users"></i> <span id="managedListHeading">الحسابات المسجلة</span> (<span id="membersCount">0</span>):</h4>
+            <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 12px;"><i class="fa-solid fa-users"></i> <span id="managedListHeading">الأعضاء المسجلون</span> (<span id="membersCount">0</span>):</h4>
             <div id="adminAllDataContainer"></div>
         </div>
 
@@ -763,6 +791,7 @@
         let revealedAdminItems = new Set();
         let savedAccountsMapVisible = false;
         let trashVisible = false;
+        let branchesVisible = false;
 
         function showToast(message) {
             const toast = document.getElementById('toastNotification');
@@ -867,6 +896,44 @@
             }
         }
 
+        function syncBranchesVisibility() {
+            const sectionEl = document.getElementById('branchesSection');
+            const btnEl = document.getElementById('branchesToggleBtn');
+            const createFormEl = document.getElementById('createBranchForm');
+            const createBtnEl = document.getElementById('createBranchBtn');
+
+            if (!sectionEl || !btnEl) return;
+
+            if (currentRole === 'superadmin') {
+                createFormEl.classList.remove('hidden');
+                createBtnEl.classList.remove('hidden');
+            } else {
+                createFormEl.classList.add('hidden');
+                createBtnEl.classList.add('hidden');
+            }
+
+            if (branchesVisible) {
+                sectionEl.classList.remove('hidden');
+                btnEl.style.background = '#ede9fe';
+                btnEl.style.borderColor = '#7c3aed';
+                btnEl.style.color = '#5b21b6';
+            } else {
+                sectionEl.classList.add('hidden');
+                btnEl.style.background = '';
+                btnEl.style.borderColor = '';
+                btnEl.style.color = '';
+            }
+        }
+
+        function toggleBranchesView() {
+            resetIdleTimer();
+            branchesVisible = !branchesVisible;
+            syncBranchesVisibility();
+            if (branchesVisible) {
+                renderAdminView();
+            }
+        }
+
         function toggleSavedAccountsMap() {
             resetIdleTimer();
             savedAccountsMapVisible = !savedAccountsMapVisible;
@@ -938,30 +1005,24 @@
             const badgeEl = document.getElementById('adminBadgeText');
             const titleEl = document.getElementById('adminDashboardTitle');
             const createTitleEl = document.getElementById('createMemberPanelTitle');
-            const roleWrapperEl = document.getElementById('roleSelectWrapper');
-            const createGridEl = document.getElementById('adminCreateGrid');
             const headingEl = document.getElementById('managedListHeading');
 
             if (role === 'superadmin') {
                 badgeEl.innerHTML = '<i class="fa-solid fa-crown"></i> المشرف العام';
                 badgeEl.style.background = '#e0f2fe';
                 badgeEl.style.color = '#0369a1';
-                titleEl.textContent = 'إدارة النظام والأعضاء والعائلات';
-                createTitleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> إضافة مستخدم أو مدير عائلة جديد';
-                roleWrapperEl.classList.remove('hidden');
-                createGridEl.className = 'grid-3';
-                headingEl.textContent = 'الحسابات المسجلة في النظام';
+                titleEl.textContent = 'إدارة النظام والأعضاء';
+                createTitleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> إضافة عضو جديد';
+                headingEl.textContent = 'الأعضاء المسجلون';
             } else {
-                badgeEl.innerHTML = '<i class="fa-solid fa-people-roof"></i> مدير عائلة';
+                badgeEl.innerHTML = '<i class="fa-solid fa-people-roof"></i> مدير فرع';
                 badgeEl.style.background = '#ede9fe';
                 badgeEl.style.color = '#6d28d9';
-                titleEl.textContent = `إدارة عائلة (${username})`;
-                createTitleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> إضافة فرد جديد لعائلتك';
-                document.getElementById('newMemberRole').value = 'user';
-                roleWrapperEl.classList.add('hidden');
-                createGridEl.className = 'grid-2';
-                headingEl.textContent = 'أفراد عائلتك المسجلون';
+                titleEl.textContent = `إدارة فرع (${username})`;
+                createTitleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> إضافة عضو جديد للفرع';
+                headingEl.textContent = 'أعضاء الفرع المسجلون';
             }
+            syncBranchesVisibility();
         }
 
         async function login() {
@@ -978,6 +1039,7 @@
                 currentUser = u;
                 currentRole = 'superadmin';
                 currentMemberDocId = null;
+                branchesVisible = false;
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
                 revealedAdminItems.clear();
@@ -1006,12 +1068,13 @@
 
                 if (memberData.role === 'subadmin') {
                     currentRole = 'subadmin';
+                    branchesVisible = false;
                     revealedAdminItems.clear();
                     configureAdminHeaderUI('subadmin', u);
                     renderAdminView();
                     toggleView('adminDashboard');
                     startAutoSync('subadmin');
-                    showToast(`مرحباً بك، مدير العائلة ${u}`);
+                    showToast(`مرحباً بك، مدير الفرع ${u}`);
                     return;
                 }
 
@@ -1473,13 +1536,49 @@
             showToast('تم إفراغ سلة المهملات');
         }
 
+        async function adminCreateBranchManager() {
+            resetIdleTimer();
+            if (currentRole !== 'superadmin') return;
+
+            const username = document.getElementById('newBranchUser').value.trim();
+            const password = document.getElementById('newBranchPass').value.trim();
+
+            if (!username || !password) {
+                showToast('أدخل اسم مدير الفرع وكلمة المرور');
+                return;
+            }
+
+            if (username === ADMIN_USER) {
+                showToast('هذا الاسم محجوز للمشرف العام');
+                return;
+            }
+
+            const existing = await db.collection('members').where('username', '==', username).get();
+            if (!existing.empty) {
+                showToast('اسم المستخدم مسجل مسبقاً');
+                return;
+            }
+
+            await db.collection('members').add({
+                username,
+                password,
+                role: 'subadmin',
+                managedBy: ADMIN_USER,
+                isSuspended: false,
+                entries: [],
+                trash: []
+            });
+
+            document.getElementById('newBranchUser').value = '';
+            document.getElementById('newBranchPass').value = '';
+            renderAdminView();
+            showToast(`تمت إضافة مدير الفرع (${username})`);
+        }
+
         async function adminCreateMember() {
             resetIdleTimer();
             const username = document.getElementById('newMemberUser').value.trim();
             const password = document.getElementById('newMemberPass').value.trim();
-            const selectedRole = currentRole === 'superadmin'
-                ? document.getElementById('newMemberRole').value
-                : 'user';
 
             if (!username || !password) {
                 showToast('أدخل اسم المستخدم وكلمة المرور');
@@ -1502,7 +1601,7 @@
             await db.collection('members').add({
                 username,
                 password,
-                role: selectedRole,
+                role: 'user',
                 managedBy: ownerTag,
                 isSuspended: false,
                 entries: [],
@@ -1512,11 +1611,7 @@
             document.getElementById('newMemberUser').value = '';
             document.getElementById('newMemberPass').value = '';
             renderAdminView();
-            showToast(
-                selectedRole === 'subadmin'
-                    ? `تمت إضافة مدير العائلة (${username}) تحت مسؤوليتك`
-                    : `تمت إضافة المستخدم (${username}) بنجاح`
-            );
+            showToast(`تمت إضافة العضو (${username}) بنجاح`);
         }
 
         async function toggleSuspendMember(mId, username, currentSuspended) {
@@ -1556,117 +1651,149 @@
             renderAdminView();
         }
 
+        function buildMemberCardHtml(itemObj, allDocs, showOwnerBadge = false) {
+            const member = itemObj.data;
+            const mId = itemObj.id;
+            const isSubAdmin = member.role === 'subadmin';
+            const ownerName = member.managedBy || ADMIN_USER;
+            const isSuspended = member.isSuspended === true;
+            const isExpanded = expandedMembers.has(mId);
+            const appCount = member.entries ? member.entries.length : 0;
+            const subMembersCount = isSubAdmin
+                ? allDocs.filter(d => d.data.role !== 'subadmin' && d.data.managedBy === member.username).length
+                : 0;
+
+            const memberPassKey = `member_${mId}`;
+            const isMemberPassRevealed = revealedAdminItems.has(memberPassKey);
+            const displayedMemberPass = isMemberPassRevealed ? member.password : maskPassword(member.password);
+
+            let entriesHtml = '';
+            if (appCount === 0) {
+                entriesHtml = '<p style="font-size: 13px; color: var(--text-muted); padding: 8px 0;">لا توجد تطبيقات مضافة لهذا الحساب.</p>';
+            } else {
+                entriesHtml = `<div style="display:grid; grid-template-columns: 1fr; gap:10px;">`;
+                member.entries.forEach((ent, entIndex) => {
+                    const ageInfo = getPasswordAgeInfo(ent.date);
+                    const entKey = `entry_${mId}_${entIndex}`;
+                    const isEntRevealed = revealedAdminItems.has(entKey);
+                    const displayedEntPass = isEntRevealed ? ent.pass : maskPassword(ent.pass);
+
+                    entriesHtml += `
+                        <div style="background:${ageInfo.isStale ? '#fffbeb' : '#f8fafc'}; border:1px solid ${ageInfo.isStale ? '#f59e0b' : 'var(--border-color)'}; border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <strong style="color:var(--text-main); font-size:14px;"><i class="fa-solid fa-bookmark" style="color:var(--primary); font-size:11px;"></i> ${ent.app}</strong>
+                                <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-top:3px; flex-wrap:wrap;">
+                                    <span>${ent.date}</span>
+                                    <span class="age-badge ${ageInfo.isStale ? 'stale' : ''}">${ageInfo.label}</span>
+                                </div>
+                            </div>
+                            <div class="pass-controls">
+                                <span class="pass-badge">${displayedEntPass}</span>
+                                <button class="btn-icon-action" onclick="toggleRevealAdminItem('${entKey}')" title="${isEntRevealed ? 'إخفاء' : 'إظهار'}">
+                                    <i class="fa-solid ${isEntRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                                </button>
+                                <button class="btn-icon-action" onclick="copyPassword('${ent.pass}', '${ent.app}')" title="نسخ">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-warning btn-sm" onclick="adminEditAppPassword('${mId}', ${entIndex}, '${ent.app}', '${ent.pass}')">تعديل</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                entriesHtml += `</div>`;
+            }
+
+            const branchPillHtml = isSubAdmin
+                ? `<span class="role-pill"><i class="fa-solid fa-people-roof"></i> ${subMembersCount} عضو تابع</span>`
+                : '';
+
+            const ownerBadgeHtml = showOwnerBadge
+                ? `<span class="owner-pill"><i class="fa-solid fa-user-shield"></i> الفرع: ${ownerName}</span>`
+                : '';
+
+            return `
+                <div class="member-block ${isSuspended ? 'suspended-member' : ''}">
+                    <div class="member-header" onclick="toggleMemberAccordion('${mId}')">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap:wrap;">
+                            <i id="accordion-icon-${mId}" class="fa-solid fa-chevron-down chevron-icon ${isExpanded ? 'rotated' : ''}"></i>
+                            <strong style="color: var(--primary); font-size: 15px;">${member.username}</strong>
+                            ${branchPillHtml}
+                            ${ownerBadgeHtml}
+                            <span class="${isSuspended ? 'suspended-badge' : 'active-member-badge'}">
+                                <i class="fa-solid ${isSuspended ? 'fa-ban' : 'fa-circle-check'}"></i> ${isSuspended ? 'موقوف' : 'نشط'}
+                            </span>
+                            <span style="font-size: 12px; color: var(--text-muted); display:inline-flex; align-items:center; gap:6px;">
+                                كلمة المرور: <span class="pass-badge">${displayedMemberPass}</span>
+                                <button class="btn-icon-action" style="width:26px; height:26px; font-size:12px;" onclick="event.stopPropagation(); toggleRevealAdminItem('${memberPassKey}')" title="${isMemberPassRevealed ? 'إخفاء' : 'إظهار'}">
+                                    <i class="fa-solid ${isMemberPassRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                                </button>
+                            </span>
+                            <span class="count-pill">${appCount} تطبيق</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-wrap:wrap;" onclick="event.stopPropagation()">
+                            <button class="btn ${isSuspended ? 'btn-success' : 'btn-warning'} btn-sm" onclick="toggleSuspendMember('${mId}', '${member.username}', ${isSuspended})">
+                                <i class="fa-solid ${isSuspended ? 'fa-play' : 'fa-pause'}"></i> ${isSuspended ? 'تفعيل' : 'إيقاف'}
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="adminEditMemberPassword('${mId}', '${member.username}', '${member.password}')">تعديل الباسورد</button>
+                            <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${mId}')">حذف</button>
+                        </div>
+                    </div>
+                    <div id="accordion-body-${mId}" class="member-body ${isExpanded ? '' : 'hidden'}">
+                        ${entriesHtml}
+                    </div>
+                </div>
+            `;
+        }
+
         async function renderAdminView() {
             const snapshot = await db.collection('members').get();
-            let docsToRender = [];
-
+            const allDocs = [];
             snapshot.forEach(docSnap => {
-                const data = docSnap.data();
-                if (currentRole === 'superadmin') {
-                    docsToRender.push({ id: docSnap.id, data });
-                } else if (currentRole === 'subadmin' && data.managedBy === currentUser) {
-                    docsToRender.push({ id: docSnap.id, data });
-                }
+                allDocs.push({ id: docSnap.id, data: docSnap.data() });
             });
 
-            document.getElementById('membersCount').innerText = docsToRender.length;
+            const branchManagers = allDocs.filter(d => d.data.role === 'subadmin');
+            const branchesCountEl = document.getElementById('branchesCount');
+            if (branchesCountEl) {
+                branchesCountEl.textContent = currentRole === 'superadmin' ? branchManagers.length : 1;
+            }
+
+            const branchesContainer = document.getElementById('branchesListContainer');
+            if (branchesContainer) {
+                branchesContainer.innerHTML = '';
+                if (currentRole === 'superadmin') {
+                    if (branchManagers.length === 0) {
+                        branchesContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:12px; font-size:13px;">لا يوجد مديرو فروع مضافون حالياً.</p>';
+                    } else {
+                        branchManagers.forEach(bObj => {
+                            branchesContainer.innerHTML += buildMemberCardHtml(bObj, allDocs, false);
+                        });
+                    }
+                } else if (currentRole === 'subadmin' && currentMemberDocId) {
+                    const selfDoc = allDocs.find(d => d.id === currentMemberDocId);
+                    if (selfDoc) {
+                        branchesContainer.innerHTML += buildMemberCardHtml(selfDoc, allDocs, false);
+                    }
+                }
+            }
+
+            const regularMembers = allDocs.filter(d => {
+                if (d.data.role === 'subadmin') return false;
+                if (currentRole === 'superadmin') return true;
+                return currentRole === 'subadmin' && d.data.managedBy === currentUser;
+            });
+
+            document.getElementById('membersCount').innerText = regularMembers.length;
             const container = document.getElementById('adminAllDataContainer');
             container.innerHTML = '';
 
-            if (docsToRender.length === 0) {
+            if (regularMembers.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:16px;">لا يوجد أعضاء مسجلون حالياً.</p>';
                 return;
             }
 
-            docsToRender.forEach(itemObj => {
-                const member = itemObj.data;
-                const mId = itemObj.id;
-                const isSubAdmin = member.role === 'subadmin';
-                const ownerName = member.managedBy || ADMIN_USER;
-                const isSuspended = member.isSuspended === true;
-                const isExpanded = expandedMembers.has(mId);
-                const appCount = member.entries ? member.entries.length : 0;
-                const memberPassKey = `member_${mId}`;
-                const isMemberPassRevealed = revealedAdminItems.has(memberPassKey);
-                const displayedMemberPass = isMemberPassRevealed ? member.password : maskPassword(member.password);
-
-                let entriesHtml = '';
-                
-                if (appCount === 0) {
-                    entriesHtml = '<p style="font-size: 13px; color: var(--text-muted); padding: 8px 0;">لا توجد تطبيقات مضافة لهذا الحساب.</p>';
-                } else {
-                    entriesHtml = `<div style="display:grid; grid-template-columns: 1fr; gap:10px;">`;
-                    member.entries.forEach((ent, entIndex) => {
-                        const ageInfo = getPasswordAgeInfo(ent.date);
-                        const entKey = `entry_${mId}_${entIndex}`;
-                        const isEntRevealed = revealedAdminItems.has(entKey);
-                        const displayedEntPass = isEntRevealed ? ent.pass : maskPassword(ent.pass);
-
-                        entriesHtml += `
-                            <div style="background:${ageInfo.isStale ? '#fffbeb' : '#f8fafc'}; border:1px solid ${ageInfo.isStale ? '#f59e0b' : 'var(--border-color)'}; border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                                <div>
-                                    <strong style="color:var(--text-main); font-size:14px;"><i class="fa-solid fa-bookmark" style="color:var(--primary); font-size:11px;"></i> ${ent.app}</strong>
-                                    <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-top:3px; flex-wrap:wrap;">
-                                        <span>${ent.date}</span>
-                                        <span class="age-badge ${ageInfo.isStale ? 'stale' : ''}">${ageInfo.label}</span>
-                                    </div>
-                                </div>
-                                <div class="pass-controls">
-                                    <span class="pass-badge">${displayedEntPass}</span>
-                                    <button class="btn-icon-action" onclick="toggleRevealAdminItem('${entKey}')" title="${isEntRevealed ? 'إخفاء' : 'إظهار'}">
-                                        <i class="fa-solid ${isEntRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
-                                    </button>
-                                    <button class="btn-icon-action" onclick="copyPassword('${ent.pass}', '${ent.app}')" title="نسخ">
-                                        <i class="fa-solid fa-copy"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm" onclick="adminEditAppPassword('${mId}', ${entIndex}, '${ent.app}', '${ent.pass}')">تعديل</button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    entriesHtml += `</div>`;
-                }
-
-                const roleBadgeHtml = isSubAdmin
-                    ? `<span class="role-pill"><i class="fa-solid fa-people-roof"></i> مدير عائلة</span>`
-                    : '';
-
-                const ownerBadgeHtml = currentRole === 'superadmin'
-                    ? `<span class="owner-pill"><i class="fa-solid fa-user-shield"></i> المسؤول: ${ownerName}</span>`
-                    : '';
-
-                container.innerHTML += `
-                    <div class="member-block ${isSuspended ? 'suspended-member' : ''}">
-                        <div class="member-header" onclick="toggleMemberAccordion('${mId}')">
-                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap:wrap;">
-                                <i id="accordion-icon-${mId}" class="fa-solid fa-chevron-down chevron-icon ${isExpanded ? 'rotated' : ''}"></i>
-                                <strong style="color: var(--primary); font-size: 15px;">${member.username}</strong>
-                                ${roleBadgeHtml}
-                                ${ownerBadgeHtml}
-                                <span class="${isSuspended ? 'suspended-badge' : 'active-member-badge'}">
-                                    <i class="fa-solid ${isSuspended ? 'fa-ban' : 'fa-circle-check'}"></i> ${isSuspended ? 'موقوف' : 'نشط'}
-                                </span>
-                                <span style="font-size: 12px; color: var(--text-muted); display:inline-flex; align-items:center; gap:6px;">
-                                    كلمة المرور: <span class="pass-badge">${displayedMemberPass}</span>
-                                    <button class="btn-icon-action" style="width:26px; height:26px; font-size:12px;" onclick="event.stopPropagation(); toggleRevealAdminItem('${memberPassKey}')" title="${isMemberPassRevealed ? 'إخفاء' : 'إظهار'}">
-                                        <i class="fa-solid ${isMemberPassRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
-                                    </button>
-                                </span>
-                                <span class="count-pill">${appCount} تطبيق</span>
-                            </div>
-                            <div style="display: flex; gap: 6px; flex-wrap:wrap;" onclick="event.stopPropagation()">
-                                <button class="btn ${isSuspended ? 'btn-success' : 'btn-warning'} btn-sm" onclick="toggleSuspendMember('${mId}', '${member.username}', ${isSuspended})">
-                                    <i class="fa-solid ${isSuspended ? 'fa-play' : 'fa-pause'}"></i> ${isSuspended ? 'تفعيل' : 'إيقاف'}
-                                </button>
-                                <button class="btn btn-warning btn-sm" onclick="adminEditMemberPassword('${mId}', '${member.username}', '${member.password}')">تعديل الباسورد</button>
-                                <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${mId}')">حذف</button>
-                            </div>
-                        </div>
-                        <div id="accordion-body-${mId}" class="member-body ${isExpanded ? '' : 'hidden'}">
-                            ${entriesHtml}
-                        </div>
-                    </div>
-                `;
+            regularMembers.forEach(itemObj => {
+                container.innerHTML += buildMemberCardHtml(itemObj, allDocs, currentRole === 'superadmin');
             });
         }
 
@@ -1738,8 +1865,10 @@
             revealedAdminItems.clear();
             savedAccountsMapVisible = false;
             trashVisible = false;
+            branchesVisible = false;
             syncSavedAccountsMapVisibility();
             syncTrashVisibility();
+            syncBranchesVisibility();
             currentUser = null;
             currentRole = null;
             currentMemberDocId = null;
