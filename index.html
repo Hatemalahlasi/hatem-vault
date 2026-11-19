@@ -378,7 +378,6 @@
             transform: scale(0.92);
         }
 
-        /* إشعار النسخ العائم الأنيق بدون alert */
         .toast-notification {
             position: fixed;
             bottom: 20px;
@@ -412,7 +411,6 @@
             font-size: 15px;
         }
 
-        /* حاويات الآدمن والأكورديون */
         .member-block {
             background: #ffffff;
             border: 1.5px solid var(--border-color);
@@ -498,6 +496,9 @@
                     <button class="btn btn-outline btn-sm" onclick="refreshUserDataManual()">
                         <i class="fa-solid fa-rotate"></i> تحديث
                     </button>
+                    <button id="toggleAllUserPassBtn" class="btn btn-outline btn-sm" onclick="toggleAllUserPasswords()">
+                        <i class="fa-solid fa-eye"></i> إظهار الكل
+                    </button>
                     <button class="btn btn-outline btn-sm" onclick="changeMyPassword()">
                         <i class="fa-solid fa-key"></i> الباسورد
                     </button>
@@ -520,7 +521,7 @@
                     </div>
                 </div>
                 <button class="btn btn-primary btn-full" onclick="addUserEntry()" style="margin-top: 16px;">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> حفظ سحابي فوري
+                    <i class="fa-solid fa-floppy-disk"></i> حفظ
                 </button>
             </div>
 
@@ -548,6 +549,9 @@
                 <div class="toolbar-group">
                     <button class="btn btn-outline btn-sm" onclick="renderAdminView()">
                         <i class="fa-solid fa-rotate"></i> تحديث
+                    </button>
+                    <button id="toggleAllAdminPassBtn" class="btn btn-outline btn-sm" onclick="toggleAllAdminPasswords()">
+                        <i class="fa-solid fa-eye"></i> إظهار الكل
                     </button>
                     <button class="btn btn-outline btn-sm" onclick="changeAdminPassword()">
                         <i class="fa-solid fa-key"></i> الباسورد
@@ -602,8 +606,8 @@
         const db = firebase.firestore();
 
         const ADMIN_USER = "hatem";
-        const IDLE_TIMEOUT_MS = 2 * 60 * 1000; // قفل تلقائي بعد دقيقتين من الخمول
-        const STALE_DAYS_THRESHOLD = 90; // تنبيه بعد 90 يوماً من آخر تحديث
+        const IDLE_TIMEOUT_MS = 2 * 60 * 1000;
+        const STALE_DAYS_THRESHOLD = 90;
 
         let currentUser = null;
         let currentMemberDocId = null;
@@ -614,6 +618,8 @@
         let cachedEntries = [];
         let revealedUserCards = new Set();
         let revealedAdminItems = new Set();
+        let allUserPasswordsVisible = false;
+        let allAdminPasswordsVisible = false;
 
         function showToast(message) {
             const toast = document.getElementById('toastNotification');
@@ -683,6 +689,47 @@
             return '•'.repeat(len);
         }
 
+        function updateToggleAllButtons() {
+            const userBtn = document.getElementById('toggleAllUserPassBtn');
+            if (userBtn) {
+                userBtn.innerHTML = allUserPasswordsVisible
+                    ? '<i class="fa-solid fa-eye-slash"></i> إخفاء الكل'
+                    : '<i class="fa-solid fa-eye"></i> إظهار الكل';
+            }
+
+            const adminBtn = document.getElementById('toggleAllAdminPassBtn');
+            if (adminBtn) {
+                adminBtn.innerHTML = allAdminPasswordsVisible
+                    ? '<i class="fa-solid fa-eye-slash"></i> إخفاء الكل'
+                    : '<i class="fa-solid fa-eye"></i> إظهار الكل';
+            }
+        }
+
+        function toggleAllUserPasswords() {
+            resetIdleTimer();
+            allUserPasswordsVisible = !allUserPasswordsVisible;
+            revealedUserCards.clear();
+            if (allUserPasswordsVisible) {
+                cachedEntries.forEach((item, idx) => {
+                    revealedUserCards.add(`${idx}_${item.app}_${item.date}`);
+                });
+            }
+            updateToggleAllButtons();
+            filterUserCards();
+            showToast(allUserPasswordsVisible ? 'تم إظهار جميع كلمات السر' : 'تم إخفاء جميع كلمات السر');
+        }
+
+        function toggleAllAdminPasswords() {
+            resetIdleTimer();
+            allAdminPasswordsVisible = !allAdminPasswordsVisible;
+            if (!allAdminPasswordsVisible) {
+                revealedAdminItems.clear();
+            }
+            updateToggleAllButtons();
+            renderAdminView();
+            showToast(allAdminPasswordsVisible ? 'تم إظهار جميع كلمات السر' : 'تم إخفاء جميع كلمات السر');
+        }
+
         function toggleView(viewId) {
             ['loginSection', 'userDashboard', 'adminDashboard'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
@@ -718,7 +765,9 @@
             if (u === ADMIN_USER && p === adminPass) {
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
+                allAdminPasswordsVisible = false;
                 revealedAdminItems.clear();
+                updateToggleAllButtons();
                 renderAdminView();
                 toggleView('adminDashboard');
                 startAutoSync('admin');
@@ -734,7 +783,9 @@
                 document.getElementById('loginUsername').value = '';
                 document.getElementById('loginPassword').value = '';
                 document.getElementById('welcomeUserTitle').innerText = `أهلاً بك، ${u}`;
+                allUserPasswordsVisible = false;
                 revealedUserCards.clear();
+                updateToggleAllButtons();
                 cachedEntries = doc.data().entries || [];
                 renderUserEntries(cachedEntries);
                 toggleView('userDashboard');
@@ -836,7 +887,7 @@
             document.getElementById('appPass').value = '';
             cachedEntries = entries;
             filterUserCards();
-            showToast('تم حفظ الحساب في السحابة');
+            showToast('تم حفظ الحساب بنجاح');
         }
 
         function filterUserCards() {
@@ -852,6 +903,8 @@
             } else {
                 revealedUserCards.add(key);
             }
+            allUserPasswordsVisible = cachedEntries.length > 0 && revealedUserCards.size >= cachedEntries.length;
+            updateToggleAllButtons();
             filterUserCards();
         }
 
@@ -865,7 +918,7 @@
             entries.forEach((item) => {
                 const realIndex = cachedEntries.findIndex(e => e.app === item.app && e.pass === item.pass && e.date === item.date);
                 const cardKey = `${realIndex}_${item.app}_${item.date}`;
-                const isRevealed = revealedUserCards.has(cardKey);
+                const isRevealed = allUserPasswordsVisible || revealedUserCards.has(cardKey);
                 const ageInfo = getPasswordAgeInfo(item.date);
                 const displayedPass = isRevealed ? item.pass : maskPassword(item.pass);
 
@@ -1006,7 +1059,7 @@
                 const isExpanded = expandedMembers.has(mId);
                 const appCount = member.entries ? member.entries.length : 0;
                 const memberPassKey = `member_${mId}`;
-                const isMemberPassRevealed = revealedAdminItems.has(memberPassKey);
+                const isMemberPassRevealed = allAdminPasswordsVisible || revealedAdminItems.has(memberPassKey);
                 const displayedMemberPass = isMemberPassRevealed ? member.password : maskPassword(member.password);
 
                 let entriesHtml = '';
@@ -1018,7 +1071,7 @@
                     member.entries.forEach((ent, entIndex) => {
                         const ageInfo = getPasswordAgeInfo(ent.date);
                         const entKey = `entry_${mId}_${entIndex}`;
-                        const isEntRevealed = revealedAdminItems.has(entKey);
+                        const isEntRevealed = allAdminPasswordsVisible || revealedAdminItems.has(entKey);
                         const displayedEntPass = isEntRevealed ? ent.pass : maskPassword(ent.pass);
 
                         entriesHtml += `
@@ -1139,6 +1192,9 @@
             expandedMembers.clear();
             revealedUserCards.clear();
             revealedAdminItems.clear();
+            allUserPasswordsVisible = false;
+            allAdminPasswordsVisible = false;
+            updateToggleAllButtons();
             currentUser = null;
             currentMemberDocId = null;
             cachedEntries = [];
