@@ -3,607 +3,381 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نظام إدارة الحسابات السحابي | Cloud Vault</title>
+    <title>معمل أبو محمد | نظام المحاسبة والمبيعات</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
     <!-- مكتبات Firebase السحابية -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <style>
         :root {
-            --bg-page: #0f172a;
+            --bg-page: #eef2f6;
+            --bg-surface: #f8fafc;
             --bg-card: #ffffff;
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --accent-glow: rgba(37, 99, 235, 0.15);
-            --border-color: #cbd5e1;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --danger: #ef4444;
-            --danger-bg: #fee2e2;
-            --warning: #f59e0b;
-            --warning-bg: #fef3c7;
-            --success: #22c55e;
+            --primary: #0f4c81;
+            --primary-hover: #0a355c;
+            --primary-soft: #e8f1f8;
+            --accent: #0d9488;
+            --border: #dbe3ec;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --success: #15803d;
             --success-bg: #dcfce7;
+            --warning: #b45309;
+            --warning-bg: #fef3c7;
+            --danger: #b91c1c;
+            --danger-bg: #fee2e2;
+            --purple: #5b21b6;
+            --purple-bg: #ede9fe;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: var(--bg-page);
+            background: linear-gradient(160deg, #e6ecf5 0%, #f4f7fb 100%);
             color: var(--text-main);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 12px;
+            padding: 10px;
         }
 
-        .container {
-            width: 100%;
-            max-width: 900px;
+        .app-shell {
+            max-width: 1140px;
+            margin: 0 auto;
             background: var(--bg-card);
-            border-radius: 24px;
-            padding: 20px;
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 16px;
+            box-shadow: 0 20px 45px -15px rgba(15, 76, 129, 0.12);
+            min-height: calc(100vh - 20px);
         }
 
         @media (min-width: 768px) {
-            .container { padding: 36px; }
+            .app-shell { padding: 28px 32px; }
         }
 
-        /* شاشة تسجيل الدخول */
-        .login-box {
+        .login-wrapper {
             max-width: 400px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 20px 10px;
+            margin: 36px auto;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 26px 20px;
         }
 
-        .system-icon {
-            width: 76px;
-            height: 76px;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            color: #ffffff;
+        .brand-logo {
+            width: 78px;
+            height: 78px;
             border-radius: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 32px;
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+            font-size: 30px;
+            margin: 0 auto 14px;
+            overflow: hidden;
         }
 
-        .login-box h2 {
+        .brand-logo img, .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .login-wrapper h1 {
             text-align: center;
             font-size: 22px;
             font-weight: 800;
-            color: var(--text-main);
-            margin-bottom: 6px;
+            color: var(--primary);
+            margin-bottom: 4px;
         }
 
-        .login-box .subtitle {
+        .login-wrapper p {
             text-align: center;
             color: var(--text-muted);
-            font-size: 13.5px;
-            margin-bottom: 28px;
+            font-size: 13px;
+            margin-bottom: 20px;
         }
 
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; margin-bottom: 6px; font-weight: 700; color: var(--text-main); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
 
-        .form-group input,
-        .form-group select {
+        .form-control {
             width: 100%;
-            padding: 13px 16px;
-            background: #f8fafc;
-            border: 1.5px solid var(--border-color);
+            padding: 11px 13px;
+            border: 1.5px solid var(--border);
             border-radius: 12px;
-            color: var(--text-main);
+            background: #ffffff;
             font-family: 'Cairo', sans-serif;
-            font-size: 14.5px;
-            transition: all 0.25s ease;
+            font-size: 14px;
+            color: var(--text-main);
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: var(--primary);
-            background: #ffffff;
+        .form-control:focus {
             outline: none;
-            box-shadow: 0 0 0 4px var(--accent-glow);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.12);
+        }
+
+        .num-input {
+            font-family: 'JetBrains Mono', 'Cairo', sans-serif;
+            font-weight: 700;
         }
 
         .btn {
-            padding: 10px 16px;
-            border-radius: 10px;
+            padding: 10px 14px;
+            border-radius: 12px;
             border: none;
             font-family: 'Cairo', sans-serif;
             font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-
-        .btn-full { width: 100%; padding: 13px 20px; font-size: 14.5px; }
-        .btn-primary { background: var(--primary); color: #ffffff; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
-
-        .btn-outline { background: #f8fafc; color: var(--primary); border: 1.5px solid var(--border-color); }
-        .btn-outline:hover { background: #f1f5f9; border-color: var(--primary); }
-
-        .btn-warning { background: var(--warning-bg); color: #b45309; }
-        .btn-warning:hover { background: var(--warning); color: #ffffff; }
-
-        .btn-danger { background: var(--danger-bg); color: var(--danger); }
-        .btn-danger:hover { background: var(--danger); color: #ffffff; }
-
-        .btn-success { background: var(--success-bg); color: #15803d; }
-        .btn-success:hover { background: var(--success); color: #ffffff; }
-
-        .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
-
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 18px;
-            margin-bottom: 24px;
-        }
-
-        .toolbar-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f8fafc;
-            padding: 6px;
-            border: 1.5px solid var(--border-color);
-            border-radius: 14px;
-            flex-wrap: wrap;
-        }
-
-        .status-badge {
-            background: var(--success-bg);
-            color: #15803d;
-            padding: 5px 14px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .role-pill {
-            background: #ede9fe;
-            color: #6d28d9;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11.5px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .suspended-badge {
-            background: var(--danger-bg);
-            color: #b91c1c;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11.5px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .active-member-badge {
-            background: var(--success-bg);
-            color: #15803d;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11.5px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .panel-card {
-            background: #f8fafc;
-            border: 1.5px solid var(--border-color);
-            border-radius: 18px;
-            padding: 20px;
-            margin-bottom: 24px;
-        }
-
-        .panel-title {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 14px; }
-
-        @media (min-width: 640px) {
-            .grid-2 { grid-template-columns: 1fr 1fr; }
-        }
-
-        .vault-section {
-            margin-top: 12px;
-            padding-top: 16px;
-            border-top: 1.5px dashed var(--border-color);
-        }
-
-        .search-box-container {
-            margin-bottom: 16px;
-        }
-        .search-box-container input {
-            width: 100%;
-            padding: 12px 40px 12px 40px;
-            background: #ffffff;
-            border: 1.5px solid var(--border-color);
-            border-radius: 12px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            color: var(--text-main);
-            transition: all 0.2s;
-        }
-        .search-box-container input:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 4px var(--accent-glow);
-        }
-        .search-wrapper {
-            position: relative;
-        }
-        .search-icon-right {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 15px;
-            pointer-events: none;
-        }
-        .btn-clear-search {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            border: none;
-            background: #f1f5f9;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            transition: all 0.15s ease;
-        }
-        .btn-clear-search:hover {
-            background: var(--danger-bg);
-            color: var(--danger);
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 14px;
-        }
-
-        @media (min-width: 640px) {
-            .cards-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .account-card {
-            background: #ffffff;
-            border: 1.5px solid var(--border-color);
-            border-radius: 16px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            transition: all 0.2s ease;
-        }
-
-        .account-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
-        }
-
-        .account-card.stale-password {
-            border-color: #f59e0b;
-            background: #fffbeb;
-        }
-
-        .account-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 8px;
-            border-bottom: 1.5px solid #f1f5f9;
-            padding-bottom: 10px;
-        }
-
-        .account-title {
-            font-size: 16px;
-            font-weight: 800;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .meta-badges {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-        }
-
-        .account-date {
-            font-size: 11.5px;
-            color: var(--text-muted);
-            background: #f8fafc;
-            padding: 2px 8px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-        }
-
-        .age-badge {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 6px;
-            background: #e0f2fe;
-            color: #0369a1;
-        }
-
-        .age-badge.stale {
-            background: var(--warning-bg);
-            color: #b45309;
-        }
-
-        .account-body {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f8fafc;
-            padding: 10px 12px;
-            border-radius: 12px;
-            border: 1.5px solid #e2e8f0;
-            gap: 8px;
-        }
-
-        .pass-controls {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .pass-badge {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--primary);
-            font-weight: 700;
-            direction: ltr;
-            font-size: 14px;
-            letter-spacing: 0.5px;
-        }
-
-        .card-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            border-top: 1.5px solid #f1f5f9;
-            padding-top: 10px;
-        }
-
-        .btn-icon-action {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            color: var(--primary);
-            cursor: pointer;
             font-size: 13.5px;
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.15s ease;
+            gap: 7px;
+            transition: all 0.18s ease;
         }
 
-        .btn-icon-action:hover {
-            background: #eff6ff;
-            border-color: var(--primary);
-        }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-full { width: 100%; padding: 13px; font-size: 15px; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success-bg); color: var(--success); }
+        .btn-warning { background: var(--warning-bg); color: var(--warning); }
+        .btn-danger { background: var(--danger-bg); color: var(--danger); }
+        .btn-outline { background: #fff; color: var(--text-main); border: 1.5px solid var(--border); }
+        .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 9px; }
 
-        .btn-icon-action:active {
-            transform: scale(0.92);
-        }
-
-        .trash-section {
-            margin-top: 22px;
-            padding: 18px;
-            background: #fff8f8;
-            border: 1.5px solid #fecaca;
-            border-radius: 18px;
-        }
-
-        .trash-header {
+        .header-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: 16px;
         }
 
-        .branches-panel {
-            background: #f5f3ff;
-            border: 1.5px solid #c4b5fd;
-            border-radius: 18px;
-            padding: 20px;
-            margin-bottom: 24px;
-        }
-
-        .branch-manager-row {
-            background: #ffffff;
-            border: 1.5px solid #ddd6fe;
-            border-radius: 14px;
-            padding: 14px 16px;
-            display: flex;
-            justify-content: space-between;
+        .db-status {
+            display: inline-flex;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 10px;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: var(--success-bg);
+            color: var(--success);
         }
 
-        .branch-manager-row:last-child {
-            margin-bottom: 0;
+        .db-status.demo {
+            background: var(--warning-bg);
+            color: var(--warning);
         }
 
-        .branch-group-card {
-            background: #f8fafc;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 18px;
-            padding: 16px;
+        /* أزرار التنقل السريعة للهاتف */
+        .quick-nav {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
             margin-bottom: 18px;
         }
 
-        .branch-group-header {
+        @media (min-width: 768px) {
+            .quick-nav {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        .nav-tab {
+            padding: 12px 10px;
+            border-radius: 14px;
+            border: 1.5px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-main);
+            font-family: 'Cairo', sans-serif;
+            font-weight: 800;
+            font-size: 13.5px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.18s ease;
+        }
+
+        .nav-tab i { font-size: 18px; color: var(--primary); }
+        .nav-tab.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        .nav-tab.active i { color: #fff; }
+
+        .summary-strip {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .summary-strip { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .mini-stat {
+            background: var(--bg-surface);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .mini-stat-label { font-size: 12px; color: var(--text-muted); font-weight: 700; }
+        .mini-stat-val { font-size: 18px; font-weight: 800; margin-top: 4px; color: var(--primary); }
+
+        .card-box {
+            background: var(--bg-surface);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .grid-2, .grid-3 { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 700px) {
+            .grid-2 { grid-template-columns: 1fr 1fr; }
+            .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            background: #fff;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 10px 12px; text-align: right; border-bottom: 1px solid #eef2f6; }
+        th { background: #f8fafc; color: var(--text-muted); font-weight: 800; white-space: nowrap; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .badge-cash { background: var(--success-bg); color: var(--success); }
+        .badge-credit { background: var(--warning-bg); color: var(--warning); }
+        .badge-expense { background: var(--danger-bg); color: var(--danger); }
+        .badge-role { background: var(--purple-bg); color: var(--purple); }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            direction: ltr;
+            display: inline-block;
+        }
+
+        .invoice-item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .invoice-item-row {
+                grid-template-columns: 1fr 1fr;
+                background: #fff;
+                padding: 10px;
+                border-radius: 12px;
+                border: 1px solid var(--border);
+            }
+        }
+
+        .summary-bar {
+            background: #fff;
+            border: 1.5px solid var(--primary);
+            border-radius: 12px;
+            padding: 12px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
-            padding-bottom: 12px;
-            margin-bottom: 14px;
-            border-bottom: 1.5px solid #e2e8f0;
+            margin-top: 12px;
         }
 
-        .branch-group-title {
-            font-size: 15px;
-            font-weight: 800;
-            color: #1e293b;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .toast-notification {
+        .toast {
             position: fixed;
-            bottom: 20px;
+            bottom: 18px;
             left: 50%;
             transform: translateX(-50%) translateY(20px);
-            background: #0f172a;
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 11px 18px;
-            border-radius: 14px;
+            background: var(--primary);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 12px;
             font-size: 13px;
             font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.22s ease, transform 0.22s ease;
-            z-index: 9999;
-            max-width: calc(100% - 24px);
+            transition: all 0.2s ease;
+            z-index: 1000;
         }
 
-        .toast-notification.show {
+        .toast.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
-        }
-
-        .toast-notification i {
-            color: #4ade80;
-            font-size: 15px;
-        }
-
-        .member-block {
-            background: #ffffff;
-            border: 1.5px solid var(--border-color);
-            border-radius: 16px;
-            margin-bottom: 12px;
-            overflow: hidden;
-            transition: all 0.2s ease;
-        }
-
-        .member-block:last-child {
-            margin-bottom: 0;
-        }
-
-        .member-block.suspended-member {
-            border-color: #fca5a5;
-            background: #fffafa;
-        }
-
-        .member-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            padding: 16px 20px;
-            background: #f8fafc;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .member-header:hover { background: #f1f5f9; }
-
-        .chevron-icon {
-            color: var(--primary);
-            font-size: 14px;
-            transition: transform 0.25s ease;
-        }
-
-        .chevron-icon.rotated { transform: rotate(-180deg); }
-
-        .member-body {
-            padding: 18px;
-            border-top: 1.5px solid var(--border-color);
-            background: #ffffff;
-        }
-
-        .count-pill {
-            background: #e0f2fe;
-            color: #0369a1;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 20px;
         }
 
         .hidden { display: none !important; }
@@ -611,1382 +385,977 @@
 </head>
 <body>
 
-    <div class="container">
-        
-        <!-- شاشة تسجيل الدخول -->
-        <div id="loginSection" class="login-box">
-            <div class="system-icon"><i class="fa-solid fa-vault"></i></div>
-            <h2>نظام إدارة الحسابات</h2>
-            <p class="subtitle">بوابة الدخول السحابية الآمنة والمزامنة الفورية</p>
-            
-            <div class="form-group">
-                <label>اسم المستخدم</label>
-                <input type="text" id="loginUsername" placeholder="أدخل اسم المستخدم">
+<div class="app-shell">
+
+    <!-- شاشة الدخول -->
+    <div id="loginView" class="login-wrapper">
+        <div class="brand-logo">
+            <img src="logo.png" alt="شعار معمل أبو محمد" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+            <i class="fa-solid fa-industry" style="display:none;"></i>
+        </div>
+        <h1>معمل أبو محمد</h1>
+        <p>دخول سريع ومباشر من الهاتف أو الكمبيوتر</p>
+
+        <div class="form-group">
+            <label>اسم المستخدم</label>
+            <input type="text" id="loginUser" class="form-control num-input" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label>كلمة المرور</label>
+            <input type="password" id="loginPass" class="form-control num-input" inputmode="numeric" autocomplete="new-password">
+        </div>
+
+        <button id="loginSubmitBtn" class="btn btn-primary btn-full" onclick="handleLogin()">
+            <i class="fa-solid fa-right-to-bracket"></i> دخول
+        </button>
+    </div>
+
+    <!-- واجهة النظام -->
+    <div id="mainAppView" class="hidden">
+        <div class="header-bar">
+            <div class="header-brand">
+                <div class="header-logo">
+                    <img src="logo.png" alt="شعار معمل أبو محمد" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <i class="fa-solid fa-industry" style="display:none;"></i>
+                </div>
+                <div>
+                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                        <span id="connectionStatusBadge" class="db-status"><i class="fa-solid fa-cloud-check"></i> متصل</span>
+                        <span id="currentUserRoleBadge" class="badge badge-role">مدير</span>
+                    </div>
+                    <h2 id="headerWelcome" style="font-size:17px; font-weight:800; margin-top:4px;">معمل أبو محمد</h2>
+                </div>
             </div>
-            <div class="form-group">
-                <label>كلمة المرور</label>
-                <input type="password" id="loginPassword" placeholder="••••••••">
+
+            <div style="display:flex; gap:6px;">
+                <button id="refreshDataBtn" class="btn btn-outline btn-sm" onclick="reloadAllData(true)">
+                    <i class="fa-solid fa-rotate"></i> تحديث
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="handleLogout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> خروج
+                </button>
             </div>
-            
-            <button class="btn btn-primary btn-full" onclick="login()" style="margin-top: 10px;">
-                <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول للنظام
+        </div>
+
+        <!-- أزرار التنقل الرئيسية للهاتف -->
+        <div class="quick-nav">
+            <button class="nav-tab active" data-tab="salesTab" onclick="switchTab('salesTab', this)">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                <span>الفواتير</span>
+            </button>
+            <button class="nav-tab" data-tab="vouchersTab" onclick="switchTab('vouchersTab', this)">
+                <i class="fa-solid fa-file-signature"></i>
+                <span>الأسناد</span>
+            </button>
+            <button class="nav-tab" data-tab="cashboxTab" onclick="switchTab('cashboxTab', this)">
+                <i class="fa-solid fa-vault"></i>
+                <span>الصندوق</span>
+            </button>
+            <button class="nav-tab" data-tab="warehouseTab" onclick="switchTab('warehouseTab', this)">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                <span>المخازن</span>
+            </button>
+            <button class="nav-tab" data-tab="customersTab" onclick="switchTab('customersTab', this)">
+                <i class="fa-solid fa-users"></i>
+                <span>العملاء</span>
+            </button>
+            <button id="employeesNavBtn" class="nav-tab" data-tab="employeesTab" onclick="switchTab('employeesTab', this)">
+                <i class="fa-solid fa-user-tie"></i>
+                <span>الموظفون</span>
             </button>
         </div>
 
-        <!-- لوحة المستخدم -->
-        <div id="userDashboard" class="hidden">
-            <div class="top-bar">
-                <div>
-                    <span class="status-badge"><i class="fa-solid fa-circle-check"></i> متصل بالسحابة</span>
-                    <h3 style="margin-top: 6px; font-size: 20px; font-weight: 800;" id="welcomeUserTitle">أهلاً بك</h3>
-                </div>
-                
-                <div class="toolbar-group">
-                    <button class="btn btn-outline btn-sm" onclick="refreshUserDataManual()">
-                        <i class="fa-solid fa-rotate"></i> تحديث
-                    </button>
-                    <button id="toggleVaultBtn" class="btn btn-outline btn-sm" onclick="toggleSavedAccountsMap()">
-                        <i class="fa-solid fa-layer-group"></i> عرض الحسابات المحفوظة
-                    </button>
-                    <button id="toggleTrashBtn" class="btn btn-outline btn-sm" onclick="toggleTrashSection()">
-                        <i class="fa-solid fa-trash-can"></i> سلة المهملات (<span id="trashCountBadge">0</span>)
-                    </button>
-                    <button class="btn btn-outline btn-sm" onclick="changeMyPassword()">
-                        <i class="fa-solid fa-key"></i> الباسورد
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="logout()">
-                        <i class="fa-solid fa-right-from-bracket"></i> خروج
-                    </button>
-                </div>
+        <!-- شريط ملخص سريع -->
+        <div class="summary-strip">
+            <div class="mini-stat">
+                <div class="mini-stat-label">المبيعات</div>
+                <div class="mini-stat-val mono" id="kpiTotalSales">0.00</div>
             </div>
-
-            <div class="panel-card">
-                <div class="panel-title"><i class="fa-solid fa-circle-plus"></i> إضافة حساب أو تطبيق جديد</div>
-                <div class="grid-2">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label>اسم التطبيق أو المنصة</label>
-                        <input type="text" id="appName" placeholder="مثال: واتساب، فيسبوك...">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label>كلمة السر</label>
-                        <input type="text" id="appPass" placeholder="كلمة السر الخاصة به">
-                    </div>
-                </div>
-                <button class="btn btn-primary btn-full" onclick="addUserEntry()" style="margin-top: 16px;">
-                    <i class="fa-solid fa-floppy-disk"></i> حفظ
-                </button>
+            <div class="mini-stat">
+                <div class="mini-stat-label">رصيد الصندوق</div>
+                <div class="mini-stat-val mono" id="kpiTotalCash" style="color:var(--success);">0.00</div>
             </div>
-
-            <!-- البيانات التي يضيفها أو يعدلها المستخدم فقط تظهر هنا مباشرة -->
-            <div id="sessionCreatedSection" class="hidden" style="margin-bottom: 20px;">
-                <h4 style="font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
-                    <i class="fa-solid fa-sparkles" style="color: var(--primary);"></i> البيانات التي أضفتها أو عدلتها:
-                </h4>
-                <div id="sessionCreatedCards" class="cards-grid"></div>
+            <div class="mini-stat">
+                <div class="mini-stat-label">ديون العملاء</div>
+                <div class="mini-stat-val mono" id="kpiTotalReceivables" style="color:var(--warning);">0.00</div>
             </div>
-
-            <!-- خريطة حساباتك المسجلة: مخفية افتراضياً ولا تظهر إلا عند ضغط الزر -->
-            <div id="accountsVaultSection" class="vault-section hidden">
-                <div class="search-box-container">
-                    <div class="search-wrapper">
-                        <i class="fa-solid fa-magnifying-glass search-icon-right"></i>
-                        <input type="text" id="searchAppInput" placeholder="ابحث في خريطة حساباتك المسجلة..." oninput="handleSearchInput()">
-                        <button id="clearSearchBtn" type="button" class="btn-clear-search hidden" onclick="clearSearchInput()" title="مسح البحث">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h4 style="font-size: 15px; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-address-card" style="color: var(--primary);"></i> خريطة حساباتك المسجلة:</h4>
-                </div>
-                
-                <div id="userEntriesCards" class="cards-grid"></div>
-            </div>
-
-            <!-- سلة المهملات -->
-            <div id="trashSection" class="trash-section hidden">
-                <div class="trash-header">
-                    <h4 style="font-size: 15px; font-weight: 800; color: #b91c1c;">
-                        <i class="fa-solid fa-trash-can-arrow-up"></i> سلة المهملات (المحذوفات مؤقتاً)
-                    </h4>
-                    <button id="emptyTrashBtn" class="btn btn-danger btn-sm" onclick="emptyTrash()">
-                        <i class="fa-solid fa-fire"></i> إفراغ السلة
-                    </button>
-                </div>
-                <div id="trashEntriesCards" class="cards-grid"></div>
+            <div class="mini-stat">
+                <div class="mini-stat-label">أصناف المخازن</div>
+                <div class="mini-stat-val mono" id="kpiWarehouseItems" style="color:var(--accent);">0</div>
             </div>
         </div>
 
-        <!-- لوحة المشرف العام ومدير الفرع -->
-        <div id="adminDashboard" class="hidden">
-            <div class="top-bar">
-                <div>
-                    <span id="adminBadgeText" class="status-badge" style="background: #e0f2fe; color: #0369a1;"><i class="fa-solid fa-crown"></i> المشرف العام</span>
-                    <h3 id="adminDashboardTitle" style="margin-top: 6px; font-size: 20px; font-weight: 800;">إدارة النظام والأعضاء</h3>
-                </div>
-                <div class="toolbar-group">
-                    <button class="btn btn-outline btn-sm" onclick="renderAdminView()">
-                        <i class="fa-solid fa-rotate"></i> تحديث
-                    </button>
-                    <button id="branchesToggleBtn" class="btn btn-outline btn-sm" onclick="toggleBranchesView()">
-                        <i class="fa-solid fa-people-roof"></i> الفروع (<span id="branchesCount">0</span>)
-                    </button>
-                    <button class="btn btn-outline btn-sm" onclick="changeAdminOrSubAdminPassword()">
-                        <i class="fa-solid fa-key"></i> الباسورد
-                    </button>
-                    <button class="btn btn-danger btn-sm" onclick="logout()">
-                        <i class="fa-solid fa-power-off"></i> خروج
-                    </button>
-                </div>
-            </div>
-
-            <!-- قسم الفروع المستقل (يفتح عند الضغط على زر الفروع) -->
-            <div id="branchesSection" class="branches-panel hidden">
-                <div class="panel-title" style="color: #5b21b6;">
-                    <i class="fa-solid fa-people-roof"></i> إدارة الفروع / مديري العائلات
+        <!-- 1. قسم الفواتير -->
+        <div id="salesTab" class="tab-content">
+            <div class="card-box">
+                <div class="card-title">
+                    <span><i class="fa-solid fa-file-circle-plus"></i> فاتورة مبيعات جديدة</span>
                 </div>
 
-                <div id="createBranchForm" class="grid-2" style="margin-bottom: 14px;">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label>اسم مدير الفرع / العائلة</label>
-                        <input type="text" id="newBranchUser" placeholder="مثال: فرع_إب أو أحمد">
+                <div class="grid-3">
+                    <div class="form-group">
+                        <label>نوع الفاتورة</label>
+                        <select id="invPaymentType" class="form-control" onchange="toggleInvoicePaymentFields()">
+                            <option value="cash">نقدي (على الصندوق)</option>
+                            <option value="credit">آجل (على العميل)</option>
+                        </select>
                     </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label>كلمة المرور</label>
-                        <input type="text" id="newBranchPass" placeholder="مثال: 2026">
+                    <div class="form-group" id="invCashboxGroup">
+                        <label>الصندوق</label>
+                        <select id="invCashboxSelect" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>العميل</label>
+                        <select id="invCustomerSelect" class="form-control"></select>
                     </div>
                 </div>
-                <button id="createBranchBtn" class="btn btn-primary btn-full" onclick="adminCreateBranchManager()" style="background: #6d28d9; margin-bottom: 18px;">
-                    <i class="fa-solid fa-user-plus"></i> إضافة مدير فرع جديد
-                </button>
 
-                <div id="branchesListContainer"></div>
-            </div>
+                <div style="margin: 8px 0; display:flex; justify-content:space-between; align-items:center;">
+                    <strong style="font-size:13px;">الأصناف:</strong>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="addInvoiceItemRow()">
+                        <i class="fa-solid fa-plus"></i> صنف
+                    </button>
+                </div>
 
-            <!-- قسم إضافة عضو جديد -->
-            <div class="panel-card">
-                <div class="panel-title" id="createMemberPanelTitle"><i class="fa-solid fa-user-plus"></i> إضافة عضو جديد</div>
+                <div id="invoiceItemsContainer"></div>
+
                 <div class="grid-2">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label>اسم المستخدم</label>
-                        <input type="text" id="newMemberUser" placeholder="مثال: يوسف">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>الخصم</label>
+                        <input type="number" id="invDiscount" class="form-control num-input" value="0" min="0" oninput="recalculateInvoiceTotal()">
                     </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label>كلمة المرور</label>
-                        <input type="text" id="newMemberPass" placeholder="مثال: 2026">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>ملاحظة</label>
+                        <input type="text" id="invNotes" class="form-control" placeholder="اختياري">
                     </div>
                 </div>
-                <button class="btn btn-primary btn-full" onclick="adminCreateMember()" style="margin-top: 16px;">
-                    <i class="fa-solid fa-check"></i> حفظ العضو سحابياً
+
+                <div class="summary-bar">
+                    <div>
+                        <span style="font-size:12px; color:var(--text-muted); font-weight:700;">الإجمالي:</span>
+                        <div class="mono" id="invNetTotalDisplay" style="font-size:20px; color:var(--primary);">0.00</div>
+                    </div>
+                    <button id="saveInvoiceBtn" class="btn btn-primary" onclick="saveSalesInvoice()">
+                        <i class="fa-solid fa-check"></i> حفظ الفاتورة
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-box">
+                <div class="card-title">
+                    <span><i class="fa-solid fa-receipt"></i> سجل الفواتير</span>
+                    <input type="text" id="invoiceSearchInput" class="form-control" style="max-width:220px; padding:7px 10px;" placeholder="بحث..." oninput="renderInvoicesTable()">
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الرقم</th>
+                                <th>العميل</th>
+                                <th>النوع</th>
+                                <th>الصافي</th>
+                                <th>الموظف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoicesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. قسم الأسناد -->
+        <div id="vouchersTab" class="tab-content hidden">
+            <div class="card-box">
+                <div class="card-title">
+                    <span><i class="fa-solid fa-file-signature"></i> إصدار سند قبض / صرف</span>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>نوع السند</label>
+                        <select id="voucherType" class="form-control" onchange="toggleVoucherCustomerField()">
+                            <option value="receipt">سند قبض</option>
+                            <option value="payment">سند صرف</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الصندوق</label>
+                        <select id="voucherCashboxSelect" class="form-control"></select>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group" id="voucherCustomerGroup">
+                        <label>العميل (اختياري)</label>
+                        <select id="voucherCustomerSelect" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>المبلغ</label>
+                        <input type="number" id="voucherAmount" class="form-control num-input" min="0" placeholder="0.00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>البيان</label>
+                    <input type="text" id="voucherNote" class="form-control" placeholder="سبب السند...">
+                </div>
+                <button id="saveVoucherBtn" class="btn btn-primary btn-full" onclick="createVoucher()">
+                    <i class="fa-solid fa-check"></i> حفظ السند
                 </button>
             </div>
 
-            <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 12px;"><i class="fa-solid fa-users"></i> <span id="managedListHeading">الأعضاء المسجلون</span> (<span id="membersCount">0</span>):</h4>
-            <div id="adminAllDataContainer"></div>
+            <div class="card-box">
+                <div class="card-title"><span><i class="fa-solid fa-list"></i> سجل الأسناد</span></div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>النوع</th>
+                                <th>الصندوق</th>
+                                <th>الجهة / العميل</th>
+                                <th>المبلغ</th>
+                                <th>الموظف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vouchersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. قسم الصندوق -->
+        <div id="cashboxTab" class="tab-content hidden">
+            <div class="card-box">
+                <div class="card-title"><span><i class="fa-solid fa-vault"></i> الصناديق والأرصدة</span></div>
+                <div id="dashboardCashboxesList" style="margin-bottom:14px;"></div>
+                <div class="grid-2">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>اسم الصندوق الجديد</label>
+                        <input type="text" id="newCashboxName" class="form-control" placeholder="مثال: صندوق المعمل">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>الرصيد الافتتاحي</label>
+                        <input type="number" id="newCashboxOpening" class="form-control num-input" value="0" min="0">
+                    </div>
+                </div>
+                <button id="saveCashboxBtn" class="btn btn-primary btn-full" onclick="createCashbox()" style="margin-top:12px;">
+                    <i class="fa-solid fa-plus"></i> إضافة صندوق
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. قسم المخازن -->
+        <div id="warehouseTab" class="tab-content hidden">
+            <div class="card-box">
+                <div class="card-title"><span><i class="fa-solid fa-boxes-stacked"></i> إضافة / تحديث صنف في المخزن</span></div>
+                <div class="grid-3">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>اسم الصنف</label>
+                        <input type="text" id="newItemName" class="form-control" placeholder="اسم المادة أو المنتج">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>الكمية</label>
+                        <input type="number" id="newItemQty" class="form-control num-input" value="1" min="0">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>سعر الوحدة</label>
+                        <input type="number" id="newItemPrice" class="form-control num-input" value="0" min="0">
+                    </div>
+                </div>
+                <button id="saveWarehouseItemBtn" class="btn btn-primary btn-full" onclick="saveWarehouseItem()" style="margin-top:12px;">
+                    <i class="fa-solid fa-box"></i> حفظ في المخزن
+                </button>
+            </div>
+
+            <div class="card-box">
+                <div class="card-title"><span><i class="fa-solid fa-warehouse"></i> جرد المخازن</span></div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الصنف</th>
+                                <th>الكمية</th>
+                                <th>السعر</th>
+                                <th>الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody id="warehouseTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. قسم العملاء -->
+        <div id="customersTab" class="tab-content hidden">
+            <div class="card-box">
+                <div class="card-title"><span><i class="fa-solid fa-user-plus"></i> إضافة عميل</span></div>
+                <div class="grid-3">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>اسم العميل</label>
+                        <input type="text" id="newCustomerName" class="form-control" placeholder="اسم العميل">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>الهاتف</label>
+                        <input type="text" id="newCustomerPhone" class="form-control num-input" inputmode="numeric" placeholder="77xxxxxxx">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>حد الائتمان</label>
+                        <input type="number" id="newCustomerLimit" class="form-control num-input" value="100000" min="0">
+                    </div>
+                </div>
+                <button id="saveCustomerBtn" class="btn btn-primary btn-full" onclick="createCustomer()" style="margin-top:12px;">
+                    <i class="fa-solid fa-check"></i> حفظ العميل
+                </button>
+            </div>
+
+            <div class="card-box">
+                <div class="card-title"><span><i class="fa-solid fa-address-book"></i> العملاء والأرصدة</span></div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>الهاتف</th>
+                                <th>الرصيد المستحق</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. قسم الموظفون -->
+        <div id="employeesTab" class="tab-content hidden">
+            <div class="card-box">
+                <div class="card-title"><span><i class="fa-solid fa-user-shield"></i> إضافة موظف (حفظ مرة واحدة)</span></div>
+                <div class="grid-3">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>الاسم</label>
+                        <input type="text" id="newEmpFullName" class="form-control" placeholder="اسم الموظف">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>اسم الدخول</label>
+                        <input type="text" id="newEmpUsername" class="form-control num-input" placeholder="مثال: 12007">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>كلمة المرور</label>
+                        <input type="text" id="newEmpPassword" class="form-control num-input" placeholder="كلمة المرور">
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top:12px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>الصلاحية</label>
+                        <select id="newEmpRole" class="form-control">
+                            <option value="cashier">موظف / كاشير</option>
+                            <option value="admin">مدير</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:flex-end;">
+                        <button id="saveEmployeeBtn" class="btn btn-primary btn-full" onclick="createEmployee()">
+                            <i class="fa-solid fa-user-check"></i> حفظ الموظف
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-box">
+                <div class="card-title"><span><i class="fa-solid fa-users-gear"></i> الموظفون</span></div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>الدخول</th>
+                                <th>الصلاحية</th>
+                                <th>الحالة</th>
+                                <th>إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
     </div>
+</div>
 
-    <!-- إشعار عائم أنيق بدون alert -->
-    <div id="toastNotification" class="toast-notification" role="status" aria-live="polite">
-        <i class="fa-solid fa-circle-check"></i>
-        <span id="toastMessage">تم النسخ</span>
-    </div>
+<div id="toast" class="toast"><span id="toastText">تم</span></div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyD3dZmGf-HiIleBURpFj-kpssabUuOpRD4",
-            authDomain: "familyvault-8246c.firebaseapp.com",
-            projectId: "familyvault-8246c",
-            storageBucket: "familyvault-8246c.firebasestorage.app",
-            messagingSenderId: "175087357500",
-            appId: "1:175087357500:web:05c7cbc434c86b2c04fd39",
-            measurementId: "G-XN5SPDD0SX"
-        };
+<script>
+    const ADMIN_USER = "12006";
+    const ADMIN_PASS = "5028611";
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+    const firebaseConfig = {
+        apiKey: "AIzaSyDDm0KDSEHzwPJXAKPyhqQc3EtmN7zDVIY",
+        authDomain: "abu-mohammad-accounting-223c8.firebaseapp.com",
+        projectId: "abu-mohammad-accounting-223c8",
+        storageBucket: "abu-mohammad-accounting-223c8.firebasestorage.app",
+        messagingSenderId: "469928137766",
+        appId: "1:469928137766:web:cd5526796ef3b4e0fb02e7",
+        measurementId: "G-VX90LCEBKM"
+    };
 
-        const ADMIN_USER = "12006";
-        const IDLE_TIMEOUT_MS = 2 * 60 * 1000;
-        const STALE_DAYS_THRESHOLD = 90;
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    let isDemoMode = false;
+    let isBusy = false;
 
-        let currentUser = null;
-        let currentRole = null; // 'superadmin' | 'subadmin' | 'user'
-        let currentMemberDocId = null;
-        let autoSyncInterval = null;
-        let idleTimer = null;
-        let toastTimer = null;
-        let expandedMembers = new Set();
-        let cachedEntries = [];
-        let deletedEntries = [];
-        let sessionEntries = [];
-        let revealedUserCards = new Set();
-        let revealedAdminItems = new Set();
-        let savedAccountsMapVisible = false;
-        let trashVisible = false;
-        let branchesVisible = false;
+    let currentUser = null;
+    let state = {
+        cashboxes: [],
+        customers: [],
+        invoices: [],
+        vouchers: [],
+        employees: [],
+        warehouse: []
+    };
 
-        function showToast(message) {
-            const toast = document.getElementById('toastNotification');
-            const msgEl = document.getElementById('toastMessage');
-            msgEl.textContent = message;
-            toast.classList.add('show');
-            if (toastTimer) clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2200);
+    function showToast(msg) {
+        const el = document.getElementById('toast');
+        document.getElementById('toastText').textContent = msg;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 2200);
+    }
+
+    function formatMoney(num) {
+        return Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    async function loadCollection(name) {
+        const snap = await db.collection(name).get();
+        const list = [];
+        snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+        return list;
+    }
+
+    async function reloadAllData(showMsg = false) {
+        try {
+            state.cashboxes = await loadCollection('cashboxes');
+            state.customers = await loadCollection('customers');
+            state.invoices = await loadCollection('invoices');
+            state.vouchers = await loadCollection('vouchers');
+            state.employees = await loadCollection('employees');
+            state.warehouse = await loadCollection('warehouse');
+            isDemoMode = false;
+            if (showMsg) showToast('تم تحديث البيانات');
+        } catch (err) {
+            console.warn('Firestore error:', err);
+            isDemoMode = true;
+        }
+        renderAllViews();
+    }
+
+    async function handleLogin() {
+        if (isBusy) return;
+        const btn = document.getElementById('loginSubmitBtn');
+        const u = document.getElementById('loginUser').value.trim();
+        const p = document.getElementById('loginPass').value.trim();
+
+        if (!u || !p) {
+            showToast('أدخل اسم المستخدم وكلمة المرور');
+            return;
         }
 
-        function isSessionActive() {
-            return !document.getElementById('userDashboard').classList.contains('hidden') ||
-                   !document.getElementById('adminDashboard').classList.contains('hidden');
-        }
+        isBusy = true;
+        btn.disabled = true;
 
-        function resetIdleTimer() {
-            if (idleTimer) clearTimeout(idleTimer);
-            if (!isSessionActive()) return;
-            idleTimer = setTimeout(() => {
-                if (isSessionActive()) {
-                    logout(true);
-                }
-            }, IDLE_TIMEOUT_MS);
-        }
+        try {
+            await reloadAllData(false);
+            let found = state.employees.find(e => String(e.username).trim() === u && String(e.password).trim() === p);
 
-        function bindIdleListeners() {
-            ['pointerdown', 'keydown', 'scroll', 'touchstart', 'mousemove'].forEach(evt => {
-                window.addEventListener(evt, resetIdleTimer, { passive: true });
-            });
-        }
-
-        function getPasswordAgeInfo(dateStr) {
-            if (!dateStr) {
-                return { label: 'غير محدد', isStale: false };
-            }
-            const parsed = new Date(dateStr + 'T00:00:00');
-            if (Number.isNaN(parsed.getTime())) {
-                return { label: dateStr, isStale: false };
-            }
-            const now = new Date();
-            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const entryStart = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
-            const diffDays = Math.max(0, Math.floor((todayStart - entryStart) / (1000 * 60 * 60 * 24)));
-
-            let label = '';
-            if (diffDays === 0) {
-                label = 'محدث اليوم';
-            } else if (diffDays === 1) {
-                label = 'منذ يوم واحد';
-            } else if (diffDays < 30) {
-                label = `منذ ${diffDays} أيام`;
-            } else {
-                const months = Math.floor(diffDays / 30);
-                label = months === 1 ? 'منذ شهر' : `منذ ${months} أشهر`;
-            }
-
-            return {
-                label,
-                isStale: diffDays >= STALE_DAYS_THRESHOLD
-            };
-        }
-
-        function maskPassword(pass) {
-            const len = Math.min(Math.max((pass || '').length, 6), 12);
-            return '•'.repeat(len);
-        }
-
-        function updateTrashBadge() {
-            const badge = document.getElementById('trashCountBadge');
-            if (badge) {
-                badge.textContent = deletedEntries.length;
-            }
-        }
-
-        function syncSavedAccountsMapVisibility() {
-            const vaultEl = document.getElementById('accountsVaultSection');
-            const btnEl = document.getElementById('toggleVaultBtn');
-            if (!vaultEl || !btnEl) return;
-
-            if (savedAccountsMapVisible) {
-                vaultEl.classList.remove('hidden');
-                btnEl.innerHTML = '<i class="fa-solid fa-eye-slash"></i> إخفاء الحسابات المحفوظة';
-            } else {
-                vaultEl.classList.add('hidden');
-                btnEl.innerHTML = '<i class="fa-solid fa-layer-group"></i> عرض الحسابات المحفوظة';
-            }
-        }
-
-        function syncTrashVisibility() {
-            const trashEl = document.getElementById('trashSection');
-            const btnEl = document.getElementById('toggleTrashBtn');
-            if (!trashEl || !btnEl) return;
-
-            if (trashVisible) {
-                trashEl.classList.remove('hidden');
-                btnEl.classList.add('btn-warning');
-            } else {
-                trashEl.classList.add('hidden');
-                btnEl.classList.remove('btn-warning');
-            }
-        }
-
-        function syncBranchesVisibility() {
-            const sectionEl = document.getElementById('branchesSection');
-            const btnEl = document.getElementById('branchesToggleBtn');
-            const createFormEl = document.getElementById('createBranchForm');
-            const createBtnEl = document.getElementById('createBranchBtn');
-
-            if (!sectionEl || !btnEl) return;
-
-            if (currentRole === 'superadmin') {
-                createFormEl.classList.remove('hidden');
-                createBtnEl.classList.remove('hidden');
-            } else {
-                createFormEl.classList.add('hidden');
-                createBtnEl.classList.add('hidden');
-            }
-
-            if (branchesVisible) {
-                sectionEl.classList.remove('hidden');
-                btnEl.style.background = '#ede9fe';
-                btnEl.style.borderColor = '#7c3aed';
-                btnEl.style.color = '#5b21b6';
-            } else {
-                sectionEl.classList.add('hidden');
-                btnEl.style.background = '';
-                btnEl.style.borderColor = '';
-                btnEl.style.color = '';
-            }
-        }
-
-        function toggleBranchesView() {
-            resetIdleTimer();
-            branchesVisible = !branchesVisible;
-            syncBranchesVisibility();
-            if (branchesVisible) {
-                renderAdminView();
-            }
-        }
-
-        function toggleSavedAccountsMap() {
-            resetIdleTimer();
-            savedAccountsMapVisible = !savedAccountsMapVisible;
-            syncSavedAccountsMapVisibility();
-            if (savedAccountsMapVisible) {
-                filterUserCards();
-            }
-        }
-
-        function toggleTrashSection() {
-            resetIdleTimer();
-            trashVisible = !trashVisible;
-            syncTrashVisibility();
-            if (trashVisible) {
-                renderTrashEntries();
-            }
-        }
-
-        function handleSearchInput() {
-            resetIdleTimer();
-            const inputEl = document.getElementById('searchAppInput');
-            const clearBtn = document.getElementById('clearSearchBtn');
-            if (clearBtn) {
-                if (inputEl.value.trim().length > 0) {
-                    clearBtn.classList.remove('hidden');
-                } else {
-                    clearBtn.classList.add('hidden');
+            if (!found && u === ADMIN_USER && p === ADMIN_PASS) {
+                found = {
+                    id: 'emp_admin',
+                    fullName: 'المدير العام',
+                    username: ADMIN_USER,
+                    password: ADMIN_PASS,
+                    role: 'admin',
+                    active: true
+                };
+                if (!isDemoMode && db) {
+                    await db.collection('employees').doc('emp_admin').set(found, { merge: true });
                 }
             }
-            filterUserCards();
-        }
 
-        function clearSearchInput() {
-            resetIdleTimer();
-            const inputEl = document.getElementById('searchAppInput');
-            const clearBtn = document.getElementById('clearSearchBtn');
-            inputEl.value = '';
-            if (clearBtn) {
-                clearBtn.classList.add('hidden');
+            if (!found) {
+                showToast('بيانات الدخول غير صحيحة');
+                return;
             }
-            filterUserCards();
-            inputEl.focus();
-            showToast('تم مسح البحث');
-        }
-
-        function toggleView(viewId) {
-            ['loginSection', 'userDashboard', 'adminDashboard'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(viewId).classList.remove('hidden');
-            if (viewId === 'loginSection') {
-                if (idleTimer) clearTimeout(idleTimer);
-            } else {
-                resetIdleTimer();
-            }
-        }
-
-        async function getAdminPass() {
-            const doc = await db.collection('settings').doc('admin').get();
-            if (doc.exists) {
-                return doc.data().password;
-            } else {
-                await db.collection('settings').doc('admin').set({ password: "12345" });
-                return "12345";
-            }
-        }
-
-        function configureAdminHeaderUI(role, username) {
-            const badgeEl = document.getElementById('adminBadgeText');
-            const titleEl = document.getElementById('adminDashboardTitle');
-            const createTitleEl = document.getElementById('createMemberPanelTitle');
-            const headingEl = document.getElementById('managedListHeading');
-
-            if (role === 'superadmin') {
-                badgeEl.innerHTML = '<i class="fa-solid fa-crown"></i> المشرف العام';
-                badgeEl.style.background = '#e0f2fe';
-                badgeEl.style.color = '#0369a1';
-                titleEl.textContent = 'إدارة النظام والأعضاء';
-                createTitleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> إضافة عضو جديد';
-                headingEl.textContent = 'الأعضاء المسجلون';
-            } else {
-                badgeEl.innerHTML = '<i class="fa-solid fa-people-roof"></i> مدير فرع';
-                badgeEl.style.background = '#ede9fe';
-                badgeEl.style.color = '#6d28d9';
-                titleEl.textContent = `إدارة فرع (${username})`;
-                createTitleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> إضافة عضو جديد للفرع';
-                headingEl.textContent = 'أعضاء الفرع المسجلون';
-            }
-            syncBranchesVisibility();
-        }
-
-        async function login() {
-            const u = document.getElementById('loginUsername').value.trim();
-            const p = document.getElementById('loginPassword').value.trim();
-
-            if (!u || !p) {
-                showToast('يرجى إدخال اسم المستخدم وكلمة المرور');
+            if (found.active === false) {
+                showToast('الحساب موقوف');
                 return;
             }
 
-            const adminPass = await getAdminPass();
-            if (u === ADMIN_USER && p === adminPass) {
-                currentUser = u;
-                currentRole = 'superadmin';
-                currentMemberDocId = null;
-                branchesVisible = false;
-                document.getElementById('loginUsername').value = '';
-                document.getElementById('loginPassword').value = '';
-                revealedAdminItems.clear();
-                configureAdminHeaderUI('superadmin', u);
-                renderAdminView();
-                toggleView('adminDashboard');
-                startAutoSync('superadmin');
-                showToast('تم تسجيل الدخول كمشرف عام');
-                return;
+            currentUser = found;
+            document.getElementById('headerWelcome').textContent = `معمل أبو محمد — ${currentUser.fullName}`;
+            document.getElementById('currentUserRoleBadge').textContent = currentUser.role === 'admin' ? 'مدير' : 'موظف';
+            document.getElementById('employeesNavBtn').classList.toggle('hidden', currentUser.role !== 'admin');
+
+            const badge = document.getElementById('connectionStatusBadge');
+            badge.className = isDemoMode ? 'db-status demo' : 'db-status';
+            badge.innerHTML = isDemoMode ? '<i class="fa-solid fa-triangle-exclamation"></i> تحقق من القاعدة' : '<i class="fa-solid fa-cloud-check"></i> متصل';
+
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('mainAppView').classList.remove('hidden');
+
+            if (document.getElementById('invoiceItemsContainer').children.length === 0) {
+                addInvoiceItemRow();
             }
+            renderAllViews();
+        } finally {
+            isBusy = false;
+            btn.disabled = false;
+        }
+    }
 
-            const snapshot = await db.collection('members').where('username', '==', u).where('password', '==', p).get();
-            if (!snapshot.empty) {
-                const doc = snapshot.docs[0];
-                const memberData = doc.data();
+    function handleLogout() {
+        currentUser = null;
+        document.getElementById('loginUser').value = '';
+        document.getElementById('loginPass').value = '';
+        document.getElementById('mainAppView').classList.add('hidden');
+        document.getElementById('loginView').classList.remove('hidden');
+    }
 
-                if (memberData.isSuspended === true) {
-                    showToast('هذا الحساب موقوف مؤقتاً من قبل الإدارة');
-                    return;
-                }
+    function switchTab(tabId, btnEl) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(tabId).classList.remove('hidden');
+        btnEl.classList.add('active');
+    }
 
-                currentUser = u;
-                currentMemberDocId = doc.id;
-                document.getElementById('loginUsername').value = '';
-                document.getElementById('loginPassword').value = '';
+    function renderAllViews() {
+        populateDropdowns();
+        renderStats();
+        renderInvoicesTable();
+        renderVouchersTable();
+        renderCashboxesList();
+        renderWarehouseTable();
+        renderCustomersTable();
+        renderEmployeesTable();
+    }
 
-                if (memberData.role === 'subadmin') {
-                    currentRole = 'subadmin';
-                    branchesVisible = false;
-                    revealedAdminItems.clear();
-                    configureAdminHeaderUI('subadmin', u);
-                    renderAdminView();
-                    toggleView('adminDashboard');
-                    startAutoSync('subadmin');
-                    showToast(`مرحباً بك، مدير الفرع ${u}`);
-                    return;
-                }
+    function populateDropdowns() {
+        const cbOpts = state.cashboxes.length
+            ? state.cashboxes.map(c => `<option value="${c.id}">${c.name} (${formatMoney(c.balance)})</option>`).join('')
+            : '<option value="">أضف صندوقاً أولاً</option>';
+        document.getElementById('invCashboxSelect').innerHTML = cbOpts;
+        document.getElementById('voucherCashboxSelect').innerHTML = cbOpts;
 
-                currentRole = 'user';
-                document.getElementById('searchAppInput').value = '';
-                const clearBtn = document.getElementById('clearSearchBtn');
-                if (clearBtn) clearBtn.classList.add('hidden');
-                document.getElementById('welcomeUserTitle').innerText = `أهلاً بك، ${u}`;
+        const custOpts = state.customers.length
+            ? state.customers.map(c => `<option value="${c.id}">${c.name} (${formatMoney(c.balance)})</option>`).join('')
+            : '<option value="">لا يوجد عملاء</option>';
+        document.getElementById('invCustomerSelect').innerHTML = custOpts;
+        document.getElementById('voucherCustomerSelect').innerHTML = '<option value="">بدون عميل</option>' + custOpts;
+    }
 
-                savedAccountsMapVisible = false;
-                trashVisible = false;
-                revealedUserCards.clear();
-                sessionEntries = [];
-                syncSavedAccountsMapVisibility();
-                syncTrashVisibility();
+    function renderStats() {
+        const sales = state.invoices.reduce((s, i) => s + Number(i.netTotal || 0), 0);
+        const cash = state.cashboxes.reduce((s, c) => s + Number(c.balance || 0), 0);
+        const debts = state.customers.reduce((s, c) => s + Number(c.balance || 0), 0);
+        const itemsCount = state.warehouse.length;
 
-                cachedEntries = memberData.entries || [];
-                deletedEntries = memberData.trash || [];
-                updateTrashBadge();
-                renderSessionEntries();
-                renderUserEntries(cachedEntries);
-                renderTrashEntries();
-                toggleView('userDashboard');
-                startAutoSync('user');
-                showToast(`مرحباً بك، ${u}`);
-            } else {
-                showToast('خطأ في اسم المستخدم أو كلمة المرور');
-            }
+        document.getElementById('kpiTotalSales').textContent = formatMoney(sales);
+        document.getElementById('kpiTotalCash').textContent = formatMoney(cash);
+        document.getElementById('kpiTotalReceivables').textContent = formatMoney(debts);
+        document.getElementById('kpiWarehouseItems').textContent = itemsCount;
+    }
+
+    function toggleInvoicePaymentFields() {
+        const isCash = document.getElementById('invPaymentType').value === 'cash';
+        document.getElementById('invCashboxGroup').classList.toggle('hidden', !isCash);
+    }
+
+    function addInvoiceItemRow() {
+        const container = document.getElementById('invoiceItemsContainer');
+        const row = document.createElement('div');
+        row.className = 'invoice-item-row';
+        row.innerHTML = `
+            <input type="text" class="form-control item-name" placeholder="اسم الصنف">
+            <input type="number" class="form-control item-qty num-input" value="1" min="1" oninput="recalculateInvoiceTotal()">
+            <input type="number" class="form-control item-price num-input" value="0" min="0" oninput="recalculateInvoiceTotal()">
+            <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove(); recalculateInvoiceTotal();">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        `;
+        container.appendChild(row);
+        recalculateInvoiceTotal();
+    }
+
+    function recalculateInvoiceTotal() {
+        let subtotal = 0;
+        document.querySelectorAll('#invoiceItemsContainer .invoice-item-row').forEach(r => {
+            subtotal += Number(r.querySelector('.item-qty').value || 0) * Number(r.querySelector('.item-price').value || 0);
+        });
+        const discount = Number(document.getElementById('invDiscount').value || 0);
+        const net = Math.max(0, subtotal - discount);
+        document.getElementById('invNetTotalDisplay').textContent = formatMoney(net);
+        return net;
+    }
+
+    async function saveSalesInvoice() {
+        if (isBusy) return;
+        const btn = document.getElementById('saveInvoiceBtn');
+        const paymentType = document.getElementById('invPaymentType').value;
+        const cashboxId = document.getElementById('invCashboxSelect').value;
+        const customerId = document.getElementById('invCustomerSelect').value;
+        const discount = Number(document.getElementById('invDiscount').value || 0);
+        const notes = document.getElementById('invNotes').value.trim();
+
+        const items = [];
+        document.querySelectorAll('#invoiceItemsContainer .invoice-item-row').forEach(r => {
+            const name = r.querySelector('.item-name').value.trim();
+            const qty = Number(r.querySelector('.item-qty').value || 0);
+            const price = Number(r.querySelector('.item-price').value || 0);
+            if (name && qty > 0) items.push({ name, qty, price });
+        });
+
+        if (items.length === 0) {
+            showToast('أضف صنفاً واحداً على الأقل');
+            return;
         }
 
-        function startAutoSync(role) {
-            if (autoSyncInterval) clearInterval(autoSyncInterval);
-            autoSyncInterval = setInterval(async () => {
-                if (role === 'user' && currentMemberDocId) {
-                    const doc = await db.collection('members').doc(currentMemberDocId).get();
-                    if (doc.exists) {
-                        const data = doc.data();
-                        if (data.isSuspended === true) {
-                            logout(false);
-                            showToast('تم إيقاف حسابك مؤقتاً');
-                            return;
-                        }
-                        cachedEntries = data.entries || [];
-                        deletedEntries = data.trash || [];
-                        updateTrashBadge();
-                        if (savedAccountsMapVisible) {
-                            filterUserCards();
-                        }
-                        if (trashVisible) {
-                            renderTrashEntries();
-                        }
-                    }
-                } else if (role === 'subadmin' && currentMemberDocId) {
-                    const doc = await db.collection('members').doc(currentMemberDocId).get();
-                    if (doc.exists && doc.data().isSuspended === true) {
-                        logout(false);
-                        showToast('تم إيقاف حسابك مؤقتاً');
-                        return;
-                    }
-                    renderAdminView();
-                } else if (role === 'superadmin') {
-                    renderAdminView();
-                }
-            }, 5000);
+        const customer = state.customers.find(c => c.id === customerId);
+        if (!customer) {
+            showToast('اختر العميل');
+            return;
         }
 
-        async function refreshUserDataManual() {
-            if (!currentMemberDocId) return;
-            resetIdleTimer();
-            const doc = await db.collection('members').doc(currentMemberDocId).get();
-            if (doc.exists) {
-                const data = doc.data();
-                cachedEntries = data.entries || [];
-                deletedEntries = data.trash || [];
-                updateTrashBadge();
-                if (savedAccountsMapVisible) {
-                    filterUserCards();
-                }
-                if (trashVisible) {
-                    renderTrashEntries();
-                }
-                showToast('تم تحديث البيانات من السحابة');
-            }
+        const cashbox = paymentType === 'cash' ? state.cashboxes.find(c => c.id === cashboxId) : null;
+        if (paymentType === 'cash' && !cashbox) {
+            showToast('اختر الصندوق');
+            return;
         }
 
-        async function changeMyPassword() {
-            resetIdleTimer();
-            const currentPass = prompt('أدخل كلمة المرور الحالية لحسابك:');
-            if (currentPass === null) return;
-            resetIdleTimer();
-            
-            const memberRef = db.collection('members').doc(currentMemberDocId);
-            const doc = await memberRef.get();
-            if (!doc.exists) return;
+        isBusy = true;
+        btn.disabled = true;
 
-            if (doc.data().password !== currentPass) {
-                showToast('كلمة المرور الحالية غير صحيحة');
-                return;
-            }
+        try {
+            const subtotal = items.reduce((s, x) => s + x.qty * x.price, 0);
+            const netTotal = Math.max(0, subtotal - discount);
+            const invId = `INV-${Date.now()}`;
 
-            const newPass = prompt('أدخل كلمة المرور الجديدة:');
-            if (!newPass || !newPass.trim()) return;
-            resetIdleTimer();
-
-            await memberRef.update({ password: newPass.trim() });
-            showToast('تم تغيير كلمة المرور وحفظها بنجاح');
-        }
-
-        async function changeAdminOrSubAdminPassword() {
-            resetIdleTimer();
-            if (currentRole === 'superadmin') {
-                const oldPass = prompt('أدخل كلمة مرور المشرف العام الحالية:');
-                if (oldPass === null) return;
-                resetIdleTimer();
-
-                const adminPass = await getAdminPass();
-                if (oldPass !== adminPass) {
-                    showToast('كلمة المرور الحالية غير صحيحة');
-                    return;
-                }
-                const newPass = prompt('أدخل كلمة مرور المشرف العام الجديدة:');
-                if (!newPass || !newPass.trim()) return;
-                resetIdleTimer();
-
-                await db.collection('settings').doc('admin').set({ password: newPass.trim() });
-                showToast('تم تغيير كلمة مرور المشرف العام بنجاح');
-            } else if (currentRole === 'subadmin' && currentMemberDocId) {
-                const oldPass = prompt('أدخل كلمة المرور الحالية لحسابك:');
-                if (oldPass === null) return;
-                resetIdleTimer();
-
-                const docRef = db.collection('members').doc(currentMemberDocId);
-                const doc = await docRef.get();
-                if (!doc.exists || doc.data().password !== oldPass) {
-                    showToast('كلمة المرور الحالية غير صحيحة');
-                    return;
-                }
-                const newPass = prompt('أدخل كلمة المرور الجديدة:');
-                if (!newPass || !newPass.trim()) return;
-                resetIdleTimer();
-
-                await docRef.update({ password: newPass.trim() });
-                showToast('تم تغيير كلمة المرور بنجاح');
-            }
-        }
-
-        function buildAccountCardHtml(item, cardKey, realIndex, mode = 'map') {
-            const isRevealed = revealedUserCards.has(cardKey);
-            const ageInfo = getPasswordAgeInfo(item.date);
-            const displayedPass = isRevealed ? item.pass : maskPassword(item.pass);
-
-            let actionsHtml = '';
-            if (mode === 'trash') {
-                actionsHtml = `
-                    <button class="btn btn-success btn-sm" onclick="restoreTrashEntry(${realIndex})"><i class="fa-solid fa-rotate-left"></i> استرجاع</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteTrashEntryPermanently(${realIndex})"><i class="fa-solid fa-xmark"></i> حذف نهائي</button>
-                `;
-            } else {
-                const deleteHandler = mode === 'session'
-                    ? `deleteSessionEntry(${realIndex})`
-                    : `deleteUserEntry(${realIndex})`;
-                actionsHtml = `
-                    <button class="btn btn-warning btn-sm" onclick="editUserEntry(${realIndex})"><i class="fa-solid fa-pen"></i> تعديل</button>
-                    <button class="btn btn-danger btn-sm" onclick="${deleteHandler}"><i class="fa-solid fa-trash"></i> حذف</button>
-                `;
-            }
-
-            return `
-                <div class="account-card ${ageInfo.isStale ? 'stale-password' : ''}">
-                    <div class="account-card-header">
-                        <div class="account-title"><i class="fa-solid fa-shield-halved" style="color:var(--primary); font-size:14px;"></i> ${item.app}</div>
-                        <div class="meta-badges">
-                            <div class="account-date"><i class="fa-regular fa-calendar"></i> ${item.date}</div>
-                            <span class="age-badge ${ageInfo.isStale ? 'stale' : ''}">
-                                <i class="fa-solid ${ageInfo.isStale ? 'fa-triangle-exclamation' : 'fa-clock'}"></i> ${ageInfo.label}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="account-body">
-                        <span style="font-size: 12.5px; color: var(--text-muted); font-weight:700;">كلمة السر:</span>
-                        <div class="pass-controls">
-                            <span class="pass-badge">${displayedPass}</span>
-                            <button class="btn-icon-action" onclick="toggleRevealCardByKey('${cardKey}')" title="${isRevealed ? 'إخفاء كلمة السر' : 'إظهار كلمة السر'}">
-                                <i class="fa-solid ${isRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
-                            </button>
-                            <button class="btn-icon-action" onclick="copyPassword('${item.pass}', '${item.app}')" title="نسخ كلمة السر">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-actions">
-                        ${actionsHtml}
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderSessionEntries() {
-            const section = document.getElementById('sessionCreatedSection');
-            const container = document.getElementById('sessionCreatedCards');
-            if (!section || !container) return;
-
-            if (sessionEntries.length === 0) {
-                section.classList.add('hidden');
-                container.innerHTML = '';
-                return;
-            }
-
-            section.classList.remove('hidden');
-            container.innerHTML = '';
-
-            sessionEntries.forEach((item, sIdx) => {
-                const realIndex = cachedEntries.findIndex(
-                    e => e.app === item.app && e.pass === item.pass && e.date === item.date
-                );
-                const targetIndex = realIndex >= 0 ? realIndex : sIdx;
-                const cardKey = `session_${sIdx}_${item.app}_${item.date}`;
-                container.innerHTML += buildAccountCardHtml(item, cardKey, targetIndex, 'session');
-            });
-        }
-
-        async function addUserEntry() {
-            resetIdleTimer();
-            const app = document.getElementById('appName').value.trim();
-            const pass = document.getElementById('appPass').value.trim();
-
-            if (!app || !pass) {
-                showToast('يرجى تعبئة اسم التطبيق وكلمة السر');
-                return;
-            }
-
-            const now = new Date();
-            const date = now.toISOString().split('T')[0];
-            const newEntry = { app, pass, date };
-
-            const memberRef = db.collection('members').doc(currentMemberDocId);
-            const doc = await memberRef.get();
-            let entries = doc.data().entries || [];
-            entries.push(newEntry);
-
-            await memberRef.update({ entries });
-            document.getElementById('appName').value = '';
-            document.getElementById('appPass').value = '';
-            cachedEntries = entries;
-            sessionEntries.push(newEntry);
-            renderSessionEntries();
-            if (savedAccountsMapVisible) {
-                filterUserCards();
-            }
-            showToast('تم حفظ الحساب بنجاح');
-        }
-
-        function filterUserCards() {
-            const query = document.getElementById('searchAppInput').value.toLowerCase().trim();
-            const filtered = cachedEntries.filter(item => item.app.toLowerCase().includes(query));
-            renderUserEntries(filtered);
-        }
-
-        function toggleRevealCardByKey(key) {
-            resetIdleTimer();
-            if (revealedUserCards.has(key)) {
-                revealedUserCards.delete(key);
-            } else {
-                revealedUserCards.add(key);
-            }
-            renderSessionEntries();
-            if (savedAccountsMapVisible) {
-                filterUserCards();
-            }
-            if (trashVisible) {
-                renderTrashEntries();
-            }
-        }
-
-        function renderUserEntries(entries) {
-            const container = document.getElementById('userEntriesCards');
-            container.innerHTML = '';
-            if (entries.length === 0) {
-                container.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); padding: 35px; background:#fff; border-radius:16px; border:1.5px solid var(--border-color); font-size:14px;">لا توجد حسابات مطابقة للبحث أو محفوظة حالياً.</div>';
-                return;
-            }
-            entries.forEach((item) => {
-                const realIndex = cachedEntries.findIndex(e => e.app === item.app && e.pass === item.pass && e.date === item.date);
-                const cardKey = `map_${realIndex}_${item.app}_${item.date}`;
-                container.innerHTML += buildAccountCardHtml(item, cardKey, realIndex, 'map');
-            });
-        }
-
-        function renderTrashEntries() {
-            const container = document.getElementById('trashEntriesCards');
-            if (!container) return;
-            container.innerHTML = '';
-
-            if (deletedEntries.length === 0) {
-                container.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); padding: 26px; background:#fff; border-radius:14px; border:1.5px dashed #fecaca; font-size:13.5px;">سلة المهملات فارغة حالياً.</div>';
-                return;
-            }
-
-            deletedEntries.forEach((item, tIdx) => {
-                const cardKey = `trash_${tIdx}_${item.app}_${item.date}`;
-                container.innerHTML += buildAccountCardHtml(item, cardKey, tIdx, 'trash');
-            });
-        }
-
-        async function editUserEntry(index) {
-            resetIdleTimer();
-            const memberRef = db.collection('members').doc(currentMemberDocId);
-            const doc = await memberRef.get();
-            let entries = doc.data().entries || [];
-            const item = entries[index];
-            if (!item) return;
-
-            const newPass = prompt(`تعديل كلمة السر لـ (${item.app}):`, item.pass);
-            if (newPass === null) return;
-            resetIdleTimer();
-
-            if (!newPass.trim()) {
-                showToast('لا يمكن أن تكون كلمة السر فارغة');
-                return;
-            }
-
-            const oldItem = { ...entries[index] };
-            const updatedItem = {
-                ...entries[index],
-                pass: newPass.trim(),
-                date: new Date().toISOString().split('T')[0]
-            };
-            entries[index] = updatedItem;
-
-            await memberRef.update({ entries });
-            cachedEntries = entries;
-
-            const existingSessionIdx = sessionEntries.findIndex(
-                s => s.app === oldItem.app && s.pass === oldItem.pass && s.date === oldItem.date
-            );
-            if (existingSessionIdx >= 0) {
-                sessionEntries[existingSessionIdx] = updatedItem;
-            } else {
-                sessionEntries.push(updatedItem);
-            }
-
-            renderSessionEntries();
-            if (savedAccountsMapVisible) {
-                filterUserCards();
-            }
-            showToast(`تم تحديث كلمة السر لـ ${item.app}`);
-        }
-
-        async function moveEntryToTrashByIndex(index) {
-            const memberRef = db.collection('members').doc(currentMemberDocId);
-            const doc = await memberRef.get();
-            if (!doc.exists) return;
-
-            const data = doc.data();
-            let entries = data.entries || [];
-            let trash = data.trash || [];
-            const target = entries[index];
-            if (!target) return;
-
-            sessionEntries = sessionEntries.filter(
-                s => !(s.app === target.app && s.pass === target.pass && s.date === target.date)
-            );
-            entries.splice(index, 1);
-            trash.unshift({
-                ...target,
-                deletedAt: new Date().toISOString().split('T')[0]
-            });
-
-            await memberRef.update({ entries, trash });
-            cachedEntries = entries;
-            deletedEntries = trash;
-            updateTrashBadge();
-            renderSessionEntries();
-            if (savedAccountsMapVisible) {
-                filterUserCards();
-            }
-            if (trashVisible) {
-                renderTrashEntries();
-            }
-            showToast(`تم نقل (${target.app}) إلى سلة المهملات`);
-        }
-
-        async function deleteSessionEntry(index) {
-            resetIdleTimer();
-            await moveEntryToTrashByIndex(index);
-        }
-
-        async function deleteUserEntry(index) {
-            resetIdleTimer();
-            await moveEntryToTrashByIndex(index);
-        }
-
-        async function restoreTrashEntry(trashIndex) {
-            resetIdleTimer();
-            const memberRef = db.collection('members').doc(currentMemberDocId);
-            const doc = await memberRef.get();
-            if (!doc.exists) return;
-
-            const data = doc.data();
-            let entries = data.entries || [];
-            let trash = data.trash || [];
-            const item = trash[trashIndex];
-            if (!item) return;
-
-            const cleanItem = {
-                app: item.app,
-                pass: item.pass,
-                date: item.date || new Date().toISOString().split('T')[0]
+            const docData = {
+                id: invId,
+                date: new Date().toISOString().split('T')[0],
+                customerId: customer.id,
+                customerName: customer.name,
+                paymentType,
+                cashboxId: cashbox ? cashbox.id : '',
+                cashboxName: cashbox ? cashbox.name : 'آجل',
+                items,
+                discount,
+                netTotal,
+                employee: currentUser.fullName,
+                employeeId: currentUser.id,
+                notes
             };
 
-            trash.splice(trashIndex, 1);
-            entries.push(cleanItem);
-
-            await memberRef.update({ entries, trash });
-            cachedEntries = entries;
-            deletedEntries = trash;
-            updateTrashBadge();
-            renderTrashEntries();
-            if (savedAccountsMapVisible) {
-                filterUserCards();
-            }
-            showToast(`تم استرجاع (${cleanItem.app}) بنجاح`);
-        }
-
-        async function deleteTrashEntryPermanently(trashIndex) {
-            resetIdleTimer();
-            if (!confirm('حذف هذا الحساب نهائياً من سلة المهملات؟')) return;
-            resetIdleTimer();
-
-            const memberRef = db.collection('members').doc(currentMemberDocId);
-            const doc = await memberRef.get();
-            if (!doc.exists) return;
-
-            let trash = doc.data().trash || [];
-            const removed = trash[trashIndex];
-            trash.splice(trashIndex, 1);
-
-            await memberRef.update({ trash });
-            deletedEntries = trash;
-            updateTrashBadge();
-            renderTrashEntries();
-            showToast(removed ? `تم حذف (${removed.app}) نهائياً` : 'تم الحذف نهائياً');
-        }
-
-        async function emptyTrash() {
-            resetIdleTimer();
-            if (deletedEntries.length === 0) {
-                showToast('سلة المهملات فارغة بالفعل');
-                return;
-            }
-            if (!confirm('هل تريد إفراغ سلة المهملات وحذف جميع العناصر نهائياً؟')) return;
-            resetIdleTimer();
-
-            const memberRef = db.collection('members').doc(currentMemberDocId);
-            await memberRef.update({ trash: [] });
-            deletedEntries = [];
-            updateTrashBadge();
-            renderTrashEntries();
-            showToast('تم إفراغ سلة المهملات');
-        }
-
-        async function adminCreateBranchManager() {
-            resetIdleTimer();
-            if (currentRole !== 'superadmin') return;
-
-            const username = document.getElementById('newBranchUser').value.trim();
-            const password = document.getElementById('newBranchPass').value.trim();
-
-            if (!username || !password) {
-                showToast('أدخل اسم مدير الفرع وكلمة المرور');
-                return;
-            }
-
-            if (username === ADMIN_USER) {
-                showToast('هذا الاسم محجوز للمشرف العام');
-                return;
-            }
-
-            const existing = await db.collection('members').where('username', '==', username).get();
-            if (!existing.empty) {
-                showToast('اسم المستخدم مسجل مسبقاً');
-                return;
-            }
-
-            await db.collection('members').add({
-                username,
-                password,
-                role: 'subadmin',
-                managedBy: ADMIN_USER,
-                isSuspended: false,
-                entries: [],
-                trash: []
-            });
-
-            document.getElementById('newBranchUser').value = '';
-            document.getElementById('newBranchPass').value = '';
-            renderAdminView();
-            showToast(`تمت إضافة مدير الفرع (${username})`);
-        }
-
-        async function adminCreateMember() {
-            resetIdleTimer();
-            const username = document.getElementById('newMemberUser').value.trim();
-            const password = document.getElementById('newMemberPass').value.trim();
-
-            if (!username || !password) {
-                showToast('أدخل اسم المستخدم وكلمة المرور');
-                return;
-            }
-
-            if (username === ADMIN_USER) {
-                showToast('هذا الاسم محجوز للمشرف العام');
-                return;
-            }
-
-            const existing = await db.collection('members').where('username', '==', username).get();
-            if (!existing.empty) {
-                showToast('اسم المستخدم مسجل مسبقاً');
-                return;
-            }
-
-            const ownerTag = currentRole === 'superadmin' ? ADMIN_USER : currentUser;
-
-            await db.collection('members').add({
-                username,
-                password,
-                role: 'user',
-                managedBy: ownerTag,
-                isSuspended: false,
-                entries: [],
-                trash: []
-            });
-
-            document.getElementById('newMemberUser').value = '';
-            document.getElementById('newMemberPass').value = '';
-            renderAdminView();
-            showToast(`تمت إضافة العضو (${username}) بنجاح`);
-        }
-
-        async function toggleSuspendMember(mId, username, currentSuspended) {
-            resetIdleTimer();
-            const nextState = !currentSuspended;
-            await db.collection('members').doc(mId).update({
-                isSuspended: nextState
-            });
-            renderAdminView();
-            showToast(nextState ? `تم إيقاف حساب (${username}) مؤقتاً` : `تم إعادة تفعيل حساب (${username})`);
-        }
-
-        function toggleMemberAccordion(mId) {
-            resetIdleTimer();
-            const body = document.getElementById(`accordion-body-${mId}`);
-            const icon = document.getElementById(`accordion-icon-${mId}`);
-            if (!body || !icon) return;
-
-            if (expandedMembers.has(mId)) {
-                expandedMembers.delete(mId);
-                body.classList.add('hidden');
-                icon.classList.remove('rotated');
+            await db.collection('invoices').doc(invId).set(docData);
+            if (paymentType === 'cash' && cashbox) {
+                await db.collection('cashboxes').doc(cashbox.id).update({
+                    balance: Number(cashbox.balance || 0) + netTotal
+                });
             } else {
-                expandedMembers.add(mId);
-                body.classList.remove('hidden');
-                icon.classList.add('rotated');
+                await db.collection('customers').doc(customer.id).update({
+                    balance: Number(customer.balance || 0) + netTotal
+                });
             }
+
+            document.getElementById('invoiceItemsContainer').innerHTML = '';
+            addInvoiceItemRow();
+            document.getElementById('invDiscount').value = '0';
+            document.getElementById('invNotes').value = '';
+            await reloadAllData(false);
+            showToast('تم حفظ الفاتورة');
+        } finally {
+            isBusy = false;
+            btn.disabled = false;
+        }
+    }
+
+    function renderInvoicesTable() {
+        const q = (document.getElementById('invoiceSearchInput').value || '').toLowerCase().trim();
+        const list = state.invoices
+            .filter(i => (i.id || '').toLowerCase().includes(q) || (i.customerName || '').toLowerCase().includes(q))
+            .slice().reverse();
+
+        document.getElementById('invoicesTableBody').innerHTML = list.length
+            ? list.map(i => `
+                <tr>
+                    <td><span class="mono">${i.id}</span></td>
+                    <td>${i.date || '-'}</td>
+                    <td>${i.customerName || '-'}</td>
+                    <td>${i.paymentType === 'cash' ? '<span class="badge badge-cash">نقدي</span>' : '<span class="badge badge-credit">آجل</span>'}</td>
+                    <td><span class="mono">${formatMoney(i.netTotal)}</span></td>
+                    <td>${i.employee || '-'}</td>
+                </tr>
+            `).join('')
+            : '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">لا توجد فواتير</td></tr>';
+    }
+
+    function toggleVoucherCustomerField() {
+        const isReceipt = document.getElementById('voucherType').value === 'receipt';
+        document.getElementById('voucherCustomerGroup').classList.toggle('hidden', !isReceipt);
+    }
+
+    async function createVoucher() {
+        if (isBusy) return;
+        const btn = document.getElementById('saveVoucherBtn');
+        const type = document.getElementById('voucherType').value;
+        const cashboxId = document.getElementById('voucherCashboxSelect').value;
+        const customerId = type === 'receipt' ? document.getElementById('voucherCustomerSelect').value : '';
+        const amount = Number(document.getElementById('voucherAmount').value || 0);
+        const note = document.getElementById('voucherNote').value.trim();
+
+        const cashbox = state.cashboxes.find(c => c.id === cashboxId);
+        if (!cashbox || amount <= 0) {
+            showToast('اختر الصندوق وأدخل مبلغاً صحيحاً');
+            return;
+        }
+        if (type === 'payment' && Number(cashbox.balance || 0) < amount) {
+            showToast('رصيد الصندوق غير كافٍ');
+            return;
         }
 
-        function toggleRevealAdminItem(key) {
-            resetIdleTimer();
-            if (revealedAdminItems.has(key)) {
-                revealedAdminItems.delete(key);
-            } else {
-                revealedAdminItems.add(key);
+        isBusy = true;
+        btn.disabled = true;
+
+        try {
+            const customer = customerId ? state.customers.find(c => c.id === customerId) : null;
+            const vchId = `VCH-${Date.now()}`;
+            await db.collection('vouchers').doc(vchId).set({
+                id: vchId,
+                type,
+                date: new Date().toISOString().split('T')[0],
+                cashboxId: cashbox.id,
+                cashboxName: cashbox.name,
+                customerId: customer ? customer.id : '',
+                customerName: customer ? customer.name : 'عام',
+                amount,
+                note: note || (type === 'receipt' ? 'سند قبض' : 'سند صرف'),
+                employee: currentUser.fullName
+            });
+
+            const nextBal = type === 'receipt' ? Number(cashbox.balance || 0) + amount : Number(cashbox.balance || 0) - amount;
+            await db.collection('cashboxes').doc(cashbox.id).update({ balance: nextBal });
+
+            if (customer && type === 'receipt') {
+                await db.collection('customers').doc(customer.id).update({
+                    balance: Math.max(0, Number(customer.balance || 0) - amount)
+                });
             }
-            renderAdminView();
+
+            document.getElementById('voucherAmount').value = '';
+            document.getElementById('voucherNote').value = '';
+            await reloadAllData(false);
+            showToast('تم حفظ السند');
+        } finally {
+            isBusy = false;
+            btn.disabled = false;
+        }
+    }
+
+    function renderVouchersTable() {
+        const list = state.vouchers.slice().reverse();
+        document.getElementById('vouchersTableBody').innerHTML = list.length
+            ? list.map(v => `
+                <tr>
+                    <td>${v.type === 'receipt' ? '<span class="badge badge-cash">قبض</span>' : '<span class="badge badge-expense">صرف</span>'}</td>
+                    <td>${v.cashboxName || '-'}</td>
+                    <td>${v.customerName || '-'}</td>
+                    <td><span class="mono">${formatMoney(v.amount)}</span></td>
+                    <td>${v.employee || '-'}</td>
+                </tr>
+            `).join('')
+            : '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">لا توجد أسناد</td></tr>';
+    }
+
+    async function createCashbox() {
+        if (isBusy) return;
+        const btn = document.getElementById('saveCashboxBtn');
+        const name = document.getElementById('newCashboxName').value.trim();
+        const opening = Number(document.getElementById('newCashboxOpening').value || 0);
+        if (!name) {
+            showToast('أدخل اسم الصندوق');
+            return;
         }
 
-        function buildBranchManagerRowHtml(bObj, allDocs) {
-            const branch = bObj.data;
-            const bId = bObj.id;
-            const isSuspended = branch.isSuspended === true;
-            const subMembersCount = allDocs.filter(d => d.data.role !== 'subadmin' && d.data.managedBy === branch.username).length;
-            const branchPassKey = `branch_${bId}`;
-            const isRevealed = revealedAdminItems.has(branchPassKey);
-            const displayedPass = isRevealed ? branch.password : maskPassword(branch.password);
+        isBusy = true;
+        btn.disabled = true;
+        try {
+            const id = `cb_${Date.now()}`;
+            await db.collection('cashboxes').doc(id).set({ id, name, balance: opening });
+            document.getElementById('newCashboxName').value = '';
+            document.getElementById('newCashboxOpening').value = '0';
+            await reloadAllData(false);
+            showToast('تمت إضافة الصندوق');
+        } finally {
+            isBusy = false;
+            btn.disabled = false;
+        }
+    }
 
-            return `
-                <div class="branch-manager-row">
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                        <strong style="color:#5b21b6; font-size:15px;">
-                            <i class="fa-solid fa-user-tie"></i> ${branch.username}
-                        </strong>
-                        <span class="role-pill"><i class="fa-solid fa-users"></i> ${subMembersCount} عضو تابع</span>
-                        <span class="${isSuspended ? 'suspended-badge' : 'active-member-badge'}">
-                            <i class="fa-solid ${isSuspended ? 'fa-ban' : 'fa-circle-check'}"></i> ${isSuspended ? 'موقوف' : 'نشط'}
-                        </span>
-                        <span style="font-size:12px; color:var(--text-muted); display:inline-flex; align-items:center; gap:6px;">
-                            الباسورد: <span class="pass-badge">${displayedPass}</span>
-                            <button class="btn-icon-action" style="width:26px; height:26px; font-size:12px;" onclick="toggleRevealAdminItem('${branchPassKey}')" title="${isRevealed ? 'إخفاء' : 'إظهار'}">
-                                <i class="fa-solid ${isRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
-                            </button>
-                        </span>
-                    </div>
-                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                        <button class="btn btn-warning btn-sm" onclick="adminEditMemberPassword('${bId}', '${branch.username}', '${branch.password}')">
-                            <i class="fa-solid fa-key"></i> تعديل الباسورد
-                        </button>
-                        <button class="btn ${isSuspended ? 'btn-success' : 'btn-warning'} btn-sm" onclick="toggleSuspendMember('${bId}', '${branch.username}', ${isSuspended})">
-                            <i class="fa-solid ${isSuspended ? 'fa-play' : 'fa-pause'}"></i> ${isSuspended ? 'تفعيل' : 'إيقاف'}
-                        </button>
-                        <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${bId}')">
-                            <i class="fa-solid fa-trash"></i> حذف
-                        </button>
-                    </div>
+    function renderCashboxesList() {
+        const el = document.getElementById('dashboardCashboxesList');
+        el.innerHTML = state.cashboxes.length
+            ? state.cashboxes.map(c => `
+                <div style="background:#fff; border:1px solid var(--border); border-radius:12px; padding:10px 12px; display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <strong>${c.name}</strong>
+                    <span class="mono" style="color:var(--success);">${formatMoney(c.balance)}</span>
                 </div>
-            `;
+            `).join('')
+            : '<p style="color:var(--text-muted); font-size:13px;">لا توجد صناديق</p>';
+    }
+
+    async function saveWarehouseItem() {
+        if (isBusy) return;
+        const btn = document.getElementById('saveWarehouseItemBtn');
+        const name = document.getElementById('newItemName').value.trim();
+        const qty = Number(document.getElementById('newItemQty').value || 0);
+        const price = Number(document.getElementById('newItemPrice').value || 0);
+        if (!name) {
+            showToast('أدخل اسم الصنف');
+            return;
         }
 
-        function buildMemberCardHtml(itemObj) {
-            const member = itemObj.data;
-            const mId = itemObj.id;
-            const isSuspended = member.isSuspended === true;
-            const isExpanded = expandedMembers.has(mId);
-            const appCount = member.entries ? member.entries.length : 0;
-
-            const memberPassKey = `member_${mId}`;
-            const isMemberPassRevealed = revealedAdminItems.has(memberPassKey);
-            const displayedMemberPass = isMemberPassRevealed ? member.password : maskPassword(member.password);
-
-            let entriesHtml = '';
-            if (appCount === 0) {
-                entriesHtml = '<p style="font-size: 13px; color: var(--text-muted); padding: 8px 0;">لا توجد تطبيقات مضافة لهذا الحساب.</p>';
+        isBusy = true;
+        btn.disabled = true;
+        try {
+            const existing = state.warehouse.find(w => w.name.toLowerCase() === name.toLowerCase());
+            if (existing) {
+                await db.collection('warehouse').doc(existing.id).update({ qty, price });
             } else {
-                entriesHtml = `<div style="display:grid; grid-template-columns: 1fr; gap:10px;">`;
-                member.entries.forEach((ent, entIndex) => {
-                    const ageInfo = getPasswordAgeInfo(ent.date);
-                    const entKey = `entry_${mId}_${entIndex}`;
-                    const isEntRevealed = revealedAdminItems.has(entKey);
-                    const displayedEntPass = isEntRevealed ? ent.pass : maskPassword(ent.pass);
-
-                    entriesHtml += `
-                        <div style="background:${ageInfo.isStale ? '#fffbeb' : '#f8fafc'}; border:1px solid ${ageInfo.isStale ? '#f59e0b' : 'var(--border-color)'}; border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                            <div>
-                                <strong style="color:var(--text-main); font-size:14px;"><i class="fa-solid fa-bookmark" style="color:var(--primary); font-size:11px;"></i> ${ent.app}</strong>
-                                <div style="font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-top:3px; flex-wrap:wrap;">
-                                    <span>${ent.date}</span>
-                                    <span class="age-badge ${ageInfo.isStale ? 'stale' : ''}">${ageInfo.label}</span>
-                                </div>
-                            </div>
-                            <div class="pass-controls">
-                                <span class="pass-badge">${displayedEntPass}</span>
-                                <button class="btn-icon-action" onclick="toggleRevealAdminItem('${entKey}')" title="${isEntRevealed ? 'إخفاء' : 'إظهار'}">
-                                    <i class="fa-solid ${isEntRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
-                                </button>
-                                <button class="btn-icon-action" onclick="copyPassword('${ent.pass}', '${ent.app}')" title="نسخ">
-                                    <i class="fa-solid fa-copy"></i>
-                                </button>
-                                <button class="btn btn-warning btn-sm" onclick="adminEditAppPassword('${mId}', ${entIndex}, '${ent.app}', '${ent.pass}')">تعديل</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                entriesHtml += `</div>`;
+                const id = `wh_${Date.now()}`;
+                await db.collection('warehouse').doc(id).set({ id, name, qty, price });
             }
+            document.getElementById('newItemName').value = '';
+            document.getElementById('newItemQty').value = '1';
+            document.getElementById('newItemPrice').value = '0';
+            await reloadAllData(false);
+            showToast('تم تحديث المخزن');
+        } finally {
+            isBusy = false;
+            btn.disabled = false;
+        }
+    }
 
-            return `
-                <div class="member-block ${isSuspended ? 'suspended-member' : ''}">
-                    <div class="member-header" onclick="toggleMemberAccordion('${mId}')">
-                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap:wrap;">
-                            <i id="accordion-icon-${mId}" class="fa-solid fa-chevron-down chevron-icon ${isExpanded ? 'rotated' : ''}"></i>
-                            <strong style="color: var(--primary); font-size: 15px;">${member.username}</strong>
-                            <span class="${isSuspended ? 'suspended-badge' : 'active-member-badge'}">
-                                <i class="fa-solid ${isSuspended ? 'fa-ban' : 'fa-circle-check'}"></i> ${isSuspended ? 'موقوف' : 'نشط'}
-                            </span>
-                            <span style="font-size: 12px; color: var(--text-muted); display:inline-flex; align-items:center; gap:6px;">
-                                كلمة المرور: <span class="pass-badge">${displayedMemberPass}</span>
-                                <button class="btn-icon-action" style="width:26px; height:26px; font-size:12px;" onclick="event.stopPropagation(); toggleRevealAdminItem('${memberPassKey}')" title="${isMemberPassRevealed ? 'إخفاء' : 'إظهار'}">
-                                    <i class="fa-solid ${isMemberPassRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
-                                </button>
-                            </span>
-                            <span class="count-pill">${appCount} تطبيق</span>
-                        </div>
-                        <div style="display: flex; gap: 6px; flex-wrap:wrap;" onclick="event.stopPropagation()">
-                            <button class="btn ${isSuspended ? 'btn-success' : 'btn-warning'} btn-sm" onclick="toggleSuspendMember('${mId}', '${member.username}', ${isSuspended})">
-                                <i class="fa-solid ${isSuspended ? 'fa-play' : 'fa-pause'}"></i> ${isSuspended ? 'تفعيل' : 'إيقاف'}
-                            </button>
-                            <button class="btn btn-warning btn-sm" onclick="adminEditMemberPassword('${mId}', '${member.username}', '${member.password}')">تعديل الباسورد</button>
-                            <button class="btn btn-danger btn-sm" onclick="adminDeleteMember('${mId}')">حذف</button>
-                        </div>
-                    </div>
-                    <div id="accordion-body-${mId}" class="member-body ${isExpanded ? '' : 'hidden'}">
-                        ${entriesHtml}
-                    </div>
-                </div>
-            `;
+    function renderWarehouseTable() {
+        const tbody = document.getElementById('warehouseTableBody');
+        tbody.innerHTML = state.warehouse.length
+            ? state.warehouse.map(w => `
+                <tr>
+                    <td><strong>${w.name}</strong></td>
+                    <td><span class="mono">${w.qty}</span></td>
+                    <td><span class="mono">${formatMoney(w.price)}</span></td>
+                    <td><span class="mono">${formatMoney(Number(w.qty || 0) * Number(w.price || 0))}</span></td>
+                </tr>
+            `).join('')
+            : '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">لا توجد أصناف في المخزن</td></tr>';
+    }
+
+    async function createCustomer() {
+        if (isBusy) return;
+        const btn = document.getElementById('saveCustomerBtn');
+        const name = document.getElementById('newCustomerName').value.trim();
+        const phone = document.getElementById('newCustomerPhone').value.trim();
+        const creditLimit = Number(document.getElementById('newCustomerLimit').value || 0);
+        if (!name) {
+            showToast('أدخل اسم العميل');
+            return;
         }
 
-        async function renderAdminView() {
-            const snapshot = await db.collection('members').get();
-            const allDocs = [];
-            snapshot.forEach(docSnap => {
-                allDocs.push({ id: docSnap.id, data: docSnap.data() });
-            });
+        isBusy = true;
+        btn.disabled = true;
+        try {
+            const id = `cust_${Date.now()}`;
+            await db.collection('customers').doc(id).set({ id, name, phone: phone || '-', creditLimit, balance: 0 });
+            document.getElementById('newCustomerName').value = '';
+            document.getElementById('newCustomerPhone').value = '';
+            await reloadAllData(false);
+            showToast('تم حفظ العميل');
+        } finally {
+            isBusy = false;
+            btn.disabled = false;
+        }
+    }
 
-            const branchManagers = allDocs.filter(d => d.data.role === 'subadmin');
-            const branchesCountEl = document.getElementById('branchesCount');
-            if (branchesCountEl) {
-                branchesCountEl.textContent = currentRole === 'superadmin' ? branchManagers.length : 1;
-            }
+    function renderCustomersTable() {
+        const tbody = document.getElementById('customersTableBody');
+        tbody.innerHTML = state.customers.length
+            ? state.customers.map(c => `
+                <tr>
+                    <td><strong>${c.name}</strong></td>
+                    <td>${c.phone || '-'}</td>
+                    <td><span class="mono">${formatMoney(c.balance)}</span></td>
+                </tr>
+            `).join('')
+            : '<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">لا يوجد عملاء</td></tr>';
+    }
 
-            const branchesContainer = document.getElementById('branchesListContainer');
-            if (branchesContainer) {
-                branchesContainer.innerHTML = '';
-                if (currentRole === 'superadmin') {
-                    if (branchManagers.length === 0) {
-                        branchesContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:12px; font-size:13px;">لا يوجد مديرو فروع مضافون حالياً.</p>';
-                    } else {
-                        branchManagers.forEach(bObj => {
-                            branchesContainer.innerHTML += buildBranchManagerRowHtml(bObj, allDocs);
-                        });
-                    }
-                } else if (currentRole === 'subadmin' && currentMemberDocId) {
-                    const selfDoc = allDocs.find(d => d.id === currentMemberDocId);
-                    if (selfDoc) {
-                        branchesContainer.innerHTML += buildBranchManagerRowHtml(selfDoc, allDocs);
-                    }
-                }
-            }
+    async function createEmployee() {
+        if (isBusy) return;
+        const btn = document.getElementById('saveEmployeeBtn');
+        const fullName = document.getElementById('newEmpFullName').value.trim();
+        const username = document.getElementById('newEmpUsername').value.trim();
+        const password = document.getElementById('newEmpPassword').value.trim();
+        const role = document.getElementById('newEmpRole').value;
 
-            const regularMembers = allDocs.filter(d => {
-                if (d.data.role === 'subadmin') return false;
-                if (currentRole === 'superadmin') return true;
-                return currentRole === 'subadmin' && d.data.managedBy === currentUser;
-            });
+        if (!fullName || !username || !password) {
+            showToast('أدخل جميع بيانات الموظف');
+            return;
+        }
 
-            document.getElementById('membersCount').innerText = regularMembers.length;
-            const container = document.getElementById('adminAllDataContainer');
-            container.innerHTML = '';
+        isBusy = true;
+        btn.disabled = true;
 
-            if (regularMembers.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:16px;">لا يوجد أعضاء مسجلون حالياً.</p>';
+        try {
+            await reloadAllData(false);
+            if (state.employees.some(e => String(e.username).trim() === username)) {
+                showToast('اسم الدخول موجود مسبقاً');
                 return;
             }
-
-            if (currentRole === 'superadmin') {
-                const branchOrder = [ADMIN_USER, ...branchManagers.map(b => b.data.username)];
-                regularMembers.forEach(m => {
-                    const owner = m.data.managedBy || ADMIN_USER;
-                    if (!branchOrder.includes(owner)) {
-                        branchOrder.push(owner);
-                    }
-                });
-
-                branchOrder.forEach(branchOwner => {
-                    const branchMembers = regularMembers.filter(m => (m.data.managedBy || ADMIN_USER) === branchOwner);
-                    if (branchMembers.length === 0 && branchOwner !== ADMIN_USER) return;
-
-                    const groupLabel = branchOwner === ADMIN_USER
-                        ? `فرع المشرف العام (${ADMIN_USER})`
-                        : `فرع: ${branchOwner}`;
-
-                    let membersCardsHtml = '';
-                    if (branchMembers.length === 0) {
-                        membersCardsHtml = '<p style="font-size: 13px; color: var(--text-muted); padding: 6px 0;">لا يوجد أعضاء مسجلون في هذا الفرع حالياً.</p>';
-                    } else {
-                        branchMembers.forEach(itemObj => {
-                            membersCardsHtml += buildMemberCardHtml(itemObj);
-                        });
-                    }
-
-                    container.innerHTML += `
-                        <div class="branch-group-card">
-                            <div class="branch-group-header">
-                                <div class="branch-group-title">
-                                    <i class="fa-solid fa-sitemap" style="color: var(--primary);"></i>
-                                    <span>${groupLabel}</span>
-                                </div>
-                                <span class="count-pill">${branchMembers.length} عضو</span>
-                            </div>
-                            ${membersCardsHtml}
-                        </div>
-                    `;
-                });
-            } else {
-                regularMembers.forEach(itemObj => {
-                    container.innerHTML += buildMemberCardHtml(itemObj);
-                });
-            }
+            const id = `emp_${Date.now()}`;
+            await db.collection('employees').doc(id).set({ id, fullName, username, password, role, active: true });
+            document.getElementById('newEmpFullName').value = '';
+            document.getElementById('newEmpUsername').value = '';
+            document.getElementById('newEmpPassword').value = '';
+            await reloadAllData(false);
+            showToast('تم حفظ الموظف مرة واحدة');
+        } finally {
+            isBusy = false;
+            btn.disabled = false;
         }
+    }
 
-        async function adminEditAppPassword(mId, entIndex, appName, currentPass) {
-            resetIdleTimer();
-            const newPass = prompt(`تعديل كلمة السر لتطبيق (${appName}):`, currentPass);
-            if (newPass === null) return;
-            resetIdleTimer();
-            if (!newPass.trim()) {
-                showToast('كلمة السر لا يمكن أن تكون فارغة');
-                return;
-            }
-
-            const docRef = db.collection('members').doc(mId);
-            const doc = await docRef.get();
-            if (!doc.exists) return;
-
-            let entries = doc.data().entries || [];
-            entries[entIndex].pass = newPass.trim();
-            entries[entIndex].date = new Date().toISOString().split('T')[0];
-
-            await docRef.update({ entries });
-            renderAdminView();
-            showToast(`تم تحديث كلمة السر لتطبيق ${appName}`);
+    async function toggleEmployeeStatus(empId) {
+        if (isBusy) return;
+        const emp = state.employees.find(e => e.id === empId);
+        if (!emp) return;
+        isBusy = true;
+        try {
+            await db.collection('employees').doc(empId).update({ active: !emp.active });
+            await reloadAllData(false);
+            showToast('تم تحديث الحالة');
+        } finally {
+            isBusy = false;
         }
+    }
 
-        async function adminEditMemberPassword(mId, username, currentPass) {
-            resetIdleTimer();
-            const newPass = prompt(`تعديل كلمة المرور الخاصة بالحساب (${username}):`, currentPass);
-            if (newPass === null) return;
-            resetIdleTimer();
-
-            if (!newPass.trim()) {
-                showToast('كلمة المرور لا يمكن أن تكون فارغة');
-                return;
-            }
-
-            await db.collection('members').doc(mId).update({
-                password: newPass.trim()
-            });
-
-            renderAdminView();
-            showToast(`تم تحديث كلمة مرور ${username}`);
-        }
-
-        async function adminDeleteMember(mId) {
-            resetIdleTimer();
-            if (!confirm('حذف هذا الحساب نهائياً؟')) return;
-            resetIdleTimer();
-            expandedMembers.delete(mId);
-            await db.collection('members').doc(mId).delete();
-            renderAdminView();
-            showToast('تم حذف الحساب');
-        }
-
-        function copyPassword(text, label = '') {
-            resetIdleTimer();
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).catch(() => {});
-            }
-            showToast(label ? `تم نسخ كلمة سر ${label}` : 'تم نسخ كلمة المرور');
-        }
-
-        function logout(byIdle = false) {
-            if (autoSyncInterval) clearInterval(autoSyncInterval);
-            if (idleTimer) clearTimeout(idleTimer);
-            expandedMembers.clear();
-            revealedUserCards.clear();
-            revealedAdminItems.clear();
-            savedAccountsMapVisible = false;
-            trashVisible = false;
-            branchesVisible = false;
-            syncSavedAccountsMapVisibility();
-            syncTrashVisibility();
-            syncBranchesVisibility();
-            currentUser = null;
-            currentRole = null;
-            currentMemberDocId = null;
-            cachedEntries = [];
-            deletedEntries = [];
-            sessionEntries = [];
-            updateTrashBadge();
-            renderSessionEntries();
-            renderTrashEntries();
-            toggleView('loginSection');
-            if (byIdle) {
-                showToast('تم قفل الجلسة تلقائياً بسبب الخمول');
-            }
-        }
-
-        bindIdleListeners();
-    </script>
+    function renderEmployeesTable() {
+        const tbody = document.getElementById('employeesTableBody');
+        tbody.innerHTML = state.employees.map(emp => `
+            <tr>
+                <td><strong>${emp.fullName}</strong></td>
+                <td><span class="mono">${emp.username}</span></td>
+                <td>${emp.role === 'admin' ? 'مدير' : 'موظف'}</td>
+                <td>${emp.active ? '<span class="badge badge-cash">نشط</span>' : '<span class="badge badge-expense">موقوف</span>'}</td>
+                <td>
+                    <button class="btn ${emp.active ? 'btn-warning' : 'btn-success'} btn-sm" onclick="toggleEmployeeStatus('${emp.id}')">
+                        ${emp.active ? 'إيقاف' : 'تفعيل'}
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+</script>
 </body>
 </html>
