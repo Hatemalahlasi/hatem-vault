@@ -170,7 +170,7 @@
             transition: all 0.18s ease;
         }
 
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn:disabled { opacity: 0.65; cursor: not-allowed; }
         .btn-full { width: 100%; padding: 13px; font-size: 15px; }
         .btn-primary { background: var(--primary); color: #fff; }
         .btn-primary:hover { background: var(--primary-hover); }
@@ -319,6 +319,7 @@
         .badge-credit { background: var(--warning-bg); color: var(--warning); }
         .badge-expense { background: var(--danger-bg); color: var(--danger); }
         .badge-role { background: var(--purple-bg); color: var(--purple); }
+        .badge-sup { background: #e0f2fe; color: #0369a1; }
 
         .mono {
             font-family: 'JetBrains Mono', monospace;
@@ -387,26 +388,26 @@
 
 <div class="app-shell">
 
-    <!-- شاشة الدخول -->
+    <!-- شاشة الدخول السريعة -->
     <div id="loginView" class="login-wrapper">
         <div class="brand-logo">
             <img src="logo.png" alt="شعار معمل أبو محمد" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
             <i class="fa-solid fa-industry" style="display:none;"></i>
         </div>
         <h1>معمل أبو محمد</h1>
-        <p>دخول سريع ومباشر من الهاتف أو الكمبيوتر</p>
+        <p>دخول سريع ومباشر من الهاتف</p>
 
         <div class="form-group">
             <label>اسم المستخدم</label>
-            <input type="text" id="loginUser" class="form-control num-input" inputmode="numeric" autocomplete="off">
+            <input type="text" id="loginUser" class="form-control num-input" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter') handleLogin()">
         </div>
         <div class="form-group">
             <label>كلمة المرور</label>
-            <input type="password" id="loginPass" class="form-control num-input" inputmode="numeric" autocomplete="new-password">
+            <input type="password" id="loginPass" class="form-control num-input" inputmode="numeric" autocomplete="new-password" onkeydown="if(event.key==='Enter') handleLogin()">
         </div>
 
         <button id="loginSubmitBtn" class="btn btn-primary btn-full" onclick="handleLogin()">
-            <i class="fa-solid fa-right-to-bracket"></i> دخول
+            <i class="fa-solid fa-right-to-bracket"></i> <span id="loginBtnText">دخول</span>
         </button>
     </div>
 
@@ -480,8 +481,8 @@
                 <div class="mini-stat-val mono" id="kpiTotalReceivables" style="color:var(--warning);">0.00</div>
             </div>
             <div class="mini-stat">
-                <div class="mini-stat-label">أصناف المخازن</div>
-                <div class="mini-stat-val mono" id="kpiWarehouseItems" style="color:var(--accent);">0</div>
+                <div class="mini-stat-label">المخزون (إجمالي الكميات)</div>
+                <div class="mini-stat-val mono" id="kpiWarehouseStock" style="color:var(--accent);">0</div>
             </div>
         </div>
 
@@ -641,17 +642,17 @@
             </div>
         </div>
 
-        <!-- 4. قسم المخازن -->
+        <!-- 4. قسم المخازن والمخزون -->
         <div id="warehouseTab" class="tab-content hidden">
             <div class="card-box">
-                <div class="card-title"><span><i class="fa-solid fa-boxes-stacked"></i> إضافة / تحديث صنف في المخزن</span></div>
+                <div class="card-title"><span><i class="fa-solid fa-boxes-stacked"></i> إدارة المخزون وإضافة صنف</span></div>
                 <div class="grid-3">
                     <div class="form-group" style="margin-bottom:0;">
                         <label>اسم الصنف</label>
                         <input type="text" id="newItemName" class="form-control" placeholder="اسم المادة أو المنتج">
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
-                        <label>الكمية</label>
+                        <label>الكمية في المخزون</label>
                         <input type="number" id="newItemQty" class="form-control num-input" value="1" min="0">
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
@@ -660,12 +661,15 @@
                     </div>
                 </div>
                 <button id="saveWarehouseItemBtn" class="btn btn-primary btn-full" onclick="saveWarehouseItem()" style="margin-top:12px;">
-                    <i class="fa-solid fa-box"></i> حفظ في المخزن
+                    <i class="fa-solid fa-box"></i> حفظ في المخزون
                 </button>
             </div>
 
             <div class="card-box">
-                <div class="card-title"><span><i class="fa-solid fa-warehouse"></i> جرد المخازن</span></div>
+                <div class="card-title">
+                    <span><i class="fa-solid fa-warehouse"></i> المخزون الحالي</span>
+                    <span id="warehouseTotalValueBadge" class="badge badge-cash">قيمة المخزون: 0.00</span>
+                </div>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -722,14 +726,14 @@
             </div>
         </div>
 
-        <!-- 6. قسم الموظفون -->
+        <!-- 6. قسم الموظفون والصلاحيات -->
         <div id="employeesTab" class="tab-content hidden">
             <div class="card-box">
-                <div class="card-title"><span><i class="fa-solid fa-user-shield"></i> إضافة موظف (حفظ مرة واحدة)</span></div>
+                <div class="card-title"><span><i class="fa-solid fa-user-shield"></i> إضافة مستخدم / مشرف عام</span></div>
                 <div class="grid-3">
                     <div class="form-group" style="margin-bottom:0;">
                         <label>الاسم</label>
-                        <input type="text" id="newEmpFullName" class="form-control" placeholder="اسم الموظف">
+                        <input type="text" id="newEmpFullName" class="form-control" placeholder="اسم الموظف أو المشرف">
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
                         <label>اسم الدخول</label>
@@ -745,19 +749,20 @@
                         <label>الصلاحية</label>
                         <select id="newEmpRole" class="form-control">
                             <option value="cashier">موظف / كاشير</option>
+                            <option value="supervisor">مشرف عام</option>
                             <option value="admin">مدير</option>
                         </select>
                     </div>
                     <div style="display:flex; align-items:flex-end;">
                         <button id="saveEmployeeBtn" class="btn btn-primary btn-full" onclick="createEmployee()">
-                            <i class="fa-solid fa-user-check"></i> حفظ الموظف
+                            <i class="fa-solid fa-user-check"></i> حفظ الحساب
                         </button>
                     </div>
                 </div>
             </div>
 
             <div class="card-box">
-                <div class="card-title"><span><i class="fa-solid fa-users-gear"></i> الموظفون</span></div>
+                <div class="card-title"><span><i class="fa-solid fa-users-gear"></i> المستخدمون والصلاحيات</span></div>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -809,6 +814,18 @@
         warehouse: []
     };
 
+    function roleLabel(role) {
+        if (role === 'admin') return 'مدير';
+        if (role === 'supervisor') return 'مشرف عام';
+        return 'موظف';
+    }
+
+    function roleBadgeClass(role) {
+        if (role === 'admin') return 'badge-role';
+        if (role === 'supervisor') return 'badge-sup';
+        return 'badge-cash';
+    }
+
     function showToast(msg) {
         const el = document.getElementById('toast');
         document.getElementById('toastText').textContent = msg;
@@ -829,12 +846,15 @@
 
     async function reloadAllData(showMsg = false) {
         try {
-            state.cashboxes = await loadCollection('cashboxes');
-            state.customers = await loadCollection('customers');
-            state.invoices = await loadCollection('invoices');
-            state.vouchers = await loadCollection('vouchers');
-            state.employees = await loadCollection('employees');
-            state.warehouse = await loadCollection('warehouse');
+            const [cashboxes, customers, invoices, vouchers, employees, warehouse] = await Promise.all([
+                loadCollection('cashboxes'),
+                loadCollection('customers'),
+                loadCollection('invoices'),
+                loadCollection('vouchers'),
+                loadCollection('employees'),
+                loadCollection('warehouse')
+            ]);
+            state = { cashboxes, customers, invoices, vouchers, employees, warehouse };
             isDemoMode = false;
             if (showMsg) showToast('تم تحديث البيانات');
         } catch (err) {
@@ -847,6 +867,7 @@
     async function handleLogin() {
         if (isBusy) return;
         const btn = document.getElementById('loginSubmitBtn');
+        const btnText = document.getElementById('loginBtnText');
         const u = document.getElementById('loginUser').value.trim();
         const p = document.getElementById('loginPass').value.trim();
 
@@ -857,10 +878,21 @@
 
         isBusy = true;
         btn.disabled = true;
+        btnText.textContent = 'جاري الدخول...';
 
         try {
-            await reloadAllData(false);
-            let found = state.employees.find(e => String(e.username).trim() === u && String(e.password).trim() === p);
+            let employees = [];
+            try {
+                employees = await loadCollection('employees');
+                isDemoMode = false;
+            } catch (e) {
+                isDemoMode = true;
+            }
+            state.employees = employees;
+
+            let found = state.employees.find(
+                e => String(e.username || '').trim() === u && String(e.password || '').trim() === p
+            );
 
             if (!found && u === ADMIN_USER && p === ADMIN_PASS) {
                 found = {
@@ -872,7 +904,7 @@
                     active: true
                 };
                 if (!isDemoMode && db) {
-                    await db.collection('employees').doc('emp_admin').set(found, { merge: true });
+                    db.collection('employees').doc('emp_admin').set(found, { merge: true }).catch(() => {});
                 }
             }
 
@@ -887,7 +919,11 @@
 
             currentUser = found;
             document.getElementById('headerWelcome').textContent = `معمل أبو محمد — ${currentUser.fullName}`;
-            document.getElementById('currentUserRoleBadge').textContent = currentUser.role === 'admin' ? 'مدير' : 'موظف';
+            const roleBadge = document.getElementById('currentUserRoleBadge');
+            roleBadge.textContent = roleLabel(currentUser.role);
+            roleBadge.className = `badge ${roleBadgeClass(currentUser.role)}`;
+
+            // صلاحيات إدارة الموظفين للمدير فقط، والمشرف العام له كافة الأقسام التشغيلية
             document.getElementById('employeesNavBtn').classList.toggle('hidden', currentUser.role !== 'admin');
 
             const badge = document.getElementById('connectionStatusBadge');
@@ -900,10 +936,13 @@
             if (document.getElementById('invoiceItemsContainer').children.length === 0) {
                 addInvoiceItemRow();
             }
-            renderAllViews();
+
+            // فتح الواجهة فوراً ثم تحميل باقي البيانات في الخلفية
+            reloadAllData(false);
         } finally {
             isBusy = false;
             btn.disabled = false;
+            btnText.textContent = 'دخول';
         }
     }
 
@@ -916,6 +955,10 @@
     }
 
     function switchTab(tabId, btnEl) {
+        if (tabId === 'employeesTab' && currentUser && currentUser.role !== 'admin') {
+            showToast('هذا القسم مخصص للمدير فقط');
+            return;
+        }
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
         document.getElementById(tabId).classList.remove('hidden');
@@ -951,12 +994,14 @@
         const sales = state.invoices.reduce((s, i) => s + Number(i.netTotal || 0), 0);
         const cash = state.cashboxes.reduce((s, c) => s + Number(c.balance || 0), 0);
         const debts = state.customers.reduce((s, c) => s + Number(c.balance || 0), 0);
-        const itemsCount = state.warehouse.length;
+        const totalStockQty = state.warehouse.reduce((s, w) => s + Number(w.qty || 0), 0);
+        const totalStockVal = state.warehouse.reduce((s, w) => s + (Number(w.qty || 0) * Number(w.price || 0)), 0);
 
         document.getElementById('kpiTotalSales').textContent = formatMoney(sales);
         document.getElementById('kpiTotalCash').textContent = formatMoney(cash);
         document.getElementById('kpiTotalReceivables').textContent = formatMoney(debts);
-        document.getElementById('kpiWarehouseItems').textContent = itemsCount;
+        document.getElementById('kpiWarehouseStock').textContent = totalStockQty;
+        document.getElementById('warehouseTotalValueBadge').textContent = `قيمة المخزون: ${formatMoney(totalStockVal)}`;
     }
 
     function toggleInvoicePaymentFields() {
@@ -1033,7 +1078,7 @@
             const netTotal = Math.max(0, subtotal - discount);
             const invId = `INV-${Date.now()}`;
 
-            const docData = {
+            await db.collection('invoices').doc(invId).set({
                 id: invId,
                 date: new Date().toISOString().split('T')[0],
                 customerId: customer.id,
@@ -1045,11 +1090,10 @@
                 discount,
                 netTotal,
                 employee: currentUser.fullName,
-                employeeId: currentUser.id,
+                employeeRole: currentUser.role,
                 notes
-            };
+            });
 
-            await db.collection('invoices').doc(invId).set(docData);
             if (paymentType === 'cash' && cashbox) {
                 await db.collection('cashboxes').doc(cashbox.id).update({
                     balance: Number(cashbox.balance || 0) + netTotal
@@ -1082,14 +1126,13 @@
             ? list.map(i => `
                 <tr>
                     <td><span class="mono">${i.id}</span></td>
-                    <td>${i.date || '-'}</td>
                     <td>${i.customerName || '-'}</td>
                     <td>${i.paymentType === 'cash' ? '<span class="badge badge-cash">نقدي</span>' : '<span class="badge badge-credit">آجل</span>'}</td>
                     <td><span class="mono">${formatMoney(i.netTotal)}</span></td>
                     <td>${i.employee || '-'}</td>
                 </tr>
             `).join('')
-            : '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">لا توجد فواتير</td></tr>';
+            : '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">لا توجد فواتير</td></tr>';
     }
 
     function toggleVoucherCustomerField() {
@@ -1231,7 +1274,7 @@
             document.getElementById('newItemQty').value = '1';
             document.getElementById('newItemPrice').value = '0';
             await reloadAllData(false);
-            showToast('تم تحديث المخزن');
+            showToast('تم تحديث المخزون');
         } finally {
             isBusy = false;
             btn.disabled = false;
@@ -1241,15 +1284,19 @@
     function renderWarehouseTable() {
         const tbody = document.getElementById('warehouseTableBody');
         tbody.innerHTML = state.warehouse.length
-            ? state.warehouse.map(w => `
-                <tr>
-                    <td><strong>${w.name}</strong></td>
-                    <td><span class="mono">${w.qty}</span></td>
-                    <td><span class="mono">${formatMoney(w.price)}</span></td>
-                    <td><span class="mono">${formatMoney(Number(w.qty || 0) * Number(w.price || 0))}</span></td>
-                </tr>
-            `).join('')
-            : '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">لا توجد أصناف في المخزن</td></tr>';
+            ? state.warehouse.map(w => {
+                const q = Number(w.qty || 0);
+                const p = Number(w.price || 0);
+                return `
+                    <tr>
+                        <td><strong>${w.name}</strong></td>
+                        <td><span class="badge ${q > 0 ? 'badge-cash' : 'badge-expense'} mono">${q}</span></td>
+                        <td><span class="mono">${formatMoney(p)}</span></td>
+                        <td><span class="mono">${formatMoney(q * p)}</span></td>
+                    </tr>
+                `;
+            }).join('')
+            : '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">لا توجد أصناف في المخزون</td></tr>';
     }
 
     async function createCustomer() {
@@ -1300,7 +1347,7 @@
         const role = document.getElementById('newEmpRole').value;
 
         if (!fullName || !username || !password) {
-            showToast('أدخل جميع بيانات الموظف');
+            showToast('أدخل جميع بيانات الحساب');
             return;
         }
 
@@ -1319,7 +1366,7 @@
             document.getElementById('newEmpUsername').value = '';
             document.getElementById('newEmpPassword').value = '';
             await reloadAllData(false);
-            showToast('تم حفظ الموظف مرة واحدة');
+            showToast('تم حفظ الحساب مرة واحدة');
         } finally {
             isBusy = false;
             btn.disabled = false;
@@ -1346,7 +1393,7 @@
             <tr>
                 <td><strong>${emp.fullName}</strong></td>
                 <td><span class="mono">${emp.username}</span></td>
-                <td>${emp.role === 'admin' ? 'مدير' : 'موظف'}</td>
+                <td><span class="badge ${roleBadgeClass(emp.role)}">${roleLabel(emp.role)}</span></td>
                 <td>${emp.active ? '<span class="badge badge-cash">نشط</span>' : '<span class="badge badge-expense">موقوف</span>'}</td>
                 <td>
                     <button class="btn ${emp.active ? 'btn-warning' : 'btn-success'} btn-sm" onclick="toggleEmployeeStatus('${emp.id}')">
